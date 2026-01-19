@@ -85,6 +85,8 @@ public class ProfileDataHandler {
         this.profileData.variantCounts.put(fish.variant, this.profileData.variantCounts.getOrDefault(fish.variant, 0) + 1);
         this.profileData.rarityCounts.put(fish.rarity, this.profileData.rarityCounts.getOrDefault(fish.rarity, 0) + 1);
 
+        FishCatchHandler.instance().onFishCaughtSendDryStreak(fish);
+
         this.profileData.fishSizeDryStreak.put(fish.size, this.profileData.allFishCaughtCount);
         this.profileData.variantDryStreak.put(fish.variant, this.profileData.allFishCaughtCount);
         this.profileData.rarityDryStreak.put(fish.rarity, this.profileData.allFishCaughtCount);

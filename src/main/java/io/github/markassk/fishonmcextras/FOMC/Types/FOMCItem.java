@@ -45,6 +45,7 @@ public class FOMCItem {
                     || itemStack.getItem() == Items.GOLD_INGOT
                     || itemStack.getItem() == Items.PRISMARINE_SHARD
                     || itemStack.getItem() == Items.DRIED_KELP
+                    || itemStack.getItem() == Items.LIGHT_BLUE_DYE
             ) {
                 String line = Objects.requireNonNull(itemStack.getComponents().get(DataComponentTypes.LORE)).lines().get(15).getString();
                 return Fish.getFish(itemStack, Defaults.ItemTypes.FISH, line.substring(line.lastIndexOf(" ") + 1));
@@ -78,6 +79,7 @@ public class FOMCItem {
                         || itemStack.getItem() == Items.GOLD_INGOT
                         || itemStack.getItem() == Items.PRISMARINE_SHARD
                         || itemStack.getItem() == Items.DRIED_KELP
+                        || itemStack.getItem() == Items.LIGHT_BLUE_DYE
                         || itemStack.getItem() == Items.FISHING_ROD;
             }
         }
@@ -102,7 +104,8 @@ public class FOMCItem {
                     || itemStack.getItem() == Items.GOLD_INGOT
                     || itemStack.getItem() == Items.ROTTEN_FLESH
                     || itemStack.getItem() == Items.PRISMARINE_SHARD
-                    || itemStack.getItem() == Items.DRIED_KELP;
+                    || itemStack.getItem() == Items.DRIED_KELP
+                    || itemStack.getItem() == Items.LIGHT_BLUE_DYE;
         }
         return false;
     }

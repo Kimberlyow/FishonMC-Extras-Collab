@@ -41,7 +41,6 @@ public class TrackerFishHUDConfig {
                 public boolean showEpic = true;
                 public boolean showLegendary = true;
                 public boolean showMythical = true;
-                public boolean showSpecial = false;
             }
 
             @ConfigEntry.Gui.CollapsibleObject
@@ -65,7 +64,6 @@ public class TrackerFishHUDConfig {
                 public boolean showMelanistic = true;
                 public boolean showTrophy = true;
                 public boolean showFabled = true;
-                public boolean showAlternate = false;
             }
 
             @ConfigEntry.Gui.CollapsibleObject
@@ -77,7 +75,6 @@ public class TrackerFishHUDConfig {
                 public boolean showEpic = false;
                 public boolean showLegendary = false;
                 public boolean showMythical = false;
-                public boolean showSpecial = true;
                 @ConfigEntry.Gui.PrefixText
                 public boolean showBaby = false;
                 public boolean showJuvenile = false;
@@ -89,11 +86,82 @@ public class TrackerFishHUDConfig {
                 public boolean showMelanistic = true;
                 public boolean showTrophy = true;
                 public boolean showFabled = true;
-                public boolean showAlternate = true;
                 @ConfigEntry.Gui.PrefixText
                 public boolean showPet = false;
                 public boolean showShard = false;
                 public boolean showLightningBottle = false;
+            }
+
+            @ConfigEntry.Gui.CollapsibleObject
+            public DryStreakMessageToggles dryStreakMessageToggles = new DryStreakMessageToggles();
+            public static class DryStreakMessageToggles {
+                @ConfigEntry.Gui.CollapsibleObject
+                public RarityMessageToggles rarityMessageToggles = new RarityMessageToggles();
+                public static class RarityMessageToggles {
+                    public boolean showCommon = false;
+                    public boolean showRare = false;
+                    public boolean showEpic = false;
+                    public boolean showLegendary = false;
+                    public boolean showMythical = false;
+                }
+
+                @ConfigEntry.Gui.CollapsibleObject
+                public SizeMessageToggles sizeMessageToggles = new SizeMessageToggles();
+                public static class SizeMessageToggles {
+                    public boolean showBaby = false;
+                    public boolean showJuvenile = false;
+                    public boolean showAdult = false;
+                    public boolean showLarge = false;
+                    public boolean showGigantic = true;
+                }
+
+                @ConfigEntry.Gui.CollapsibleObject
+                public VariantMessageToggles variantMessageToggles = new VariantMessageToggles();
+                public static class VariantMessageToggles {
+                    public boolean showAlbino = true;
+                    public boolean showMelanistic = true;
+                    public boolean showTrophy = true;
+                    public boolean showFabled = true;
+                }
+
+                @ConfigEntry.Gui.CollapsibleObject
+                public OtherMessageToggles otherMessageToggles = new OtherMessageToggles();
+                public static class OtherMessageToggles {
+                    public boolean showPet = true;
+                    public boolean showShard = true;
+                    public boolean showLightningBottle = true;
+                }
+            }
+
+            @ConfigEntry.Gui.CollapsibleObject
+            public FishEventToggles fishEventToggles = new FishEventToggles();
+            public static class FishEventToggles {
+                @ConfigEntry.Gui.CollapsibleObject
+                public RarityToggles rarityToggles = new RarityToggles();
+                public static class RarityToggles {
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showSpecial = false;
+                }
+
+                @ConfigEntry.Gui.CollapsibleObject
+                public VariantToggles variantToggles = new VariantToggles();
+                public static class VariantToggles {
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showAlternate = false;
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showSpooky = false;
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showFrozen = true;
+                }
+
+                @ConfigEntry.Gui.CollapsibleObject
+                public DryStreakToggles dryStreakToggles = new DryStreakToggles();
+                public static class DryStreakToggles {
+                    public boolean showSpecial = true;
+                    public boolean showAlternate = true;
+                    public boolean showSpooky = true;
+                    public boolean showFrozen = true;
+                }
             }
 
             @ConfigEntry.Gui.CollapsibleObject

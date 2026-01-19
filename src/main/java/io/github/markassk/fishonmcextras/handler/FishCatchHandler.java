@@ -135,18 +135,36 @@ public class FishCatchHandler  {
 
     public void onReceiveMessage(Text text) {
         if(text.getString().startsWith("PET DROP! You pulled")) {
+            int oldPetDryStreak = ProfileDataHandler.instance().profileData.petDryStreak;
+
             ProfileDataHandler.instance().updatePetCaughtStatsOnCatch();
             FishOnMCExtras.LOGGER.info("[FoE] Tracking Pet");
+
+            if (config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.otherMessageToggles.showPet) {
+                sendItemDryStreakMessage("pet", oldPetDryStreak);
+            }
         }
 
         if(text.getString().startsWith("RARE CATCH! You pulled") && text.getString().contains("Shard")) {
+            int oldShardDryStreak = ProfileDataHandler.instance().profileData.shardDryStreak;
+
             ProfileDataHandler.instance().updateShardCaughtStatsOnCatch(1);
             FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
+
+            if (config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.otherMessageToggles.showShard) {
+                sendItemDryStreakMessage("shard", oldShardDryStreak);
+            }
         }
 
         if(text.getString().startsWith("RARE CATCH! You pulled") && text.getString().contains("Lightning in a Bottle")) {
+            int oldLightningBottleDryStreak = ProfileDataHandler.instance().profileData.lightningBottleDryStreak;
+
             ProfileDataHandler.instance().updateLightningBottleCaughtStatsOnCatch();
-            FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
+            FishOnMCExtras.LOGGER.info("[FoE] Tracking Lightning Bottle");
+
+            if (config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.otherMessageToggles.showLightningBottle) {
+                sendItemDryStreakMessage("lightning bottle", oldLightningBottleDryStreak);
+            }
         }
     }
 
@@ -231,5 +249,69 @@ public class FishCatchHandler  {
         }
 
         TitleHandler.instance().setTitleHud(title, config.fishTracker.fishTrackerToggles.otherToggles.showStatsOnCatchTime * 1000L, MinecraftClient.getInstance(), subtitle);
+    }
+
+    public void onFishCaughtSendDryStreak(Fish fish) {
+        if (fish.rarity == Constant.COMMON && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.rarityMessageToggles.showCommon ||
+                fish.rarity == Constant.RARE && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.rarityMessageToggles.showRare ||
+                fish.rarity == Constant.EPIC && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.rarityMessageToggles.showEpic ||
+                fish.rarity == Constant.LEGENDARY && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.rarityMessageToggles.showLegendary ||
+                fish.rarity == Constant.MYTHICAL && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.rarityMessageToggles.showMythical) {
+
+            sendFishDryStreakMessage(fish.rarity,
+                    ProfileDataHandler.instance().profileData.rarityDryStreak.getOrDefault(fish.rarity, 0));
+        }
+
+        if (fish.size == Constant.BABY && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.sizeMessageToggles.showBaby ||
+                fish.size == Constant.JUVENILE && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.sizeMessageToggles.showJuvenile ||
+                fish.size == Constant.ADULT && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.sizeMessageToggles.showAdult ||
+                fish.size == Constant.LARGE && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.sizeMessageToggles.showLarge ||
+                fish.size == Constant.GIGANTIC && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.sizeMessageToggles.showGigantic) {
+
+            sendFishDryStreakMessage(fish.size,
+                    ProfileDataHandler.instance().profileData.fishSizeDryStreak.getOrDefault(fish.size, 0));
+        }
+
+        if (fish.variant == Constant.ALBINO && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.variantMessageToggles.showAlbino ||
+                fish.variant == Constant.MELANISTIC && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.variantMessageToggles.showMelanistic ||
+                fish.variant == Constant.TROPHY && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.variantMessageToggles.showTrophy ||
+                fish.variant == Constant.FABLED && config.fishTracker.fishTrackerToggles.dryStreakMessageToggles.variantMessageToggles.showFabled) {
+
+            sendFishDryStreakMessage(fish.variant,
+                    ProfileDataHandler.instance().profileData.variantDryStreak.getOrDefault(fish.variant, 0));
+        }
+    }
+
+    private void sendFishDryStreakMessage(Constant fish, int lastCaught) {
+        String article = (fish == Constant.EPIC || fish == Constant.ADULT || fish == Constant.ALBINO) ? "an " : "a ";
+        sendDryStreakMessage(fish.TAG, article, lastCaught);
+    }
+
+    private void sendItemDryStreakMessage(String item, int lastCaught) {
+        Text itemText;
+        if (item.equals("pet")) {
+            itemText = Text.literal("Pet").withColor(0xFD95F6);
+        } else if (item.equals("shard")) {
+            itemText = Text.literal("Shard").formatted(Formatting.GOLD);
+        } else {
+            itemText = Text.literal("Lightning Bottle").formatted(Formatting.YELLOW);
+        }
+        sendDryStreakMessage(itemText, "a ", lastCaught);
+    }
+
+    private void sendDryStreakMessage(Text typeText, String article, int lastCaught) {
+        int dryAmount = Math.max(0, ProfileDataHandler.instance().profileData.allFishCaughtCount - lastCaught - 1);
+        var client = MinecraftClient.getInstance();
+
+        if (client.player != null) {
+            client.inGameHud.getChatHud().addMessage(TextHelper.concat(
+                    Text.literal("FOE ").formatted(Formatting.DARK_GREEN, Formatting.BOLD),
+                    Text.literal("» ").formatted(Formatting.DARK_GRAY),
+                    Text.literal("You went ").formatted(Formatting.GRAY),
+                    Text.literal(TextHelper.fmnt(dryAmount)).formatted(Formatting.YELLOW),
+                    Text.literal(" fish dry before catching " + article).formatted(Formatting.GRAY),
+                    typeText
+            ));
+        }
     }
 }

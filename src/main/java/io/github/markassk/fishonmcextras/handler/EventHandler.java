@@ -1,20 +1,32 @@
 package io.github.markassk.fishonmcextras.handler;
 
+import io.github.markassk.fishonmcextras.FishOnMCExtras;
+import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
+import io.github.markassk.fishonmcextras.config.TrackerEventConfig;
 import io.github.markassk.fishonmcextras.util.TextHelper;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.util.*;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class EventHandler {
     private static EventHandler INSTANCE = new EventHandler();
     private final FishOnMCExtrasConfig config = FishOnMCExtrasConfig.getConfig();
 
     public Map<WeatherEvent, Long> weatherEvents = new HashMap<>();
+    private final Map<GenericEventConfig, Long> genericEvents = new LinkedHashMap<>();
+    public long genericEventAlertTime = 0L;
     public long weatherEventAlertTime = 0L;
+
+    public WeatherEvent currentMoon = null;
+
+    private boolean isWitchingHour = false;
 
     public String fabledLocation = "";
     public long fabledEventAlertTime = 0L;
@@ -33,37 +45,279 @@ public class EventHandler {
 
     private void processOtherEvents(Text text) {
         String textString = text.getString();
-        //Fabled
-        if(textString.startsWith("Visit the ") && textString.contains(" to")) {
+        // Fabled
+        if (textString.startsWith("Visit the ") && textString.contains(" to")) {
             fabledEventAlertTime = System.currentTimeMillis();
-            fabledLocation = textString.substring(textString.indexOf("Visit the ") + 10, textString.lastIndexOf(" "));
-            if(config.eventTracker.otherEventOptions.fabledOptions.useAlertWarningSound) {
-                NotificationSoundHandler.instance().playSoundWarning(config.eventTracker.otherEventOptions.fabledOptions.alertSoundType, MinecraftClient.getInstance());
+            fabledLocation = textString.substring(textString.indexOf("Visit the ") + 10,
+                    textString.lastIndexOf(" "));
+            if (config.eventTracker.otherEventOptions.fabledOptions.useAlertWarningSound) {
+                NotificationSoundHandler.instance().playSoundWarning(
+                        config.eventTracker.otherEventOptions.fabledOptions.alertSoundType,
+                        MinecraftClient.getInstance());
             }
         }
     }
 
+    public void onEventTick() {
+        TrackerEventConfig.EventTracker.OtherEventOptions.WitchingHourOptions witchingHourOptions = config.eventTracker.otherEventOptions.witchingHourOptions;
+
+        String location = BossBarHandler.instance().currentLocation.ID;
+        boolean isAtCypressLake = location.equals(Constant.CYPRESS_LAKE.ID);
+        boolean requireCypressLake = !witchingHourOptions.showOutsideCypressLake;
+
+        if (requireCypressLake && !isAtCypressLake && !isWitchingHour) {
+            isWitchingHour = false;
+            return;
+        }
+
+        if (isAtCypressLake || isWitchingHour || !requireCypressLake) {
+            String time = BossBarHandler.instance().time;
+            Integer parsedHour = extractHour(time);
+            String timeSuffix = BossBarHandler.instance().timeSuffix.toUpperCase();
+            // FishOnMCExtras.LOGGER.info("Time suffix: " + timeSuffix);
+            // FishOnMCExtras.LOGGER.info("Parsed hour: " + parsedHour);
+            // FishOnMCExtras.LOGGER.info("Is witching hour: " + isWitchingHour);
+            boolean isInRange = parsedHour != null && timeSuffix.contains("AM") && parsedHour >= 1
+                    && parsedHour < 3;
+            if (!isWitchingHour && isInRange == true) {
+                // witching hour
+                isWitchingHour = true;
+                if (!witchingHourOptions.showAlertHUD && !witchingHourOptions.useAlertWarningSound) {
+                    FishOnMCExtras.LOGGER.debug(
+                            "Witching hour detected but alerts are disabled; skipping notification.");
+                    return;
+                }
+
+                MutableText eventText = TextHelper.concat(
+                        Text.literal("It is now ").formatted(Formatting.WHITE),
+                        Text.literal("Witching Hour").formatted(Formatting.BOLD).withColor(0x990000),
+                        Text.literal("\n").formatted(Formatting.WHITE),
+                        Text.literal("in ").formatted(Formatting.GRAY),
+                        Constant.CYPRESS_LAKE.TAG.copy(),
+                        Text.literal("\n").formatted(Formatting.WHITE),
+                        Text.literal("1 in 300 chance for bigfoot to steal your fish (and leave a gift)")
+                                .formatted(Formatting.GRAY));
+                boolean playSound = witchingHourOptions.useAlertWarningSound;
+                NotificationSoundHandler.SoundType soundType = playSound
+                        ? witchingHourOptions.alertSoundType
+                        : null;
+
+                if (witchingHourOptions.showAlertHUD) {
+                    GenericEventConfig eventConfig = new GenericEventConfig(eventText, playSound,
+                            soundType, witchingHourOptions.alertDismissSeconds);
+                    triggerGenericEvent(eventConfig);
+                } else if (playSound) {
+                    NotificationSoundHandler.instance()
+                            .playSoundWarning(soundType, MinecraftClient.getInstance());
+                }
+
+                FishOnMCExtras.LOGGER.info("Witching hour detected");
+            } else if (!isInRange && isWitchingHour) {
+                isWitchingHour = false;
+                FishOnMCExtras.LOGGER.info("Witching hour ended");
+                // generic event
+                GenericEventConfig eventConfig = new GenericEventConfig(
+                        Text.literal("Witching hour ended").formatted(Formatting.DARK_PURPLE, Formatting.ITALIC), true,
+                        witchingHourOptions.alertSoundType, 2);
+                triggerGenericEvent(eventConfig);
+            }
+            else if (!isInRange) {
+                isWitchingHour = false;
+            }
+        } else {
+            isWitchingHour = false;
+        }
+    }
+
+    private Integer extractHour(String time) {
+        if (time == null || time.isEmpty()) {
+            return null;
+        }
+
+        int colonIndex = time.indexOf(':');
+        String hourPart = colonIndex >= 0 ? time.substring(0, colonIndex) : time;
+        hourPart = hourPart.trim();
+
+        if (hourPart.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(hourPart);
+        } catch (NumberFormatException exception) {
+            FishOnMCExtras.LOGGER.debug("Unable to parse hour from time string '{}'", time, exception);
+            return null;
+        }
+    }
+
+    public void triggerGenericEvent(GenericEventConfig genericEventConfig) {
+        pruneGenericEvents();
+        genericEvents.put(genericEventConfig, System.currentTimeMillis());
+        genericEventAlertTime = System.currentTimeMillis();
+
+        if (genericEventConfig.shouldPlaySound()) {
+            NotificationSoundHandler.SoundType soundType = genericEventConfig.getSoundType()
+                    .orElse(NotificationSoundHandler.SoundType.BELL);
+            NotificationSoundHandler.instance()
+                    .playSoundWarning(soundType, MinecraftClient.getInstance());
+        }
+    }
+
+    public List<GenericEventState> getActiveGenericEvents() {
+        pruneGenericEvents();
+        return genericEvents.entrySet().stream()
+                .map(entry -> new GenericEventState(entry.getKey(), entry.getValue()))
+                .toList();
+    }
+
+    public void pruneGenericEvents() {
+        long now = System.currentTimeMillis();
+        genericEvents.entrySet()
+                .removeIf(entry -> now - entry.getValue() > entry.getKey().getAlertDismissMillis());
+    }
+
     private void processWeatherEvents(Text text) {
-        WeatherEvent foundEvent = Arrays.stream(WeatherEvent.values()).filter(weatherEvent -> text.getString().contains(weatherEvent.TEXT)).findFirst().orElse(null);
+        String textString = text.getString();
 
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.rainbow && foundEvent == WeatherEvent.RAINBOW) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.thunderstorm && foundEvent == WeatherEvent.THUNDERSTORM) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.supercell && foundEvent == WeatherEvent.SUPERCELL) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.goldRush && foundEvent == WeatherEvent.GOLD_RUSH) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.rain && foundEvent == WeatherEvent.RAIN) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.bloomingOasis && foundEvent == WeatherEvent.BLOOMING_OASIS) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.fullMoon && foundEvent == WeatherEvent.FULL_MOON) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.blueMoon && foundEvent == WeatherEvent.BLUE_MOON) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.superMoon && foundEvent == WeatherEvent.SUPER_MOON) foundEvent = null;
-        if(!config.eventTracker.weatherEventOptions.toggleOptions.bloodMoon && foundEvent == WeatherEvent.BLOOD_MOON) foundEvent = null;
+        WeatherEvent foundEvent = Arrays.stream(WeatherEvent.values())
+                .filter(weatherEvent -> text.getString().contains(weatherEvent.TEXT)).findFirst()
+                .orElse(null);
 
-        if(foundEvent != null) {
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.rainbow
+                && foundEvent == WeatherEvent.RAINBOW)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.thunderstorm
+                && foundEvent == WeatherEvent.THUNDERSTORM)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.supercell
+                && foundEvent == WeatherEvent.SUPERCELL)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.goldRush
+                && foundEvent == WeatherEvent.GOLD_RUSH)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.rain && foundEvent == WeatherEvent.RAIN)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.bloomingOasis
+                && foundEvent == WeatherEvent.BLOOMING_OASIS)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.fullMoon
+                && foundEvent == WeatherEvent.FULL_MOON)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.blueMoon
+                && foundEvent == WeatherEvent.BLUE_MOON)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.superMoon
+                && foundEvent == WeatherEvent.SUPER_MOON)
+            foundEvent = null;
+        if (!config.eventTracker.weatherEventOptions.toggleOptions.bloodMoon
+                && foundEvent == WeatherEvent.BLOOD_MOON)
+            foundEvent = null;
+
+        // Check moon alerts mute override
+        boolean isMoon = foundEvent == WeatherEvent.FULL_MOON || foundEvent == WeatherEvent.BLUE_MOON ||
+                foundEvent == WeatherEvent.SUPER_MOON || foundEvent == WeatherEvent.BLOOD_MOON;
+
+        if (isMoon && !textString.contains("» The ") && !textString.contains(" has set.")) {
+            this.currentMoon = foundEvent;
+            FishOnMCExtras.LOGGER.info("Current moon: " + foundEvent.TEXT);
+        } else if (isMoon) {
+            this.currentMoon = null;
+            FishOnMCExtras.LOGGER.info("Moon set");
+        }
+
+        if (config.eventTracker.weatherEventOptions.muteMoonAlerts && isMoon) {
+            foundEvent = null;
+        }
+
+        if (foundEvent != null) {
             weatherEvents.put(foundEvent, System.currentTimeMillis());
 
-            weatherEventAlertTime = System.currentTimeMillis();
-            if(config.eventTracker.weatherEventOptions.useAlertWarningSound) {
-                NotificationSoundHandler.instance().playSoundWarning(config.eventTracker.weatherEventOptions.alertSoundType, MinecraftClient.getInstance());
+            // Set current moon if it's a moon event
+            if (isMoon) {
+                this.currentMoon = foundEvent;
             }
+
+            weatherEventAlertTime = System.currentTimeMillis();
+            if (config.eventTracker.weatherEventOptions.useAlertWarningSound) {
+                NotificationSoundHandler.instance().playSoundWarning(
+                        config.eventTracker.weatherEventOptions.alertSoundType,
+                        MinecraftClient.getInstance());
+            }
+        }
+    }
+
+    public static class GenericEventConfig {
+        private MutableText text;
+        private boolean playSound;
+        private NotificationSoundHandler.SoundType soundType;
+        private int alertDismissSeconds = 15;
+
+        public GenericEventConfig(MutableText text) {
+            this(text, false, null, 15);
+        }
+
+        public GenericEventConfig(MutableText text, boolean playSound) {
+            this(text, playSound, null, 15);
+        }
+
+        public GenericEventConfig(MutableText text, boolean playSound,
+                                  @Nullable NotificationSoundHandler.SoundType soundType) {
+            this(text, playSound, soundType, 15);
+        }
+
+        public GenericEventConfig(MutableText text, boolean playSound,
+                                  @Nullable NotificationSoundHandler.SoundType soundType, int alertDismissSeconds) {
+            this.text = text;
+            this.playSound = playSound;
+            this.soundType = soundType;
+            setAlertDismissSeconds(alertDismissSeconds);
+        }
+
+        public MutableText getText() {
+            return text;
+        }
+
+        public void setText(MutableText text) {
+            this.text = text;
+        }
+
+        public boolean shouldPlaySound() {
+            return playSound;
+        }
+
+        public void setPlaySound(boolean playSound) {
+            this.playSound = playSound;
+        }
+
+        public Optional<NotificationSoundHandler.SoundType> getSoundType() {
+            return Optional.ofNullable(soundType);
+        }
+
+        public void setSoundType(@Nullable NotificationSoundHandler.SoundType soundType) {
+            this.soundType = soundType;
+        }
+
+        public int getAlertDismissSeconds() {
+            return alertDismissSeconds;
+        }
+
+        public void setAlertDismissSeconds(int alertDismissSeconds) {
+            this.alertDismissSeconds = Math.max(1, alertDismissSeconds);
+        }
+
+        public long getAlertDismissMillis() {
+            return alertDismissSeconds * 1000L;
+        }
+    }
+
+    public record GenericEventState(GenericEventConfig config, long timestamp) {
+        public long ageMillis(long now) {
+            return now - timestamp;
+        }
+
+        public int remainingSeconds(long now) {
+            long elapsedSeconds = TimeUnit.MILLISECONDS.toSeconds(ageMillis(now));
+            return config.getAlertDismissSeconds() - (int) elapsedSeconds;
         }
     }
 
@@ -81,9 +335,7 @@ public class EventHandler {
                 TextHelper.concat(
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("500 ").formatted(Formatting.WHITE),
-                        Text.literal("Luck").withColor(0x5454fc)
-                )
-        ),
+                        Text.literal("Luck").withColor(0x5454fc))),
         THUNDERSTORM("thunderstorm", "STORM » A thunderstorm has formed!", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Thunderstorm ").formatted(Formatting.BOLD, Formatting.YELLOW),
@@ -91,9 +343,7 @@ public class EventHandler {
                 TextHelper.concat(
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("100 ").formatted(Formatting.WHITE),
-                        Text.literal("Bite Speed").withColor(0x40f25a)
-                )
-        ),
+                        Text.literal("Bite Speed").withColor(0x40f25a))),
         SUPERCELL("supercell", "STORM » A supercell has formed!", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Supercell ").formatted(Formatting.BOLD).withColor(0xFCE211),
@@ -101,18 +351,14 @@ public class EventHandler {
                 TextHelper.concat(
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("150 ").formatted(Formatting.WHITE),
-                        Text.literal("Bite Speed").withColor(0x40f25a)
-                )
-        ),
+                        Text.literal("Bite Speed").withColor(0x40f25a))),
         GOLD_RUSH("gold_rush", "GOLD RUSH » A Gold Rush has begun!", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Gold Rush ").formatted(Formatting.BOLD).withColor(0xECD65A),
                 Text.literal("has begun!").formatted(Formatting.WHITE)),
                 TextHelper.concat(
                         Text.literal("Base Shard Chance → ").formatted(Formatting.WHITE),
-                        Text.literal("1/25").withColor(0xfca800)
-                )
-        ),
+                        Text.literal("1/25").withColor(0xfca800))),
         RAIN("rain", "RAIN » A rain shower has begun!", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Rain Shower ").formatted(Formatting.BOLD).withColor(0x63B6EC),
@@ -120,9 +366,7 @@ public class EventHandler {
                 TextHelper.concat(
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("50 ").formatted(Formatting.WHITE),
-                        Text.literal("Bite Speed").withColor(0x40f25a)
-                )
-        ),
+                        Text.literal("Bite Speed").withColor(0x40f25a))),
         BLOOMING_OASIS("blooming_oasis", "BLOOMING OASIS » A Blooming Oasis has appeared!", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Blooming Oasis ").formatted(Formatting.BOLD).withColor(0xFC54FC),
@@ -130,9 +374,7 @@ public class EventHandler {
                 TextHelper.concat(
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("100% ").formatted(Formatting.WHITE),
-                        Text.literal("Pet Luck").withColor(0xfa93f1)
-                )
-        ),
+                        Text.literal("Pet Luck").withColor(0xfa93f1))),
         FULL_MOON("full_moon", "FULL MOON » A Full Moon has risen!", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Full Moon ").formatted(Formatting.BOLD).withColor(0xFFFFFF),
@@ -140,9 +382,7 @@ public class EventHandler {
                 TextHelper.concat(
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("120 ").formatted(Formatting.WHITE),
-                        Text.literal("Bite Speed").withColor(0x40f25a)
-                )
-        ),
+                        Text.literal("Bite Speed").withColor(0x40f25a))),
         BLUE_MOON("blue_moon", "BLUE MOON » A Blue Moon has risen.", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Blue Moon ").formatted(Formatting.BOLD).withColor(0x60C2E9),
@@ -153,9 +393,7 @@ public class EventHandler {
                         Text.literal("Bite Speed").withColor(0x40f25a),
                         Text.literal(", ").formatted(Formatting.GRAY),
                         Text.literal("5x ").formatted(Formatting.WHITE),
-                        Text.literal("XP").withColor(0x73b3e6)
-                )
-        ),
+                        Text.literal("XP").withColor(0x73b3e6))),
         SUPER_MOON("super_moon", "SUPER MOON » A Super Moon has risen.", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
                 Text.literal("Super Moon ").formatted(Formatting.BOLD).withColor(0xB0F9D5),
@@ -167,19 +405,15 @@ public class EventHandler {
                         Text.literal(", ").formatted(Formatting.GRAY),
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("150 ").formatted(Formatting.WHITE),
-                        Text.literal("Reel Speed").withColor(0x72ebfc)
-                )
-        ),
+                        Text.literal("Reel Speed").withColor(0x72ebfc))),
         BLOOD_MOON("blood_moon", "BLOOD MOON » A Blood Moon has risen!", TextHelper.concat(
                 Text.literal("A ").formatted(Formatting.WHITE),
-                Text.literal("Super Moon ").formatted(Formatting.BOLD).withColor(0xE44848),
+                Text.literal("Blood Moon ").formatted(Formatting.BOLD).withColor(0xFF0000),
                 Text.literal("has risen!").formatted(Formatting.WHITE)),
                 TextHelper.concat(
                         Text.literal("+").formatted(Formatting.GRAY),
                         Text.literal("120 ").formatted(Formatting.WHITE),
-                        Text.literal("Bite Speed").withColor(0x40f25a)
-                )
-        );
+                        Text.literal("Bite Speed").withColor(0x40f25a)));
 
         public final String ID;
         public final String TEXT;

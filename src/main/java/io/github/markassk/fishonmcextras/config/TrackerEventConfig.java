@@ -30,6 +30,8 @@ public class TrackerEventConfig {
             public boolean useAlertWarningSound = true;
             @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
             public NotificationSoundHandler.SoundType alertSoundType = NotificationSoundHandler.SoundType.BELL;
+            @ConfigEntry.Gui.Tooltip
+            public boolean muteMoonAlerts = false;
         }
 
         @ConfigEntry.Gui.CollapsibleObject
@@ -37,6 +39,8 @@ public class TrackerEventConfig {
         public static class OtherEventOptions {
             @ConfigEntry.Gui.CollapsibleObject
             public FabledOptions fabledOptions = new FabledOptions();
+            @ConfigEntry.Gui.CollapsibleObject
+            public WitchingHourOptions witchingHourOptions = new WitchingHourOptions();
             public static class FabledOptions {
                 public boolean showAlertHUD = true;
                 @ConfigEntry.BoundedDiscrete(min = 1, max = 300)
@@ -45,6 +49,18 @@ public class TrackerEventConfig {
                 public boolean useAlertWarningSound = true;
                 @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
                 public NotificationSoundHandler.SoundType alertSoundType = NotificationSoundHandler.SoundType.BELL;
+            }
+
+            public static class WitchingHourOptions {
+                public boolean showAlertHUD = true;
+                @ConfigEntry.BoundedDiscrete(min = 1, max = 300)
+                public int alertDismissSeconds = 15;
+                @ConfigEntry.Gui.Tooltip
+                public boolean useAlertWarningSound = true;
+                @ConfigEntry.Gui.Tooltip
+                public boolean showOutsideCypressLake = false;
+                @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+                public NotificationSoundHandler.SoundType alertSoundType = NotificationSoundHandler.SoundType.DIDGERIDOO;
             }
         }
     }

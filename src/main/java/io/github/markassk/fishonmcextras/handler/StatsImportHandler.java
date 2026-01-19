@@ -78,6 +78,7 @@ public class StatsImportHandler {
                     else if (loreLine.contains(Constant.MELANISTIC.TAG.getString())) dummyProfileData.allVariantCounts.put(Constant.MELANISTIC, getValue(loreLine, Constant.MELANISTIC));
                     else if (loreLine.contains(Constant.TROPHY.TAG.getString())) dummyProfileData.allVariantCounts.put(Constant.TROPHY, getValue(loreLine, Constant.TROPHY));
                     else if (loreLine.contains(Constant.FABLED.TAG.getString())) dummyProfileData.allVariantCounts.put(Constant.FABLED, getValue(loreLine, Constant.FABLED));
+                    else if (loreLine.contains(Constant.FROZEN.TAG.getString())) dummyProfileData.allVariantCounts.put(Constant.FROZEN, getValue(loreLine, Constant.FROZEN));
                     else if (loreLine.contains("ꜰɪꜱʜ ᴄᴀᴜɢʜᴛ")) fishCaught.set(getValue(loreLine));
                 });
             }
@@ -104,6 +105,7 @@ public class StatsImportHandler {
             dummyProfileData.variantDryStreak.put(Constant.MELANISTIC, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.MELANISTIC, oldProfileData.allFishCaughtCount)), fishCaught.get()));
             dummyProfileData.variantDryStreak.put(Constant.TROPHY, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.TROPHY, oldProfileData.allFishCaughtCount)), fishCaught.get()));
             dummyProfileData.variantDryStreak.put(Constant.FABLED, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.FABLED, oldProfileData.allFishCaughtCount)), fishCaught.get()));
+            dummyProfileData.variantDryStreak.put(Constant.FROZEN, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.FROZEN, oldProfileData.allFishCaughtCount)), fishCaught.get()));
 
             this.dummyProfileData = dummyProfileData;
         }

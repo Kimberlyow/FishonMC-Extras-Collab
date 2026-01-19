@@ -146,6 +146,9 @@ public class ItemMarkerHandler {
                 }
             }
         }
+
+        // Show Bait Sorting Helper
+        BaitSortingHelperHandler.instance().renderItemMarker(drawContext, itemStack, x, y);
     }
 
     public void renderHotBarSelectedPet(DrawContext drawContext, int x, int y, ItemStack itemStack) {
