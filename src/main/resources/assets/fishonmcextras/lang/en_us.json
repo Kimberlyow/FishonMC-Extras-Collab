@@ -142,6 +142,7 @@
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.otherMessageToggles.showPet": "Show Pet",
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.otherMessageToggles.showShard": "Show Shard",
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.otherMessageToggles.showLightningBottle": "Show Lightning Bottle",
+  "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.otherMessageToggles.showInfusionCapsule": "Show Infusion Capsule",
 
   "text.autoconfig.fishonmcextras.option.petEquipTracker": "§f§lPet Equip Tracker Options",
   "text.autoconfig.fishonmcextras.option.petEquipTracker.showPetEquipTrackerHUD": "Pet Equipped HUD",

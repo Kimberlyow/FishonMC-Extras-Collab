@@ -199,6 +199,7 @@ public class TrackerFishHUDConfig {
                 public boolean showPet = true;
                 public boolean showShard = true;
                 public boolean showLightningBottle = true;
+                public boolean showInfusionCapsule = true;
             }
         }
 

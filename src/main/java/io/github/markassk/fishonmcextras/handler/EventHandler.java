@@ -80,7 +80,7 @@ public class EventHandler {
                         // FishOnMCExtras.LOGGER.info("Parsed hour: " + parsedHour);
                         // FishOnMCExtras.LOGGER.info("Is witching hour: " + isWitchingHour);
                         boolean isInRange = parsedHour != null && timeSuffix.contains("AM") && parsedHour >= 1
-                                        && parsedHour < 4;
+                                        && parsedHour < 3;
                         if (!isWitchingHour && isInRange == true) {
                                 // witching hour
                                 isWitchingHour = true;
