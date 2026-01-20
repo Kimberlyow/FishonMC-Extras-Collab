@@ -23,6 +23,10 @@ public class TrackerContestHUDConfig {
     public static class ContestTracker {
         public boolean showContest = true;
         @ConfigEntry.Gui.Tooltip
+        public boolean useOldContestHUD = false;
+        @ConfigEntry.Gui.Tooltip
+        public boolean showFullContest = true;
+        @ConfigEntry.Gui.Tooltip
         @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
         public ContestStatsDisplay contestStatsDisplay = ContestStatsDisplay.AT_LOCATION;
         @ConfigEntry.Gui.CollapsibleObject
@@ -42,11 +46,7 @@ public class TrackerContestHUDConfig {
         @ConfigEntry.Gui.Tooltip
         public boolean recieveLocalPBs = true;
         @ConfigEntry.Gui.Tooltip
-        public boolean suppressServerMessages = true;
-        @ConfigEntry.Gui.Tooltip
-        public boolean useOldContestHUD = false;
-        @ConfigEntry.Gui.Tooltip
-        public boolean showFullContest = true;
+        public boolean suppressServerMessages = false;
         public boolean rightAlignment = false;
         @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
         public int backgroundOpacity = 40;
