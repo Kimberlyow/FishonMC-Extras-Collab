@@ -1,5 +1,6 @@
 package io.github.markassk.fishonmcextras.FOMC.Types;
 
+import io.github.markassk.fishonmcextras.FishOnMCExtras;
 import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.util.ItemStackHelper;
 import io.github.markassk.fishonmcextras.util.UUIDHelper;
@@ -46,7 +47,11 @@ public class Fish extends FOMCItem {
         this.customModelData = customModelData;
         this.fishId = nbtCompound.getString("fish");
         this.scientific = nbtCompound.getString("scientific");
-        this.variant = Constant.valueOfId(nbtCompound.getString("variant"));
+        String variantString = nbtCompound.getString("variant");
+        this.variant = Constant.valueOfId(variantString);
+        if (!variantString.isEmpty() && this.variant == Constant.DEFAULT && !variantString.equals("normal")) {
+            FishOnMCExtras.LOGGER.warn("[FoE] Unknown variant string: '{}' for fish: {}", variantString, this.fishId);
+        }
         this.value = nbtCompound.getFloat("value");
         this.xp = nbtCompound.getFloat("xp");
         this.natureId = nbtCompound.getString("nature");

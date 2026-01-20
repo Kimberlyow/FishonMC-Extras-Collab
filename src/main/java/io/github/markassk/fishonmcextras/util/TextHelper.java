@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import io.github.markassk.fishonmcextras.FOMC.Constant;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
@@ -27,39 +28,45 @@ public class TextHelper {
     }
 
     // Format to string
-    public static String fmt(float d)
-    {
-        return String.format(Locale.US,"%.0f", d);
+    public static String fmt(float d) {
+        return String.format("%.0f", d);
     }
 
     public static String fmt(float d, int decimalPlaces) {
         switch (decimalPlaces) {
             case 1 -> {
-                String s = String.format(Locale.US,"%.1f", d);
-                return s.replaceAll("0*$", "").replaceAll("[.,]$", "");
+                return String.format(Locale.US,"%.1f", d).replaceAll("[\\.,]$", "");
             }
-                case 2 -> {
-                String s = String.format(Locale.US,"%.2f", d);
-                return s.replaceAll("0*$", "").replaceAll("[.,]$", "");
+            case 2 -> {
+                return String.format(Locale.US,"%.2f", d).replaceAll("[\\.,]$", "");
             }
             default -> {
-                String s = String.format(Locale.US,"%.0f", d);
-                return s.replaceAll("0*$", "").replaceAll("[.,]$", "");
+                return String.format(Locale.US,"%.0f", d).replaceAll("[\\.,]$", "");
             }
         }
+    }
+
+    // Parse float that handles both comma and period decimal separators
+    public static float parseFloat(String s) {
+        if (s == null || s.isEmpty()) {
+            throw new NumberFormatException("Cannot parse empty string");
+        }
+        // Replace comma with period for decimal separator
+        String normalized = s.trim().replace(',', '.');
+        return Float.parseFloat(normalized);
     }
 
     // Format to number string
     public static String fmnt(float d) {
         if (d >= 1000 && d < 1000000) {
             String s = String.format(Locale.US, "%.2f", d / 1000);
-            return s.replaceAll("0*$", "").replaceAll("[.,]$", "") + "K";
-        } else if (d > 1000000 && d < 1000000000) {
+            return s.replaceAll("0*$", "").replaceAll("[\\.,]$", "") + "K";
+        } else if (d >= 1000000 && d < 1000000000) {
             String s = String.format(Locale.US, "%.2f", d / 1000000);
-            return s.replaceAll("0*$", "").replaceAll("[.,]$", "") + "M";
-        } else if (d > 1000000000) {
+            return s.replaceAll("0*$", "").replaceAll("[\\.,]$", "") + "M";
+        } else if (d >= 1000000000) {
             String s = String.format(Locale.US, "%.2f", d / 1000000000);
-            return s.replaceAll("0*$", "").replaceAll("[.,]$", "") + "B";
+            return s.replaceAll("0*$", "").replaceAll("[\\.,]$", "") + "B";
         } else if (d == 0) {
             return "0";
         } else {
@@ -75,7 +82,8 @@ public class TextHelper {
     }
 
     public static String capitalize(String str) {
-        if(str == null || str.length()<=1) return str;
+        if (str == null || str.length() <= 1)
+            return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
@@ -93,13 +101,12 @@ public class TextHelper {
     public static String upperCaseAllFirstCharacter(String text) {
         String regex = "\\b(.)(.*?)\\b";
         return Pattern.compile(regex).matcher(text).replaceAll(
-                matched -> matched.group(1).toUpperCase() + matched.group(2)
-        );
+                matched -> matched.group(1).toUpperCase() + matched.group(2));
     }
 
     public static float roundFirstSignificantDigit(float input) {
         if (!Float.isNaN(input) && !Float.isInfinite(input)) {
-            if(input >= 0.1f || input == 0) {
+            if (input >= 0.1f || input == 0) {
                 return input;
             }
 
@@ -115,11 +122,16 @@ public class TextHelper {
     }
 
     public static String replaceToFoE(String text) {
-        if(text.contains(Constant.ANGLER.TAG.getString())) text = text.replace(Constant.ANGLER.TAG.getString(), Constant.FOE.TAG.getString());
-        if(text.contains(Constant.SAILOR.TAG.getString())) text = text.replace(Constant.SAILOR.TAG.getString(), Constant.FOE.TAG.getString());
-        if(text.contains(Constant.MARINER.TAG.getString())) text = text.replace(Constant.MARINER.TAG.getString(), Constant.FOE.TAG.getString());
-        if(text.contains(Constant.CAPTAIN.TAG.getString())) text = text.replace(Constant.CAPTAIN.TAG.getString(), Constant.FOE.TAG.getString());
-        if(text.contains(Constant.ADMIRAL.TAG.getString())) text = text.replace(Constant.ADMIRAL.TAG.getString(), Constant.FOE.TAG.getString());
+        if (text.contains(Constant.ANGLER.TAG.getString()))
+            text = text.replace(Constant.ANGLER.TAG.getString(), Constant.FOE.TAG.getString());
+        if (text.contains(Constant.SAILOR.TAG.getString()))
+            text = text.replace(Constant.SAILOR.TAG.getString(), Constant.FOE.TAG.getString());
+        if (text.contains(Constant.MARINER.TAG.getString()))
+            text = text.replace(Constant.MARINER.TAG.getString(), Constant.FOE.TAG.getString());
+        if (text.contains(Constant.CAPTAIN.TAG.getString()))
+            text = text.replace(Constant.CAPTAIN.TAG.getString(), Constant.FOE.TAG.getString());
+        if (text.contains(Constant.ADMIRAL.TAG.getString()))
+            text = text.replace(Constant.ADMIRAL.TAG.getString(), Constant.FOE.TAG.getString());
         return text;
     }
 
@@ -141,7 +153,7 @@ public class TextHelper {
 
         // Build lines by processing the root and siblings sequentially
         MutableText currentLine = Text.empty();
-
+        
         // Process root content if it's not empty (Text.empty() creates an empty root)
         String rootContent = getRootContent(text);
         if (!rootContent.isEmpty() && !rootContent.equals("\n")) {
@@ -172,11 +184,11 @@ public class TextHelper {
                 currentLine.append(rootText);
             }
         }
-
+        
         // Process siblings sequentially
         for (Text sibling : text.getSiblings()) {
             String siblingContent = sibling.getString();
-
+            
             // Check if this sibling is a newline
             if (siblingContent.equals("\n")) {
                 // Save current line and start a new one
@@ -186,7 +198,7 @@ public class TextHelper {
                 currentLine = Text.empty();
                 continue;
             }
-
+            
             // Check if sibling content contains newlines
             if (siblingContent.contains("\n")) {
                 // Split the sibling content by newlines
@@ -200,7 +212,7 @@ public class TextHelper {
                         }
                         currentLine.append(partText);
                     }
-
+                    
                     // After each part except the last, start a new line
                     if (i < parts.length - 1) {
                         if (!currentLine.getString().isEmpty()) {
@@ -214,15 +226,15 @@ public class TextHelper {
                 currentLine.append(sibling.copy());
             }
         }
-
+        
         // Add the last line if it's not empty
         if (!currentLine.getString().isEmpty()) {
             lines.add(currentLine);
         }
-
+        
         return lines;
     }
-
+    
     /**
      * Gets the root content string of a Text node without including its siblings.
      */
@@ -231,7 +243,7 @@ public class TextHelper {
         if (text.getSiblings().isEmpty()) {
             return text.getString();
         }
-
+        
         // If it has siblings, we need to get just the root content
         // We can do this by getting the string and subtracting sibling strings
         String fullString = text.getString();
@@ -239,7 +251,7 @@ public class TextHelper {
         for (Text sibling : text.getSiblings()) {
             siblingStrings.append(sibling.getString());
         }
-
+        
         // Remove sibling strings from the full string to get root content
         String rootContent = fullString;
         if (siblingStrings.length() > 0) {
@@ -248,7 +260,38 @@ public class TextHelper {
                 rootContent = fullString.substring(0, siblingStart);
             }
         }
-
+        
         return rootContent;
+    }
+
+    /**
+     * Extracts all hover texts from a Text object by traversing the Text tree
+     * and collecting all hover event texts.
+     */
+    public static List<Text> extractAllHoverTexts(Text text) {
+        List<Text> hoverTexts = new ArrayList<>();
+        if (text == null) {
+            return hoverTexts;
+        }
+
+        // Check if this text has a hover event
+        if (text.getStyle() != null && text.getStyle().getHoverEvent() != null) {
+            HoverEvent hoverEvent = text.getStyle().getHoverEvent();
+            // Check if it's a SHOW_TEXT action and extract the text
+            if (hoverEvent.getAction() == HoverEvent.Action.SHOW_TEXT) {
+                Object hoverValue = hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT);
+                // In Minecraft 1.21.4, SHOW_TEXT value is directly a Text object
+                if (hoverValue instanceof Text hoverText) {
+                    hoverTexts.add(hoverText);
+                }
+            }
+        }
+
+        // Recursively check all siblings
+        for (Text sibling : text.getSiblings()) {
+            hoverTexts.addAll(extractAllHoverTexts(sibling));
+        }
+
+        return hoverTexts;
     }
 }

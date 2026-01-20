@@ -24,9 +24,9 @@ public class AutoTippingHandler {
 		return INSTANCE;
 	}
 
-	public void onReceiveMessage(Text message) {
+	public boolean onReceiveMessage(Text message) {
 		if (!LoadingHandler.instance().isOnServer) {
-			return;
+			return false;
 		}
 
 		String plain = message.getString();
@@ -38,6 +38,8 @@ public class AutoTippingHandler {
 			String username = m.group(1);
 			onReceiveReactions(username, message);
 		}
+
+		return false;
 	}
 
 	private void onReceiveReactions(String username, Text message) {

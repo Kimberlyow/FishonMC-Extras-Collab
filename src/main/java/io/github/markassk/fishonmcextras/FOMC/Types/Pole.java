@@ -2,7 +2,6 @@ package io.github.markassk.fishonmcextras.FOMC.Types;
 
 import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.util.ItemStackHelper;
-import io.github.markassk.fishonmcextras.util.UUIDHelper;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.item.ItemStack;
@@ -13,7 +12,6 @@ import net.minecraft.nbt.NbtList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 public class Pole extends FOMCItem {
     public final String name;

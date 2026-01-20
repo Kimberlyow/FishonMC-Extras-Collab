@@ -84,10 +84,10 @@ public class PetTooltipHandler {
                 String petStrNew = builder.toString();
 
                 if (config.petTooltip.showPetPercentages) {
-                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 9), " (" + TextHelper.fmt((Float.parseFloat(petClimateLuck) * 4 / multiplier)) + "%)").toString();
-                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 10), " (" + TextHelper.fmt((Float.parseFloat(petClimateScale) * 4 / multiplier)) + "%)").toString();
-                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 13), " (" + TextHelper.fmt((Float.parseFloat(petLocationLuck) * 4 / multiplier)) + "%)").toString();
-                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 14), " (" + TextHelper.fmt((Float.parseFloat(petLocationScale) * 4 / multiplier)) + "%)").toString();
+                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 9), " (" + TextHelper.fmt((TextHelper.parseFloat(petClimateLuck) * 4 / multiplier)) + "%)").toString();
+                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 10), " (" + TextHelper.fmt((TextHelper.parseFloat(petClimateScale) * 4 / multiplier)) + "%)").toString();
+                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 13), " (" + TextHelper.fmt((TextHelper.parseFloat(petLocationLuck) * 4 / multiplier)) + "%)").toString();
+                    petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 14), " (" + TextHelper.fmt((TextHelper.parseFloat(petLocationScale) * 4 / multiplier)) + "%)").toString();
                     petStrNew = builder.insert(ordinalIndexOf(petStrNew, "\\n", 16), " (" + TextHelper.fmt((total / multiplier)) + "%)").toString();
                 }
 

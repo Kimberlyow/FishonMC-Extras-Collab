@@ -118,6 +118,7 @@ public class DebugScreenHandler {
                         assembleText("profileStats.variantCounts[MELANISTIC]", profileDataHandler.profileData.variantCounts.getOrDefault(Constant.MELANISTIC, 0)),
                         assembleText("profileStats.variantCounts[TROPHY]", profileDataHandler.profileData.variantCounts.getOrDefault(Constant.TROPHY, 0)),
                         assembleText("profileStats.variantCounts[FABLED]", profileDataHandler.profileData.variantCounts.getOrDefault(Constant.FABLED, 0)),
+                        assembleText("profileStats.variantCounts[SPOOKY]", profileDataHandler.profileData.variantCounts.getOrDefault(Constant.SPOOKY, 0)),
                         assembleText("profileStats.variantCounts[FROZEN]", profileDataHandler.profileData.variantCounts.getOrDefault(Constant.FROZEN, 0)),
                         assembleText("profileStats.rarityCounts[COMMON]", profileDataHandler.profileData.rarityCounts.getOrDefault(Constant.COMMON, 0)),
                         assembleText("profileStats.rarityCounts[RARE]", profileDataHandler.profileData.rarityCounts.getOrDefault(Constant.RARE, 0)),
@@ -141,6 +142,7 @@ public class DebugScreenHandler {
                         assembleText("profileStats.allVariantCounts[MELANISTIC]", profileDataHandler.profileData.allVariantCounts.getOrDefault(Constant.MELANISTIC, 0)),
                         assembleText("profileStats.allVariantCounts[TROPHY]", profileDataHandler.profileData.allVariantCounts.getOrDefault(Constant.TROPHY, 0)),
                         assembleText("profileStats.allVariantCounts[FABLED]", profileDataHandler.profileData.allVariantCounts.getOrDefault(Constant.FABLED, 0)),
+                        assembleText("profileStats.allVariantCounts[SPOOKY]", profileDataHandler.profileData.allVariantCounts.getOrDefault(Constant.SPOOKY, 0)),
                         assembleText("profileStats.allVariantCounts[FROZEN]", profileDataHandler.profileData.allVariantCounts.getOrDefault(Constant.FROZEN, 0)),
                         assembleText("profileStats.allRarityCounts[COMMON]", profileDataHandler.profileData.allRarityCounts.getOrDefault(Constant.COMMON, 0)),
                         assembleText("profileStats.allRarityCounts[RARE]", profileDataHandler.profileData.allRarityCounts.getOrDefault(Constant.RARE, 0)),
@@ -162,6 +164,7 @@ public class DebugScreenHandler {
                         assembleText("profileStats.variantDryStreak[MELANISTIC]", profileDataHandler.profileData.variantDryStreak.getOrDefault(Constant.MELANISTIC, 0)),
                         assembleText("profileStats.variantDryStreak[TROPHY]", profileDataHandler.profileData.variantDryStreak.getOrDefault(Constant.TROPHY, 0)),
                         assembleText("profileStats.variantDryStreak[FABLED]", profileDataHandler.profileData.variantDryStreak.getOrDefault(Constant.FABLED, 0)),
+                        assembleText("profileStats.variantDryStreak[SPOOKY]", profileDataHandler.profileData.variantDryStreak.getOrDefault(Constant.SPOOKY, 0)),
                         assembleText("profileStats.variantDryStreak[FROZEN]", profileDataHandler.profileData.variantDryStreak.getOrDefault(Constant.FROZEN, 0)),
 
                         assembleText("profileStats.rarityDryStreak[COMMON]", profileDataHandler.profileData.rarityDryStreak.getOrDefault(Constant.COMMON, 0)),

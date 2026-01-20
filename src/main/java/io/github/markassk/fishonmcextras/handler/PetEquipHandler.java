@@ -110,7 +110,7 @@ public class PetEquipHandler  {
         } else if (unequipMatcher.find()) {
             handlePetUnequip();
         }
-
+        
         return false; // Don't suppress any messages
     }
 
