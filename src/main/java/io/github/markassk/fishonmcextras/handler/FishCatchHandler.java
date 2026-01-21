@@ -391,28 +391,25 @@ public class FishCatchHandler {
 
 			// Variants
 			case ALBINO -> Text.literal(TextDisplayHandler.formatText("Albino", formatting)).withColor(0xC6C3A1);
-			case MELANISTIC ->
-				Text.literal(TextDisplayHandler.formatText("Melanistic", formatting)).withColor(0x1C1C1C);
+			case MELANISTIC -> Text.literal(TextDisplayHandler.formatText("Melanistic", formatting)).withColor(0x1C1C1C);
 			case TROPHY -> Text.literal(TextDisplayHandler.formatText("Trophy", formatting)).withColor(0xD8C13C);
 			case FABLED -> Text.literal(TextDisplayHandler.formatText("Fabled", formatting)).withColor(0xCE2326);
 
 			default -> fish.TAG;
 		} : fish.TAG;
 
-		String article = (fish == Constant.EPIC || fish == Constant.ADULT || fish == Constant.ALBINO) ? "an " : "a ";
-		sendDryStreakMessage(fishText, article, lastCaught);
+		String lower = fish.toString().toLowerCase(Locale.ROOT).trim();
+		boolean useAn = !lower.isEmpty() && "aeiou".indexOf(lower.charAt(0)) >= 0;
+		sendDryStreakMessage(fishText, useAn ? "an " : "a ", lastCaught);
 	}
 
 	private void sendItemDryStreakMessage(String item, int lastCaught) {
-		Text itemText;
-		if (item.equals("pet")) {
-			itemText = Text.literal("Pet").withColor(0xFD95F6);
-		} else if (item.equals("shard")) {
-			itemText = Text.literal("Shard").formatted(Formatting.GOLD);
-		} else {
-			itemText = Text.literal("Lightning Bottle").formatted(Formatting.YELLOW);
-		}
-		sendDryStreakMessage(itemText, "a ", lastCaught);
+		Constant constant = Constant.valueOfId(item);
+		Text itemText = (constant != Constant.DEFAULT) ? constant.TAG.copy() : Text.literal(item);
+
+		String lower = item.toLowerCase(Locale.ROOT).trim();
+		boolean useAn = !lower.isEmpty() && "aeiou".indexOf(lower.charAt(0)) >= 0;
+		sendDryStreakMessage(itemText, useAn ? "an " : "a ", lastCaught);
 	}
 
 	private void sendDryStreakMessage(Text typeText, String article, int lastCaught) {

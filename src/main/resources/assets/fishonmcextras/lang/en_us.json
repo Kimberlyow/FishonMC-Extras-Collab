@@ -121,6 +121,7 @@
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.showText": "Enable Drystreak Messages",
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.showText.@Tooltip": "Toggle to see drystreak messages in chat when you end a drystreak.",
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.textCapitalization": "Drystreak Catch Capitalization",
+  "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.textCapitalization.@Tooltip": "lowercase: common\nUPPERCASE: COMMON\nCapitalized: Common\nTAG: [COMMON]",
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.rarityMessageToggles": "§f§lRarity Message Toggles",
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.rarityMessageToggles.showCommon": "Show §f\uF033",
   "text.autoconfig.fishonmcextras.option.fishTracker.dryStreakMessageToggles.rarityMessageToggles.showRare": "Show §f\uF034",
