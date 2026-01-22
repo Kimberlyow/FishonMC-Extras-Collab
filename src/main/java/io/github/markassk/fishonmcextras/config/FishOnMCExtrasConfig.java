@@ -84,7 +84,7 @@ public class FishOnMCExtrasConfig implements ConfigData {
 
     @ConfigEntry.Category(value = OTHER)
     @ConfigEntry.Gui.CollapsibleObject
-    public ChatConfig.ChatFilter chatFilter = new ChatConfig.ChatFilter();
+    public ChatConfig.ChatSettings chatconfig = new ChatConfig.ChatSettings();
 
     @ConfigEntry.Category(value = OTHER)
     @ConfigEntry.Gui.CollapsibleObject

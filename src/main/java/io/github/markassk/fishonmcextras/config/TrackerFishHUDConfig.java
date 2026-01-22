@@ -1,5 +1,6 @@
 package io.github.markassk.fishonmcextras.config;
 
+import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import io.github.markassk.fishonmcextras.handler.TextDisplayHandler;
 
@@ -157,8 +158,9 @@ public class TrackerFishHUDConfig {
         public static class DryStreakMessageToggles {
             @ConfigEntry.Gui.Tooltip
             public boolean showText = false;
+            @ConfigEntry.Gui.Tooltip
             @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-            public TextDisplayHandler.TextDisplay textCapitalization = TextDisplayHandler.TextDisplay.UPPERCASE;
+            public TextDisplayHandler.TextDisplay textCapitalization = TextDisplayHandler.TextDisplay.TAG;
 
             @ConfigEntry.Gui.CollapsibleObject
             public RarityMessageToggles rarityMessageToggles = new RarityMessageToggles();

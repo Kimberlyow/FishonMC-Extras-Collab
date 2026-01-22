@@ -29,7 +29,7 @@ public class TextHelper {
 
     // Format to string
     public static String fmt(float d) {
-        return String.format("%.0f", d);
+        return String.format(Locale.US, "%.0f", d);
     }
 
     public static String fmt(float d, int decimalPlaces) {

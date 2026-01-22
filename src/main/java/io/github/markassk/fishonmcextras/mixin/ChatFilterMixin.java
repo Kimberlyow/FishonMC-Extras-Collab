@@ -23,7 +23,7 @@ public class ChatFilterMixin {
 
     @Inject(method={"method_1812"}, at={@At(value="HEAD")}, cancellable=true, remap=false)
     private void onAddMessage(@Coerce Object message, CallbackInfo ci) {
-        if (!FishOnMCExtrasConfig.getConfig().chatFilter.enabled) {
+        if (!FishOnMCExtrasConfig.getConfig().chatconfig.chatFilter.enabled) {
             return;
         }
         

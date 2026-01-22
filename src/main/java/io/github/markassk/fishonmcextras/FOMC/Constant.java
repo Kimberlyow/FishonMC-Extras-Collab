@@ -68,7 +68,7 @@ public enum Constant {
 	FROZEN("frozen", Text.literal("\uF179").formatted(Formatting.WHITE), Defaults.DEFAULT_COLOR),
 
 	// Rare Catches
-	LIGHTNINGBOTTLE("lightning bottle", TextHelper.concat(
+	LIGHTNING_BOTTLE("lightning bottle", TextHelper.concat(
 			Text.literal("L").withColor(0xEFE038),
 			Text.literal("i").withColor(0xEFC32C),
 			Text.literal("g").withColor(0xEABC34),
@@ -78,10 +78,10 @@ public enum Constant {
 			Text.literal("i").withColor(0xEFE038),
 			Text.literal("n").withColor(0xEFFC44),
 			Text.literal("g in a Bottle").withColor(0xE4B43C)), Defaults.DEFAULT_COLOR),
-	INFUSIONCAPSULE("infusion capsule", Text.literal("Infusion Capsule").formatted(Formatting.WHITE),
+	INFUSION_CAPSULE("infusion capsule", Text.literal("Infusion Capsule").formatted(Formatting.WHITE),
 			Defaults.DEFAULT_COLOR),
 	SHARD("shard", Text.literal("Shard").formatted(Formatting.GOLD), Defaults.DEFAULT_COLOR),
-	PROSPECTINGAMULTET("prospecting amulet", TextHelper.concat(
+	PROSPECTING_AMULET("prospecting amulet", TextHelper.concat(
 			Text.literal("P").withColor(0xE4CC2B),
 			Text.literal("r").withColor(0xE3CE2D),
 			Text.literal("o").withColor(0xE3D030),
@@ -100,8 +100,8 @@ public enum Constant {
 			Text.literal("e").withColor(0xDAF051),
 			Text.literal("t").withColor(0xD9F253)), Defaults.DEFAULT_COLOR),
 	// Bigfoot Drops
-	BIGFOOTFUR("bigfoot fur", Text.literal("Bigfoot Fur").formatted(Formatting.WHITE), Defaults.DEFAULT_COLOR),
-	BIGFOOTTOOTH("bigfoot tooth", Text.literal("Bigfoot Tooth").formatted(Formatting.WHITE), Defaults.DEFAULT_COLOR),
+	BIGFOOT_FUR("bigfoot fur", Text.literal("Bigfoot Fur").formatted(Formatting.WHITE), Defaults.DEFAULT_COLOR),
+	BIGFOOT_TOOTH("bigfoot tooth", Text.literal("Bigfoot Tooth").formatted(Formatting.WHITE), Defaults.DEFAULT_COLOR),
 
 	// Pet Rating
 	SICKLY("sickly", Text.literal("sɪᴄᴋʟʏ").withColor(0xFF74403B), 0xFF74403B),
@@ -267,8 +267,8 @@ public enum Constant {
 	GOLDRUSH("⚠", Text.literal("⚠"), 0xF7EA3E),
 	MOON("○", Text.literal("○"), 0x5FC0E6),
 
-	// Climate (duplicate of #ClimateConstants.java)
-	SUBTROPICAL("subtropical", TextHelper.concat(
+	// Climate (changed duplicate of #ClimateConstants.java)
+	SUBTROPICAL("subtropical_climate", TextHelper.concat(
 			Text.literal("S").withColor(0x4FB07A),
 			Text.literal("u").withColor(0x4FB683),
 			Text.literal("b").withColor(0x4EBC8D),
@@ -280,7 +280,7 @@ public enum Constant {
 			Text.literal("c").withColor(0x49E7C4),
 			Text.literal("a").withColor(0x48EFCD),
 			Text.literal("l").withColor(0x47F7D6)), Defaults.DEFAULT_COLOR),
-	SUBARCTIC("subarctic", TextHelper.concat(
+	SUBARCTIC("subarctic_climate", TextHelper.concat(
 			Text.literal("S").withColor(0x53A1C1),
 			Text.literal("u").withColor(0x64AAC8),
 			Text.literal("b").withColor(0x75B3CF),
@@ -290,7 +290,7 @@ public enum Constant {
 			Text.literal("t").withColor(0x98BED3),
 			Text.literal("i").withColor(0x98BACF),
 			Text.literal("c").withColor(0x98B7CA)), Defaults.DEFAULT_COLOR),
-	SEMI_ARID("semi-arid", TextHelper.concat(
+	SEMI_ARID("semi-arid_climate", TextHelper.concat(
 			Text.literal("S").withColor(0xE6902E),
 			Text.literal("e").withColor(0xE59833),
 			Text.literal("m").withColor(0xE5A038),
@@ -300,7 +300,7 @@ public enum Constant {
 			Text.literal("r").withColor(0xE4B357),
 			Text.literal("i").withColor(0xE4B562),
 			Text.literal("d").withColor(0xE4B76D)), Defaults.DEFAULT_COLOR),
-	SAVANNA("savanna", TextHelper.concat(
+	SAVANNA("savanna_climate", TextHelper.concat(
 			Text.literal("S").withColor(0xBAC153),
 			Text.literal("a").withColor(0xC8CB5A),
 			Text.literal("v").withColor(0xD7D661),
@@ -308,7 +308,7 @@ public enum Constant {
 			Text.literal("n").withColor(0xE4DF6F),
 			Text.literal("n").withColor(0xE3DE77),
 			Text.literal("a").withColor(0xE2DD7E)), Defaults.DEFAULT_COLOR),
-	CONTINENTAL("continental", TextHelper.concat(
+	CONTINENTAL("continental_climate", TextHelper.concat(
 			Text.literal("C").withColor(0xA4A9AB),
 			Text.literal("o").withColor(0xABB2B2),
 			Text.literal("n").withColor(0xB2BAB9),
@@ -320,7 +320,7 @@ public enum Constant {
 			Text.literal("t").withColor(0xD9E2DD),
 			Text.literal("a").withColor(0xDFE6E3),
 			Text.literal("l").withColor(0xE5EBE8)), Defaults.DEFAULT_COLOR),
-	RAINFOREST("rainforest", TextHelper.concat(
+	RAINFOREST("rainforest_climate", TextHelper.concat(
 			Text.literal("R").withColor(0x569579),
 			Text.literal("a").withColor(0x4C9E7A),
 			Text.literal("i").withColor(0x42A87B),
@@ -331,7 +331,7 @@ public enum Constant {
 			Text.literal("e").withColor(0x2AD086),
 			Text.literal("s").withColor(0x2AD68A),
 			Text.literal("t").withColor(0x2ADD8E)), Defaults.DEFAULT_COLOR),
-	MEDITERRANEAN("mediterranean", TextHelper.concat(
+	MEDITERRANEAN("mediterranean_climate", TextHelper.concat(
 			Text.literal("M").withColor(0x80C4EF),
 			Text.literal("e").withColor(0x85C6EF),
 			Text.literal("d").withColor(0x8AC8EF),
@@ -345,7 +345,7 @@ public enum Constant {
 			Text.literal("e").withColor(0xAAD5F1),
 			Text.literal("a").withColor(0xADD7F2),
 			Text.literal("n").withColor(0xB0D8F3)), Defaults.DEFAULT_COLOR),
-	OCEANIC("oceanic", TextHelper.concat(
+	OCEANIC("oceanic_climate", TextHelper.concat(
 			Text.literal("O").withColor(0x397FAC),
 			Text.literal("c").withColor(0x3A85B4),
 			Text.literal("e").withColor(0x3C8CBD),
@@ -353,7 +353,7 @@ public enum Constant {
 			Text.literal("n").withColor(0x3995CF),
 			Text.literal("i").withColor(0x3599D9),
 			Text.literal("c").withColor(0x319CE3)), Defaults.DEFAULT_COLOR),
-	MONSOON("monsoon", TextHelper.concat(
+	MONSOON("monsoon_climate", TextHelper.concat(
 			Text.literal("M").withColor(0x6141DF),
 			Text.literal("o").withColor(0x654FE0),
 			Text.literal("n").withColor(0x6A5CE0),

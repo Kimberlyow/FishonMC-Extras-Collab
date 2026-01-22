@@ -5,7 +5,8 @@ public class TextDisplayHandler {
     public enum TextDisplay {
         UPPERCASE,
         lowercase,
-        Capitalized
+        Capitalized,
+        TAG
     }
 
     public static String formatText(String input, TextDisplay textDisplay) {
@@ -20,6 +21,8 @@ public class TextDisplayHandler {
                 return input.toLowerCase();
             case Capitalized:
                 return capitalizeWords(input);
+            case TAG:
+                return "[" + input.toUpperCase() + "]";
             default:
                 return input;
         }

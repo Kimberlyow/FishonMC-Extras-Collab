@@ -2,6 +2,9 @@ package io.github.markassk.fishonmcextras.handler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.FOMC.Types.Fish;
 import io.github.markassk.fishonmcextras.FOMC.Types.Pet;
@@ -18,6 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ProfileDataHandler {
     private static ProfileDataHandler INSTANCE = new ProfileDataHandler();
@@ -175,7 +180,7 @@ public class ProfileDataHandler {
                 Path statsDir = subDir.resolve("stats");
                 Files.createDirectories(statsDir);
                 Path filePath = statsDir.resolve(playerUUID.toString() + ".json");
-                Gson gson = new GsonBuilder().create();
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(this.profileData);
                 Files.writeString(filePath, json);
             }
@@ -201,9 +206,36 @@ public class ProfileDataHandler {
                     saveStats();
                     return;
                 };
-                String json = Files.readString(filePath, StandardCharsets.UTF_8);
+                String json = Files.readString(filePath, UTF_8);
                 Gson gson = new GsonBuilder().create();
-                this.profileData = gson.fromJson(json, ProfileData.class);
+
+                if (json == null || json.isBlank()) {
+                    isDataLoaded = true;
+                    saveStats();
+                    return;
+                }
+
+                try {
+                    this.profileData = gson.fromJson(json, ProfileData.class);
+                } catch (JsonSyntaxException ex) {
+                    FishOnMCExtras.LOGGER.error("[FoE] Failed to parse stats JSON ({}): {}", filePath, ex.getMessage());
+                    try {
+                        JsonElement root = JsonParser.parseString(json);
+                        this.profileData = gson.fromJson(root, ProfileData.class);
+                        if (this.profileData == null) {
+                            this.profileData = new ProfileData();
+                        }
+                        saveStats();
+                    } catch (Exception ex2) {
+                        FishOnMCExtras.LOGGER.error("[FoE] Failed to recover stats JSON ({}): {}", filePath, ex2.getMessage());
+                        this.profileData = new ProfileData();
+                        saveStats();
+                    }
+                }
+
+                if (this.profileData == null) {
+                    this.profileData = new ProfileData();
+                }
                 isDataLoaded = true;
             }
         } catch (IOException e) {

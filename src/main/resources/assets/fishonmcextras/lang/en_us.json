@@ -420,7 +420,11 @@
   "text.autoconfig.fishonmcextras.option.fun.lightOnBobber": "Make bobber emit a light source",
   "text.autoconfig.fishonmcextras.option.fun.lightLevel": "Light level of the light source on bobber",
   "text.autoconfig.fishonmcextras.option.fun.useCustomTitleScreen": "Use FoE Custom Title Screen",
-  "text.autoconfig.fishonmcextras.option.chatFilter": "§f§lChat Filter",
-  "text.autoconfig.fishonmcextras.option.chatFilter.enabled": "Enable Chat Filter",
-  "text.autoconfig.fishonmcextras.option.chatFilter.enabled.@Tooltip": "When enabled, certain repetitive server messages will be hidden."
+
+  "text.autoconfig.fishonmcextras.option.chatconfig": "§f§lChat Settings Options",
+  "text.autoconfig.fishonmcextras.option.chatconfig.makeSomeTagsCopyPastable": "Display certain tags in a copy-pastable format",
+  "text.autoconfig.fishonmcextras.option.chatconfig.makeSomeTagsCopyPastable.@Tooltip": "Changes the Pet Drop Message to display the rarity in brackets, making it possible to copy-paste.",
+  "text.autoconfig.fishonmcextras.option.chatconfig.chatFilter": "§f§lChat Filter",
+  "text.autoconfig.fishonmcextras.option.chatconfig.chatFilter.enabled": "Enable Chat Filter",
+  "text.autoconfig.fishonmcextras.option.chatconfig.chatFilter.enabled.@Tooltip": "When enabled, certain repetitive server messages will be hidden."
 }

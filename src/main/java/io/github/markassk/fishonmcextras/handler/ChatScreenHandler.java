@@ -22,12 +22,11 @@ public class ChatScreenHandler {
 
     public Text appendTooltip(Text text) {
         String textString = text.getString();
-        if(textString.startsWith("!")
+        if (textString.startsWith("!")
                 && textString.contains("»")
-                && Defaults.foeDevs.values().stream().anyMatch(foEDevType -> textString.contains(foEDevType.text))
-        ) {
+                && Defaults.foeDevs.values().stream().anyMatch(foEDevType -> textString.contains(foEDevType.text))) {
             String jsonText = TextHelper.textToJson(text);
-            if(config.fun.isFoeTagPrefix) {
+            if (config.fun.isFoeTagPrefix) {
                 jsonText = TextHelper.replaceToFoE(jsonText);
                 jsonText = jsonText.replace("B05BF9", "00AF0E");
             } else {
@@ -40,13 +39,13 @@ public class ChatScreenHandler {
     }
 
     public void onOpenScreen() {
-        if(MinecraftClient.getInstance().player != null) {
+        if (MinecraftClient.getInstance().player != null) {
             PacketHandler.TYPING_PACKET.sendStartTypingPacket(MinecraftClient.getInstance().player.getUuid());
         }
     }
 
     public void onRemoveScreen() {
-        if(MinecraftClient.getInstance().player != null) {
+        if (MinecraftClient.getInstance().player != null) {
             PacketHandler.TYPING_PACKET.sendStopTypingPacket(MinecraftClient.getInstance().player.getUuid());
         }
     }
