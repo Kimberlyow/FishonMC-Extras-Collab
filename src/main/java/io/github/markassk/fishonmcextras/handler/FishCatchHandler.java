@@ -158,6 +158,7 @@ public class FishCatchHandler {
 
 			ProfileDataHandler.instance().updateShardCaughtStatsOnCatch(1);
 			FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
+			// DailyQuestHandler.instance().updateQuest(2);
 
 			if (config.fishTracker.dryStreakMessageToggles.otherMessageToggles.showShard) {
 				sendItemDryStreakMessage("shard", oldShardDryStreak);
@@ -222,6 +223,10 @@ public class FishCatchHandler {
 			ProfileDataHandler.instance().updateStatsOnCatch(fish);
 			ProfileDataHandler.instance().updateStatsOnCatch();
 			QuestHandler.instance().updateQuest(fish);
+			// DailyQuestHandler.instance().updateQuest(0);
+			// if (fish.rarity == Constant.MYTHICAL) {
+			// 	DailyQuestHandler.instance().updateQuest(3);
+			// }
 			PetEquipHandler.instance().updatePet(minecraftClient.player);
 
 			if (config.contestTracker.shouldShowFullContest() && config.contestTracker.refreshOnContestPB) {
@@ -373,33 +378,45 @@ public class FishCatchHandler {
 	private void sendFishDryStreakMessage(Constant fish, int lastCaught) {
 		boolean showText = config.fishTracker.dryStreakMessageToggles.showText;
 		TextDisplayHandler.TextDisplay formatting = config.fishTracker.dryStreakMessageToggles.textCapitalization;
+		Text fishText = fish.TAG;
+		String lower;
+		boolean useAn;
 
-		Text fishText = showText ? switch (fish) {
-			// Rarities
-			case COMMON -> Text.literal(TextDisplayHandler.formatText("Common", formatting)).withColor(0xFFFFFF);
-			case RARE -> Text.literal(TextDisplayHandler.formatText("Rare", formatting)).withColor(0x2B85C4);
-			case EPIC -> Text.literal(TextDisplayHandler.formatText("Epic", formatting)).withColor(0x1CD832);
-			case LEGENDARY -> Text.literal(TextDisplayHandler.formatText("Legendary", formatting)).withColor(0xD98103);
-			case MYTHICAL -> Text.literal(TextDisplayHandler.formatText("Mythical", formatting)).withColor(0xC93832);
+		if (!(config.fishTracker.dryStreakMessageToggles.textCapitalization == TextDisplayHandler.TextDisplay.OFF)) {
+			fishText = showText ? switch (fish) {
+				// Rarities
+				case COMMON -> Text.literal(TextDisplayHandler.formatText("Common", formatting)).withColor(0xFFFFFF);
+				case RARE -> Text.literal(TextDisplayHandler.formatText("Rare", formatting)).withColor(0x2B85C4);
+				case EPIC -> Text.literal(TextDisplayHandler.formatText("Epic", formatting)).withColor(0x1CD832);
+				case LEGENDARY ->
+					Text.literal(TextDisplayHandler.formatText("Legendary", formatting)).withColor(0xD98103);
+				case MYTHICAL ->
+					Text.literal(TextDisplayHandler.formatText("Mythical", formatting)).withColor(0xC93832);
 
-			// Sizes
-			case BABY -> Text.literal(TextDisplayHandler.formatText("Baby", formatting)).withColor(0x468CE7);
-			case JUVENILE -> Text.literal(TextDisplayHandler.formatText("Juvenile", formatting)).withColor(0x22EA08);
-			case ADULT -> Text.literal(TextDisplayHandler.formatText("Adult", formatting)).withColor(0x1C7DA0);
-			case LARGE -> Text.literal(TextDisplayHandler.formatText("Large", formatting)).withColor(0xFF9000);
-			case GIGANTIC -> Text.literal(TextDisplayHandler.formatText("Gigantic", formatting)).withColor(0xAF3333);
+				// Sizes
+				case BABY -> Text.literal(TextDisplayHandler.formatText("Baby", formatting)).withColor(0x468CE7);
+				case JUVENILE ->
+					Text.literal(TextDisplayHandler.formatText("Juvenile", formatting)).withColor(0x22EA08);
+				case ADULT -> Text.literal(TextDisplayHandler.formatText("Adult", formatting)).withColor(0x1C7DA0);
+				case LARGE -> Text.literal(TextDisplayHandler.formatText("Large", formatting)).withColor(0xFF9000);
+				case GIGANTIC ->
+					Text.literal(TextDisplayHandler.formatText("Gigantic", formatting)).withColor(0xAF3333);
 
-			// Variants
-			case ALBINO -> Text.literal(TextDisplayHandler.formatText("Albino", formatting)).withColor(0xC6C3A1);
-			case MELANISTIC -> Text.literal(TextDisplayHandler.formatText("Melanistic", formatting)).withColor(0x1C1C1C);
-			case TROPHY -> Text.literal(TextDisplayHandler.formatText("Trophy", formatting)).withColor(0xD8C13C);
-			case FABLED -> Text.literal(TextDisplayHandler.formatText("Fabled", formatting)).withColor(0xCE2326);
+				// Variants
+				case ALBINO -> Text.literal(TextDisplayHandler.formatText("Albino", formatting)).withColor(0xC6C3A1);
+				case MELANISTIC ->
+					Text.literal(TextDisplayHandler.formatText("Melanistic", formatting)).withColor(0x1C1C1C);
+				case TROPHY -> Text.literal(TextDisplayHandler.formatText("Trophy", formatting)).withColor(0xD8C13C);
+				case FABLED -> Text.literal(TextDisplayHandler.formatText("Fabled", formatting)).withColor(0xCE2326);
 
-			default -> fish.TAG;
-		} : fish.TAG;
+				default -> fish.TAG;
+			} : fish.TAG;
 
-		String lower = fish.toString().toLowerCase(Locale.ROOT).trim();
-		boolean useAn = !lower.isEmpty() && "aeiou".indexOf(lower.charAt(0)) >= 0;
+			lower = fish.toString().toLowerCase(Locale.ROOT).trim();
+		} else {
+			lower = fish.ID.toLowerCase(Locale.ROOT).trim();
+		}
+		useAn = !lower.isEmpty() && "aeiou".indexOf(lower.charAt(0)) >= 0;
 		sendDryStreakMessage(fishText, useAn ? "an " : "a ", lastCaught);
 	}
 

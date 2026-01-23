@@ -6,7 +6,8 @@ public class TextDisplayHandler {
         UPPERCASE,
         lowercase,
         Capitalized,
-        TAG
+        TAG,
+        OFF
     }
 
     public static String formatText(String input, TextDisplay textDisplay) {
@@ -23,6 +24,8 @@ public class TextDisplayHandler {
                 return capitalizeWords(input);
             case TAG:
                 return "[" + input.toUpperCase() + "]";
+            case OFF:
+                return input;
             default:
                 return input;
         }

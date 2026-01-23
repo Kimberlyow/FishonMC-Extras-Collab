@@ -70,11 +70,6 @@ public class ChatTagHandler {
             Constant.TROPHY,
             Constant.FABLED,
 
-            // Event Variants
-            Constant.ALTERNATE,
-            Constant.SPOOKY,
-            Constant.FROZEN,
-
             // Rare Catches
             Constant.LIGHTNING_BOTTLE,
             Constant.INFUSION_CAPSULE,
@@ -476,5 +471,59 @@ public class ChatTagHandler {
             }
         }
         return null;
+    }
+
+    public static CompletionList findCompletions(String rawText, int cursor) {
+        if (rawText == null) {
+            return null;
+        }
+        cursor = Math.max(0, Math.min(cursor, rawText.length()));
+
+        String beforeCursor = rawText.substring(0, cursor);
+
+        int open = beforeCursor.lastIndexOf('[');
+        if (open < 0) {
+            return null;
+        }
+
+        if (beforeCursor.indexOf(']', open) != -1) {
+            return null;
+        }
+
+        if (open > 0 && !Character.isWhitespace(beforeCursor.charAt(open - 1))) {
+            return null;
+        }
+
+        String typed = beforeCursor.substring(open + 1);
+        String typedUpper = typed.toUpperCase();
+
+        java.util.ArrayList<Constant> matches = new java.util.ArrayList<>();
+        for (Constant c : ALLOWED_CONSTANTS) {
+            if (typedUpper.isEmpty() || c.name().startsWith(typedUpper)) {
+                matches.add(c);
+            }
+        }
+
+        if (matches.isEmpty()) {
+            return null;
+        }
+
+        return new CompletionList(open, cursor, typed, matches);
+    }
+
+    public static Completion findCompletion(String rawText, int cursor) {
+        CompletionList list = findCompletions(rawText, cursor);
+        if (list == null || list.matches().isEmpty()) {
+            return null;
+        }
+        Constant best = list.matches().getFirst();
+        String full = "[" + best.name() + "]";
+        return new Completion(list.replaceFrom(), list.replaceTo(), full);
+    }
+
+    public record CompletionList(int replaceFrom, int replaceTo, String typed, java.util.List<Constant> matches) {
+    }
+
+    public record Completion(int replaceFrom, int replaceTo, String fullText) {
     }
 }
