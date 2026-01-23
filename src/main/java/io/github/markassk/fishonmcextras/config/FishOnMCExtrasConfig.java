@@ -48,6 +48,10 @@ public class FishOnMCExtrasConfig implements ConfigData {
 
     @ConfigEntry.Category(value = TRACKERS)
     @ConfigEntry.Gui.CollapsibleObject
+    public TrackerQuestHUDConfig.DailyQuestTracker dailyQuestTracker = new TrackerQuestHUDConfig.DailyQuestTracker();
+
+    @ConfigEntry.Category(value = TRACKERS)
+    @ConfigEntry.Gui.CollapsibleObject
     public TrackerEventConfig.EventTracker eventTracker = new TrackerEventConfig.EventTracker();
 
     @ConfigEntry.Category(value = TRACKERS)

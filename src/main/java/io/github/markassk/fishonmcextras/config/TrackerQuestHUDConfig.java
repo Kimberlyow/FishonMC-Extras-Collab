@@ -15,4 +15,17 @@ public class TrackerQuestHUDConfig {
         @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
         public int hudY = 100;
     }
+
+    public static class DailyQuestTracker {
+        public boolean showDailyQuestHud = true;
+        public boolean rightAlignment = true;
+        @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+        public int backgroundOpacity = 40;
+        @ConfigEntry.BoundedDiscrete(max = 20, min = 2)
+        public int fontSize = 8;
+        @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+        public int hudX = 15;
+        @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+        public int hudY = 100;
+    }
 }

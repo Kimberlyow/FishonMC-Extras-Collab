@@ -357,6 +357,17 @@ public class NotificationHudHandler {
             ));
         }
 
+        if (!DailyQuestHandler.instance().isDailyQuestInitialized()) {
+            if (config.dailyQuestTracker.showDailyQuestHud) {
+                textList.add(Text.empty());
+                textList.add(TextHelper.concat(
+                        Text.literal("Please do ").formatted(Formatting.RED),
+                        Text.literal("/menu ").formatted(Formatting.AQUA),
+                        Text.literal("to initialize the Daily Quest Tracker").formatted(Formatting.RED)
+                ));
+            }
+        }
+
         if(!ProfileDataHandler.instance().profileData.isStatsInitialized) {
             textList.add(Text.empty());
             textList.add(TextHelper.concat(

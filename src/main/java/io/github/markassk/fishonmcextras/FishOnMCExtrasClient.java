@@ -85,6 +85,7 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                     TabHandler.instance().tick(minecraftClient);
                     BossBarHandler.instance().tick(minecraftClient);
                     QuestHandler.instance().tick(minecraftClient);
+                    DailyQuestHandler.instance().tick(minecraftClient);
                     ArmorHandler.instance().tick(minecraftClient);
                     FishingRodHandler.instance().tick(minecraftClient);
                     CrewHandler.instance().tick(minecraftClient);
@@ -144,7 +145,8 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 PlayerStatusHandler.instance().onReceiveMessage(text) ||
                 TimerHandler.instance().onReceiveMessage(text) ||
                 EventHandler.instance().onReceiveMessage(text) ||
-                AutoTippingHandler.instance().onReceiveMessage(text)) {
+                AutoTippingHandler.instance().onReceiveMessage(text) ||
+                DailyQuestHandler.instance().onReceiveMessage(text)) {
                 FishOnMCExtras.LOGGER.info("[FoE] Suppressing message: {}", text.getString());
                 return false; // Return false to completely suppress the message
             }
@@ -213,6 +215,9 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
             } else if (Objects.equals(screen.getTitle().getString(), "Tackle Shop\uEEE7\uEEE3합")) {
                 // Tackle Shop
                 AuctionHandler.instance().tackleShopMenuState = true;
+            } else if (Objects.equals(screen.getTitle().getString(), "\uEEE4할")) {
+                // Main Menu : 할
+                DailyQuestHandler.instance().questMenuState = true;
             }
 
             if((screen.getTitle().getString().isBlank() || screen.getTitle().getString().contains("Personal Vault ")) && screen instanceof GenericContainerScreen) {
@@ -252,6 +257,9 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
             } else if (Objects.equals(screen.getTitle().getString(), "Tackle Shop\uEEE7\uEEE3합")) {
                 // Tackle Shop
                 AuctionHandler.instance().tackleShopMenuState = false;
+            } else if (Objects.equals(screen.getTitle().getString(), "\uEEE4할")) {
+                // Main Menu : 할
+                DailyQuestHandler.instance().questMenuState = false;
             }
 
             if ((screen.getTitle().getString().isBlank() || screen.getTitle().getString().contains("Personal Vault ")) && screen instanceof GenericContainerScreen) {
