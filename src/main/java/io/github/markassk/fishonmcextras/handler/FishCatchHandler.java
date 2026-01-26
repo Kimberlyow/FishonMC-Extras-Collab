@@ -158,7 +158,7 @@ public class FishCatchHandler {
 
 			ProfileDataHandler.instance().updateShardCaughtStatsOnCatch(1);
 			FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
-			DailyQuestHandler.instance().updateQuest(2);
+			DailyQuestHandler.instance().updateQuest("Shards Caught");
 
 			if (config.fishTracker.dryStreakMessageToggles.otherMessageToggles.showShard) {
 				sendItemDryStreakMessage("shard", oldShardDryStreak);
@@ -223,9 +223,9 @@ public class FishCatchHandler {
 			ProfileDataHandler.instance().updateStatsOnCatch(fish);
 			ProfileDataHandler.instance().updateStatsOnCatch();
 			QuestHandler.instance().updateQuest(fish);
-			DailyQuestHandler.instance().updateQuest(0);
+			DailyQuestHandler.instance().updateQuest("Total Caught");
 			if (fish.rarity == Constant.MYTHICAL) {
-				DailyQuestHandler.instance().updateQuest(3);
+				DailyQuestHandler.instance().updateQuest("Mythical Caught");
 			}
 			PetEquipHandler.instance().updatePet(minecraftClient.player);
 

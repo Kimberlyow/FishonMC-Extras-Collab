@@ -10,8 +10,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.github.markassk.fishonmcextras.FishOnMCExtras;
-
 public class DailyQuestHandler {
     private static DailyQuestHandler INSTANCE = new DailyQuestHandler();
     private static final Pattern DAILY_QUEST_PATTERN = Pattern.compile("\\|\\s*(?<goal>.+?)\\s*\\((?<progress>\\d+)\\s*/\\s*(?<needed>\\d+)\\)");
@@ -35,7 +33,10 @@ public class DailyQuestHandler {
 		String plain = message.getString();
 
         if (plain.startsWith("QUEST Complete [")) {
-            updateQuest(1);
+            updateQuest("Quests Completed");
+
+        } else if (plain.startsWith("DAILY MISSIONS » Contest Participation")) {
+            updateQuest("Contest Participation");
         }
 
 		return false;
@@ -68,14 +69,37 @@ public class DailyQuestHandler {
         }
     }
 
-    public void updateQuest(int index) {
-        if(index < 0 || index >= quests.size()) {
+    public void updateQuest(String goal) {
+        if (goal == null || goal.isBlank()) {
             return;
         }
-        quests.get(index).incrementProgress();
-        if (quests.get(index).questDone()) {
-            quests.remove(index);
+
+        Quest matchedQuest = findQuestByGoal(goal);
+        if (matchedQuest == null) {
+            return;
         }
+
+        matchedQuest.incrementProgress();
+        if (matchedQuest.questDone()) {
+            quests.remove(matchedQuest);
+        }
+    }
+
+    private Quest findQuestByGoal(String goal) {
+        Quest match = null;
+        for (Quest quest : quests) {
+            if (quest.goal == null || quest.goal.isBlank()) {
+                continue;
+            }
+
+            if (quest.goal.equals(goal)) {
+                return quest;
+            }
+                        if (match == null && quest.goal.contains(goal)) {
+                match = quest;
+            }
+        }
+        return match;
     }
 
     private Optional<Quest> parseQuestLine(String loreLine, int slot) {
