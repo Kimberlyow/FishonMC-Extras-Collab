@@ -17,6 +17,7 @@ public enum  LocationInfo {
     CAPE_COD("capecod", ClimateConstant.OCEANIC, Constant.SALTWATER),
     HAWAII("hawaii", ClimateConstant.SAVANNA, Constant.SALTWATER),
     CAIRNS("cairns", ClimateConstant.MONSOON, Constant.SALTWATER),
+    LOFOTEN_ISLANDS("lofotenislands", ClimateConstant.SUBARCTIC, Constant.SALTWATER),
     DEFAULT("", ClimateConstant.DEFAULT, Constant.DEFAULT)
     ;
 

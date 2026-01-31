@@ -1,7 +1,6 @@
 package io.github.markassk.fishonmcextras.mixin;
 
 import io.github.markassk.fishonmcextras.handler.ChatTagHandler;
-import io.github.markassk.fishonmcextras.FOMC.Constant;
 
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -56,7 +55,7 @@ public abstract class ChatScreenMixin {
             return;
         }
 
-        List<Constant> matches = completions.matches();
+        List<ChatTagHandler.Suggestion> matches = completions.matches();
         if (matches == null || matches.isEmpty()) {
             return;
         }
@@ -79,7 +78,7 @@ public abstract class ChatScreenMixin {
             return;
         }
 
-        List<Constant> matches = completions.matches();
+        List<ChatTagHandler.Suggestion> matches = completions.matches();
         int totalCount = matches.size();
         if (totalCount <= 0) {
             chatField.setSuggestion(null);
@@ -87,7 +86,7 @@ public abstract class ChatScreenMixin {
         }
 
         int idx = Math.max(0, Math.min(selectedSuggestionIndex, totalCount - 1));
-        Constant selected = matches.get(idx);
+        ChatTagHandler.Suggestion selected = matches.get(idx);
 
         int open = completions.replaceFrom();
         int to = completions.replaceTo();
@@ -97,7 +96,7 @@ public abstract class ChatScreenMixin {
         }
 
         String typedAfterBracket = chatText.substring(open + 1, cursor);
-        String full = "[" + selected.name() + "]";
+        String full = "[" + selected.tag() + "]";
 
         String remaining = "";
         if (typedAfterBracket.length() <= full.length() - 1) {
@@ -148,7 +147,7 @@ public abstract class ChatScreenMixin {
             return;
         }
 
-        List<Constant> matches = pendingCompletions.matches();
+        List<ChatTagHandler.Suggestion> matches = pendingCompletions.matches();
         if (matches == null || matches.isEmpty()) {
             return;
         }
@@ -166,16 +165,16 @@ public abstract class ChatScreenMixin {
         int maxStart = Math.max(0, totalCount - visibleCount);
         int windowStart = Math.min(Math.max(selected - (visibleCount - 1), 0), maxStart);
         int longestLen = 0;
-        Constant longest = null;
-        for (Constant c : matches) {
-            int len = c.name().length();
+        ChatTagHandler.Suggestion longest = null;
+        for (ChatTagHandler.Suggestion c : matches) {
+            int len = c.tag().length();
             if (len > longestLen) {
                 longestLen = len;
                 longest = c;
             }
         }
         if (longest != null) {
-            Text display = Text.literal("[" + longest.name() + "]").withColor(longest.COLOR);
+            Text display = Text.literal("[" + longest.tag() + "]").withColor(longest.color());
             maxWidth = textRenderer.getWidth(display);
         }
 
@@ -200,7 +199,7 @@ public abstract class ChatScreenMixin {
                     context.fill(x + 1, rowY - 1, x + boxW - 1, rowY - 1 + lineH, 0x66333333);
                 }
                 var c = matches.get(windowStart + i);
-                Text display = Text.literal("[" + c.name() + "]").withColor(c.COLOR);
+                Text display = Text.literal("[" + c.tag() + "]").withColor(c.color());
                 context.drawText(textRenderer, display, x + paddingX, rowY, 0xFFFFFF, true);
             }
         } finally {
@@ -223,15 +222,15 @@ public abstract class ChatScreenMixin {
         if (!suggestionsVisible || completions == null) {
             return;
         }
-        List<Constant> matches = completions.matches();
+        List<ChatTagHandler.Suggestion> matches = completions.matches();
         int totalCount = matches.size();
         if (totalCount <= 0) {
             return;
         }
 
         int idx = Math.max(0, Math.min(selectedSuggestionIndex, totalCount - 1));
-        Constant selected = matches.get(idx);
-        String fullText = "[" + selected.name() + "]";
+        ChatTagHandler.Suggestion selected = matches.get(idx);
+        String fullText = "[" + selected.tag() + "]";
 
         String text = chatField.getText();
         int from = completions.replaceFrom();

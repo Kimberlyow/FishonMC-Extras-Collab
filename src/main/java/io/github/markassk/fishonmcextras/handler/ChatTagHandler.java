@@ -61,6 +61,7 @@ public class ChatTagHandler {
             Constant.MEDITERRANEAN_SEA,
             Constant.CAPE_COD,
             Constant.HAWAII,
+            Constant.LOFOTEN_ISLANDS,
             Constant.CAIRNS,
 
             // Variants
@@ -107,6 +108,7 @@ public class ChatTagHandler {
             Constant.LYNX,
             Constant.SHARK,
             Constant.DOLPHIN,
+            Constant.SHEEP,
             Constant.KOALA,
 
             // Water Types
@@ -497,11 +499,15 @@ public class ChatTagHandler {
         String typed = beforeCursor.substring(open + 1);
         String typedUpper = typed.toUpperCase();
 
-        java.util.ArrayList<Constant> matches = new java.util.ArrayList<>();
+        java.util.ArrayList<Suggestion> matches = new java.util.ArrayList<>();
         for (Constant c : ALLOWED_CONSTANTS) {
             if (typedUpper.isEmpty() || c.name().startsWith(typedUpper)) {
-                matches.add(c);
+                matches.add(new Suggestion(c.name(), c.COLOR));
             }
+        }
+
+        if (typedUpper.isEmpty() || "ITEM".startsWith(typedUpper)) {
+            matches.add(new Suggestion("item", Constant.DEFAULT.COLOR));
         }
 
         if (matches.isEmpty()) {
@@ -516,14 +522,17 @@ public class ChatTagHandler {
         if (list == null || list.matches().isEmpty()) {
             return null;
         }
-        Constant best = list.matches().getFirst();
-        String full = "[" + best.name() + "]";
+        Suggestion best = list.matches().getFirst();
+        String full = "[" + best.tag() + "]";
         return new Completion(list.replaceFrom(), list.replaceTo(), full);
     }
 
-    public record CompletionList(int replaceFrom, int replaceTo, String typed, java.util.List<Constant> matches) {
+    public record CompletionList(int replaceFrom, int replaceTo, String typed, java.util.List<Suggestion> matches) {
     }
 
     public record Completion(int replaceFrom, int replaceTo, String fullText) {
+    }
+
+    public record Suggestion(String tag, int color) {
     }
 }

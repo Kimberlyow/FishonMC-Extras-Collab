@@ -53,6 +53,7 @@ public class LocationHandler {
         else if (bossText.contains(Constant.MEDITERRANEAN_SEA.TAG.getString())) return Constant.MEDITERRANEAN_SEA;
         else if (bossText.contains(Constant.CAPE_COD.TAG.getString())) return Constant.CAPE_COD;
         else if (bossText.contains(Constant.HAWAII.TAG.getString())) return Constant.HAWAII;
+        else if (bossText.contains(Constant.LOFOTEN_ISLANDS.TAG.getString())) return Constant.LOFOTEN_ISLANDS;
         else if (bossText.contains(Constant.CAIRNS.TAG.getString())) return Constant.CAIRNS;
         else return Constant.UNKNOWN;
     }
