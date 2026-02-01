@@ -352,6 +352,7 @@
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showFishRarityMarker": "Show Rarity Marker on fishes",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showFishSizeMarker": "Show Fish Size Marker on fishes",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showOtherRarityMarker": "Show Rarity Marker on other items",
+  "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showPetPercentMarker": "Show Pet Percent Marker on pets",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showPetItemEquippedMarker": "Show Equipped Pet Item Marker",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSearchMarker": "§f§lHighlight Markers",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSearchMarker.searchHighlightColor": "Background color when items are highlighted in search",

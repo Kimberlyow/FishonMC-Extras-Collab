@@ -13,6 +13,8 @@ public class ItemMarkerConfig {
             @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
             public ItemMarkerHandler.FishSizeMarkerToggle showFishSizeMarker = ItemMarkerHandler.FishSizeMarkerToggle.CHARACTER;
             public boolean showOtherRarityMarker = true;
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+            public ItemMarkerHandler.PetPercentMarkerToggle showPetPercentMarker = ItemMarkerHandler.PetPercentMarkerToggle.CHARACTER;
             public boolean showPetItemEquippedMarker = true;
         }
 
