@@ -18,77 +18,101 @@ import net.minecraft.util.Formatting;
 import org.lwjgl.glfw.GLFW;
 
 public class KeybindHandler {
-    private static KeybindHandler INSTANCE = new KeybindHandler();
+	private static KeybindHandler INSTANCE = new KeybindHandler();
 
-    public final AdvancedKeyBinding openConfigKeybind = new AdvancedKeyBinding("key.fishonmcextras.openconfig",
-            GLFW.GLFW_KEY_O, "category.fishonmcextras.general");
-    public final AdvancedKeyBinding openExtraInfoKeybind = new AdvancedKeyBinding("key.fishonmcextras.openextrainfo",
-            GLFW.GLFW_KEY_Z, "category.fishonmcextras.general");
-    public final AdvancedKeyBinding baitSortingHelper = new AdvancedKeyBinding("key.fishonmcextras.baitsortinghelper",
-            GLFW.GLFW_KEY_B, "category.fishonmcextras.general");
+	public final AdvancedKeyBinding openConfigKeybind = new AdvancedKeyBinding("key.fishonmcextras.openconfig",
+			GLFW.GLFW_KEY_O, "category.fishonmcextras.general");
+	public final AdvancedKeyBinding openExtraInfoKeybind = new AdvancedKeyBinding("key.fishonmcextras.openextrainfo",
+			GLFW.GLFW_KEY_Z, "category.fishonmcextras.general");
+	public final AdvancedKeyBinding baitSortingHelper = new AdvancedKeyBinding("key.fishonmcextras.baitsortinghelper",
+			GLFW.GLFW_KEY_B, "category.fishonmcextras.general");
+	public final AdvancedKeyBinding lockRollKeybind = new AdvancedKeyBinding("key.fishonmcextras.lockroll",
+			GLFW.GLFW_KEY_L, "category.fishonmcextras.general");
 
-    public boolean showExtraInfo = false;
-    public boolean visualizeBaitSorting = false;
+	public boolean showExtraInfo = false;
+	public boolean visualizeBaitSorting = false;
+	private boolean lockRollPressed = false;
 
-    public static KeybindHandler instance() {
-        if (INSTANCE == null) {
-            INSTANCE = new KeybindHandler();
-        }
-        return INSTANCE;
-    }
+	public static KeybindHandler instance() {
+		if (INSTANCE == null) {
+			INSTANCE = new KeybindHandler();
+		}
+		return INSTANCE;
+	}
 
-    public void init() {
-        KeybindHandler.register(
-                this.openConfigKeybind,
-                this.openExtraInfoKeybind,
-                this.baitSortingHelper);
-    }
+	public void init() {
+		KeybindHandler.register(
+				this.openConfigKeybind,
+				this.openExtraInfoKeybind,
+				this.baitSortingHelper,
+				this.lockRollKeybind);
+	}
 
-    public void tick(MinecraftClient minecraftClient) {
-        this.openConfigKeybind.onPressed(
-                () -> minecraftClient.setScreen(new MainScreen(minecraftClient, minecraftClient.currentScreen)));
+	public void tick(MinecraftClient minecraftClient) {
+		this.openConfigKeybind.onPressed(
+				() -> minecraftClient.setScreen(new MainScreen(minecraftClient, minecraftClient.currentScreen)));
 
-        this.baitSortingHelper.onPressed(() -> {
-            boolean showOnlyWhilePressingKeybind = FishOnMCExtrasConfig
-                    .getConfig().baitSortingHelperVisibility.showOnlyWhilePressingKeybind;
+		this.baitSortingHelper.onPressed(() -> {
+			boolean showOnlyWhilePressingKeybind = FishOnMCExtrasConfig
+					.getConfig().baitSortingHelperVisibility.showOnlyWhilePressingKeybind;
 
-            if (!showOnlyWhilePressingKeybind) {
-                boolean val = !BaitSortingHelperHandler.instance().toggle;
-                BaitSortingHelperHandler.instance().toggle = val;
-                if (minecraftClient.inGameHud != null) {
-                    minecraftClient.inGameHud.getChatHud().addMessage(TextHelper.concat(
-                            Text.literal("FoE ").formatted(Formatting.DARK_GREEN, Formatting.BOLD),
-                            Text.literal("| ").formatted(Formatting.DARK_GRAY),
-                            Text.literal("Sorting Helper "),
-                            Text.literal(val ? "Enabled" : "Disabled")
-                                    .formatted(val ? Formatting.GREEN : Formatting.RED)));
-                }
+			if (!showOnlyWhilePressingKeybind) {
+				boolean val = !BaitSortingHelperHandler.instance().toggle;
+				BaitSortingHelperHandler.instance().toggle = val;
+				if (minecraftClient.inGameHud != null) {
+					minecraftClient.inGameHud.getChatHud().addMessage(TextHelper.concat(
+							Text.literal("FoE ").formatted(Formatting.DARK_GREEN, Formatting.BOLD),
+							Text.literal("| ").formatted(Formatting.DARK_GRAY),
+							Text.literal("Sorting Helper "),
+							Text.literal(val ? "Enabled" : "Disabled")
+									.formatted(val ? Formatting.GREEN : Formatting.RED)));
+				}
 
-                minecraftClient.getSoundManager().play(
-                        PositionedSoundInstance.master(
-                                SoundEvents.BLOCK_NOTE_BLOCK_PLING,
-                                val ? 1.25f : 0.75f));
-            }
-        });
+				minecraftClient.getSoundManager().play(
+						PositionedSoundInstance.master(
+								SoundEvents.BLOCK_NOTE_BLOCK_PLING,
+								val ? 1.25f : 0.75f));
+			}
+		});
 
-        if (minecraftClient.currentScreen != null) {
-            this.showExtraInfo = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(),
-                    ((KeyBindingAccessor) openExtraInfoKeybind).getBoundKey().getCode());
+		this.lockRollKeybind.onPressed(() -> {
+			LockRollHandler handler = LockRollHandler.instance();
+			if (handler.armorRollsMenuState) {
+				handler.toggleArmorRollLock(minecraftClient);
+			}
+		});
 
-            boolean showOnlyWhilePressingKeybind = FishOnMCExtrasConfig
-                    .getConfig().baitSortingHelperVisibility.showOnlyWhilePressingKeybind;
-            boolean isPressed = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(),
-                    ((KeyBindingAccessor) baitSortingHelper).getBoundKey().getCode());
+		if (minecraftClient.currentScreen != null) {
+			this.showExtraInfo = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(),
+					((KeyBindingAccessor) openExtraInfoKeybind).getBoundKey().getCode());
 
-            this.visualizeBaitSorting = showOnlyWhilePressingKeybind
-                    ? isPressed
-                    : BaitSortingHelperHandler.instance().toggle;
-        }
-    }
+			boolean isLockRollPressed = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(),
+					((KeyBindingAccessor) lockRollKeybind).getBoundKey().getCode());
+			if (isLockRollPressed && !lockRollPressed) {
+				LockRollHandler handler = LockRollHandler.instance();
+				if (handler.armorRollsMenuState) {
+					handler.toggleArmorRollLock(minecraftClient);
+				}
+			}
+			lockRollPressed = isLockRollPressed;
 
-    private static void register(KeyBinding... keyBindings) {
-        for (KeyBinding keyBinding : keyBindings) {
-            KeyBindingHelper.registerKeyBinding(keyBinding);
-        }
-    }
+			boolean showOnlyWhilePressingKeybind = FishOnMCExtrasConfig
+					.getConfig().baitSortingHelperVisibility.showOnlyWhilePressingKeybind;
+			boolean isPressed = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(),
+					((KeyBindingAccessor) baitSortingHelper).getBoundKey().getCode());
+
+			this.visualizeBaitSorting = showOnlyWhilePressingKeybind
+					? isPressed
+					: BaitSortingHelperHandler.instance().toggle;
+		}
+		else {
+			lockRollPressed = false;
+		}
+	}
+
+	private static void register(KeyBinding... keyBindings) {
+		for (KeyBinding keyBinding : keyBindings) {
+			KeyBindingHelper.registerKeyBinding(keyBinding);
+		}
+	}
 }

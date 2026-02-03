@@ -54,7 +54,10 @@ public class TrackerEventConfig {
             public static class WitchingHourOptions {
                 public boolean showAlertHUD = true;
                 @ConfigEntry.BoundedDiscrete(min = 1, max = 300)
-                public int alertDismissSeconds = 15;
+                public int alertDismissSeconds = 5;
+                @ConfigEntry.BoundedDiscrete(min = 0, max = 6)
+                @ConfigEntry.Gui.Tooltip
+                public int alertOffsetHours = 0;
                 @ConfigEntry.Gui.Tooltip
                 public boolean useAlertWarningSound = true;
                 @ConfigEntry.Gui.Tooltip

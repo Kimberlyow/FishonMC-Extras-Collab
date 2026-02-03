@@ -6,6 +6,7 @@ import io.github.markassk.fishonmcextras.handler.packet.PacketHandler;
 import io.github.markassk.fishonmcextras.screens.hud.MainHudRenderer;
 import io.github.markassk.fishonmcextras.screens.main.FoETitleScreen;
 import io.github.markassk.fishonmcextras.screens.petCalculator.PetCalculatorScreen;
+import io.github.markassk.fishonmcextras.config.ConfigConstants;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.screens.widget.IconButtonWidget;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -40,6 +41,8 @@ import java.util.Objects;
 
 public class FishOnMCExtrasClient implements ClientModInitializer {
     public static FishOnMCExtrasConfig CONFIG;
+    private Text buffer = null;
+    private boolean shouldFilter = false;
 
     public static final MainHudRenderer MAIN_HUD_RENDERER = new MainHudRenderer();
 
@@ -93,6 +96,7 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                     DiscordHandler.instance().tick();
                     KeybindHandler.instance().tick(minecraftClient);
                     InventoryScreenHandler.instance().tick(minecraftClient);
+                    LockRollHandler.instance().tick(minecraftClient);
                     PersonalVaultScreenHandler.instance().tick(minecraftClient);
                     SearchBarContainerHandler.instance().tick(minecraftClient);
                     ThemingHandler.instance().tick();
@@ -150,8 +154,62 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 FishOnMCExtras.LOGGER.info("[FoE] Suppressing message: {}", text.getString());
                 return false; // Return false to completely suppress the message
             }
+
+            String raw = text.getString();
+
+            // Revamped version of Gladionus' chat filter
+            if (CONFIG.chatconfig.chatFilter.enabled) {
+                if (shouldFilter && raw.isBlank()) {
+                    shouldFilter = false;
+                    return false;
+                }
+                shouldFilter = false;
+
+                if (isChatFilterTarget(text)) {
+                    FishOnMCExtras.LOGGER.info("[FoE] Suppressing chat filter message: {}", text.getString());
+                    if (buffer != null) {
+                        buffer = null;
+                    }
+                    shouldFilter = true;
+                    return false;
+                }
+
+                if (raw.isBlank()) {
+                    buffer = text;
+                    return false;
+                }
+
+                if (buffer != null) {
+                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(buffer);
+                    buffer = null;
+                }
+            } else {
+                if (buffer != null) {
+                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(buffer);
+                    buffer = null;
+                }
+                shouldFilter = false;
+            }
         }
         return true;
+    }
+
+    private boolean isChatFilterTarget(Text text) {
+        if (text == null) {
+            return false;
+        }
+        String raw = text.getString();
+        if (raw == null) {
+            return false;
+        }
+        return raw.contains("DESIGN TEAM »")
+            || raw.contains("HELP »")
+            || raw.contains("WIKI »")
+            || raw.contains("RULES »")
+            || raw.contains("BUILD TEAM »")
+            || raw.contains("COSMETICS »")
+            || raw.contains("STORE »")
+            || raw.contains("DISCORD »");
     }
 
     private Text modifyGameMessage(Text text, boolean overlay) {
@@ -198,7 +256,7 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 // Quest Menu : 픹
                 QuestHandler.instance().questMenuState = true;
             } else if(Objects.equals(screen.getTitle().getString() , "\uEEE4핒")) {
-                // Crew Menu: 핒
+                // Crew Menu: 핒 (shares title with Leveling Bonuses)
                 CrewHandler.instance().crewMenuState = true;
             } else if (Objects.equals(screen.getTitle().getString() , "\uEEE4픲")) {
                 // Stats Menu: 픲
@@ -218,6 +276,9 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
             } else if (Objects.equals(screen.getTitle().getString(), "\uEEE4할")) {
                 // Main Menu : 할
                 DailyQuestHandler.instance().questMenuState = true;
+            } else if (Objects.equals(screen.getTitle().getString(), "Armor Menu\uEEE7\uEEE2핈")) {
+                // Armor Menu : Armor Menu핈
+                LockRollHandler.instance().armorRollsMenuState = true;
             }
 
             if((screen.getTitle().getString().isBlank() || screen.getTitle().getString().contains("Personal Vault ")) && screen instanceof GenericContainerScreen) {
@@ -229,6 +290,10 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                     || screen instanceof AbstractFurnaceScreen)
             ) {
                 SearchBarContainerHandler.instance().searchBar.setText("");
+            }
+
+            if (ConfigConstants.DEV) {
+                DebugHelperHandler.instance().logCurrentScreen();
             }
         }
         ScreenEvents.remove(screen).register(this::onRemoveScreen);
@@ -260,6 +325,9 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
             } else if (Objects.equals(screen.getTitle().getString(), "\uEEE4할")) {
                 // Main Menu : 할
                 DailyQuestHandler.instance().questMenuState = false;
+            } else if (Objects.equals(screen.getTitle().getString(), "Armor Menu\uEEE7\uEEE2핈")) {
+                // Armor Menu : Armor Menu핈
+                LockRollHandler.instance().armorRollsMenuState = false;
             }
 
             if ((screen.getTitle().getString().isBlank() || screen.getTitle().getString().contains("Personal Vault ")) && screen instanceof GenericContainerScreen) {

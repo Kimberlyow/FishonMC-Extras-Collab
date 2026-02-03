@@ -123,6 +123,10 @@ public class ChatTagHandler {
             Constant.ADMIRAL,
             Constant.FOE,
 
+            // Stats
+            Constant.LUCK,
+            Constant.SCALE,
+
             // Climate
             Constant.SUBTROPICAL,
             Constant.SUBARCTIC,

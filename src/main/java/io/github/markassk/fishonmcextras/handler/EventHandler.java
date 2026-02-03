@@ -62,10 +62,11 @@ public class EventHandler {
 
         public void onEventTick() {
                 TrackerEventConfig.EventTracker.OtherEventOptions.WitchingHourOptions witchingHourOptions = config.eventTracker.otherEventOptions.witchingHourOptions;
-                
+
                 String location = BossBarHandler.instance().currentLocation.ID;
                 boolean isAtCypressLake = location.equals(Constant.CYPRESS_LAKE.ID);
                 boolean requireCypressLake = !witchingHourOptions.showOutsideCypressLake;
+                int offsetHours = witchingHourOptions.alertOffsetHours;
 
                 if (requireCypressLake && !isAtCypressLake && !isWitchingHour) {
                         isWitchingHour = false;
@@ -74,13 +75,18 @@ public class EventHandler {
 
                 if (isAtCypressLake || isWitchingHour || !requireCypressLake) {
                         String time = BossBarHandler.instance().time;
-                        Integer parsedHour = extractHour(time);
+                        Integer parsedHour = extractHour(time) != null ? extractHour(time) : 0;
                         String timeSuffix = BossBarHandler.instance().timeSuffix.toUpperCase();
                         // FishOnMCExtras.LOGGER.info("Time suffix: " + timeSuffix);
                         // FishOnMCExtras.LOGGER.info("Parsed hour: " + parsedHour);
                         // FishOnMCExtras.LOGGER.info("Is witching hour: " + isWitchingHour);
-                        boolean isInRange = parsedHour != null && timeSuffix.contains("AM") && parsedHour >= 1
-                                        && parsedHour < 3;
+
+                        // Convetr to 24hour for offset implementation
+                        Integer currentHour = normHour(parsedHour, timeSuffix);
+                        int startHour = Math.floorMod(1 - offsetHours, 24);
+                        boolean isInRange = currentHour != null
+                                        && (startHour <= 3 ? currentHour >= startHour && currentHour < 3
+                                                        : currentHour >= startHour || currentHour < 3);
                         if (!isWitchingHour && isInRange == true) {
                                 // witching hour
                                 isWitchingHour = true;
@@ -92,7 +98,8 @@ public class EventHandler {
 
                                 MutableText eventText = TextHelper.concat(
                                                 Text.literal("It is now ").formatted(Formatting.WHITE),
-                                                Text.literal("Witching Hour").formatted(Formatting.BOLD).withColor(0x990000),
+                                                Text.literal("Witching Hour").formatted(Formatting.BOLD)
+                                                                .withColor(0x990000),
                                                 Text.literal("\n").formatted(Formatting.WHITE),
                                                 Text.literal("in ").formatted(Formatting.GRAY),
                                                 Constant.CYPRESS_LAKE.TAG.copy(),
@@ -119,11 +126,12 @@ public class EventHandler {
                                 FishOnMCExtras.LOGGER.info("Witching hour ended");
                                 // generic event
                                 GenericEventConfig eventConfig = new GenericEventConfig(
-                                                Text.literal("Witching hour ended").formatted(Formatting.DARK_PURPLE, Formatting.ITALIC), true,
+                                                Text.literal("Witching hour ended").formatted(Formatting.DARK_PURPLE,
+                                                                Formatting.ITALIC),
+                                                true,
                                                 witchingHourOptions.alertSoundType, 2);
                                 triggerGenericEvent(eventConfig);
-                        }
-                        else if (!isInRange) {
+                        } else if (!isInRange) {
                                 isWitchingHour = false;
                         }
                 } else {
@@ -150,6 +158,24 @@ public class EventHandler {
                         FishOnMCExtras.LOGGER.debug("Unable to parse hour from time string '{}'", time, exception);
                         return null;
                 }
+        }
+
+        private Integer normHour(Integer parsedHour, String suffix) {
+                if (parsedHour == null || suffix == null) {
+                        return null;
+                }
+
+                int normalized = Math.floorMod(parsedHour, 12);
+                String normalizedSuffix = suffix.trim().toUpperCase(Locale.ROOT);
+
+                if (normalizedSuffix.equals("AM")) {
+                        return normalized;
+                }
+                if (normalizedSuffix.equals("PM")) {
+                        return normalized + 12;
+                }
+
+                return null;
         }
 
         public void triggerGenericEvent(GenericEventConfig genericEventConfig) {

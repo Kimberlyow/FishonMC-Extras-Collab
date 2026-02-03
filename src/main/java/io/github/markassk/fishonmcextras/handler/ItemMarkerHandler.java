@@ -38,6 +38,7 @@ public class ItemMarkerHandler {
     }
 
     public void renderItemMarker(DrawContext drawContext, Slot slot) {
+        LockRollHandler.instance().renderLockedArmorRollMarker(drawContext, slot);
         if (config.itemMarker.itemSlotMarker.showItemMarker && !slot.getStack().isEmpty()) {
             renderItemMarker(drawContext, slot.getStack(), slot.x, slot.y);
         }

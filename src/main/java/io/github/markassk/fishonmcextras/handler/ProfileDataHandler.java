@@ -367,6 +367,9 @@ public class ProfileDataHandler {
         // Quest Data
         public Map<Constant, List<QuestHandler.Quest>> activeQuests = new HashMap<>();
 
+        // Locked Rolls Data
+        public Map<Integer, List<String>> lockedArmorRolls = new HashMap<>();
+
         // Stats Data
         public boolean isStatsInitialized = false;
 
@@ -410,6 +413,7 @@ public class ProfileDataHandler {
             crewMembers = new ArrayList<>(prevData.crewMembers);
             isInCrewChat = prevData.isInCrewChat;
             activeQuests = new HashMap<>(prevData.activeQuests);
+            lockedArmorRolls = new HashMap<>(prevData.lockedArmorRolls);
             isStatsInitialized = prevData.isStatsInitialized;
         }
 

@@ -374,6 +374,10 @@ public enum Constant {
 	GOLDRUSH("⚠", Text.literal("⚠"), 0xF7EA3E),
 	MOON("○", Text.literal("○"), 0x5FC0E6),
 
+	// Stats
+	LUCK("luck", Text.literal("♣ Luck").withColor(0x80DAC3), 0x80DAC3),
+	SCALE("scale", Text.literal("⚓ Scale").withColor(0x4C88F1), 0x4C88F1),
+
 	// Climate (changed duplicate of #ClimateConstants.java)
 	SUBTROPICAL("subtropical_climate", TextHelper.concat(
 			Text.literal("S").withColor(0x4FB07A),

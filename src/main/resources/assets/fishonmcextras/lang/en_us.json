@@ -6,6 +6,7 @@
   "key.fishonmcextras.openconfig": "Open Config",
   "key.fishonmcextras.openextrainfo": "Show Extra Details",
   "key.fishonmcextras.baitsortinghelper": "Bait Sorting Helper",
+  "key.fishonmcextras.lockroll": "Toggle Bonus-Roll Lock",
   "category.fishonmcextras.general": "FishOnMC Extras",
 
   "text.autoconfig.fishonmcextras.title": "Fish on MC Extras",
@@ -292,6 +293,8 @@
   "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.fabledOptions.alertSoundType": "Sound used for notification",
   "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.witchingHourOptions": "§f§lWitching Hour Tracker Options",
   "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.witchingHourOptions.showAlertHUD": "Show notification when Witching Hour is active",
+  "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.witchingHourOptions.alertOffsetHours": "Alert offset hours",
+  "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.witchingHourOptions.alertOffsetHours.@Tooltip": "§7How many hours before the Witching Hour starts you want to be alerted.\n1 hour ~= 50 Seconds",
   "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.witchingHourOptions.alertDismissSeconds": "Amount of seconds before dismissing notification",
   "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.witchingHourOptions.useAlertWarningSound": "Play alert sound",
   "text.autoconfig.fishonmcextras.option.eventTracker.otherEventOptions.witchingHourOptions.useAlertWarningSound.@Tooltip": "§7If §aShow notification when Witching Hour is active§7 is §cdisabled§7, this option will be ignored",
