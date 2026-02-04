@@ -66,6 +66,8 @@ public class LockRollHandler {
             hasInitialized = true;
             if (ProfileDataHandler.instance().profileData.lockedArmorRolls == null) {
                 ProfileDataHandler.instance().profileData.lockedArmorRolls = new HashMap<>();
+            } else {
+                ProfileDataHandler.instance().profileData.lockedArmorRolls.values().removeIf(list -> list == null || list.isEmpty());
             }
         }
     }
@@ -168,13 +170,6 @@ public class LockRollHandler {
             Armor armor = Armor.getArmor(slot.getStack());
             if (armor != null) {
                 Integer key = getArmorKey(slot.getStack());
-
-                if (key != null) {
-                    Map<Integer, List<String>> lockedArmorRolls = ProfileDataHandler.instance().profileData.lockedArmorRolls;
-                    if (!lockedArmorRolls.containsKey(key)) {
-                        lockedArmorRolls.put(key, new ArrayList<>());
-                    }
-                }
 
                 return key;
             }

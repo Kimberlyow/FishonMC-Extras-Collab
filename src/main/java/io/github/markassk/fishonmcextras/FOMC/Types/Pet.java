@@ -177,27 +177,26 @@ public class Pet extends FOMCItem {
     }
 
     public static Constant getConstantFromPercent(float value) {
+        BigDecimal percent = new BigDecimal(Float.toString(value))
+                .multiply(BigDecimal.valueOf(100));
 
-        BigDecimal input = new BigDecimal(value * 100f);
-        float ceilValue = input.setScale(2, RoundingMode.HALF_EVEN).floatValue();
-
-        if (ceilValue <= 20f)
+        if (percent.compareTo(BigDecimal.valueOf(20)) <= 0)
             return Constant.SICKLY;
-        else if (ceilValue < 30f)
+        else if (percent.compareTo(BigDecimal.valueOf(30)) < 0)
             return Constant.BAD;
-        else if (ceilValue < 40f)
+        else if (percent.compareTo(BigDecimal.valueOf(40)) < 0)
             return Constant.BELOW_AVERAGE;
-        else if (ceilValue < 50f)
+        else if (percent.compareTo(BigDecimal.valueOf(50)) < 0)
             return Constant.AVERAGE;
-        else if (ceilValue < 60f)
+        else if (percent.compareTo(BigDecimal.valueOf(60)) < 0)
             return Constant.GOOD;
-        else if (ceilValue < 80f)
+        else if (percent.compareTo(BigDecimal.valueOf(80)) < 0)
             return Constant.GREAT;
-        else if (ceilValue < 90f)
+        else if (percent.compareTo(BigDecimal.valueOf(90)) < 0)
             return Constant.EXCELLENT;
-        else if (ceilValue < 100f)
+        else if (percent.compareTo(BigDecimal.valueOf(100)) < 0)
             return Constant.AMAZING;
-        else if (ceilValue <= 101f)
+        else if (percent.compareTo(BigDecimal.valueOf(101)) <= 0)
             return Constant.PERFECT;
         return Constant.DEFAULT;
     }

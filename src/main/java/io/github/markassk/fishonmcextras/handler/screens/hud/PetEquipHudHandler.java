@@ -2,6 +2,7 @@ package io.github.markassk.fishonmcextras.handler.screens.hud;
 
 import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.FOMC.Types.Pet;
+import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.handler.PetEquipHandler;
 import io.github.markassk.fishonmcextras.handler.ProfileDataHandler;
 import io.github.markassk.fishonmcextras.util.TextHelper;
@@ -28,6 +29,7 @@ public class PetEquipHudHandler {
 
     public List<Text> assemblePetText() {
         ProfileDataHandler.ProfileData profileData = ProfileDataHandler.instance().profileData;
+        FishOnMCExtrasConfig config = FishOnMCExtrasConfig.getConfig();
 
         List<Text> textList = new ArrayList<>();
 
@@ -38,7 +40,7 @@ public class PetEquipHudHandler {
             float neededXp = profileData.equippedPet.neededXp;
             float percentXp = currentXp / neededXp * 100f;
             float petPercent = profileData.equippedPet.percentPetRating * 100f;
-            Constant ratingTag = Pet.getConstantFromPercent(petPercent/100f);
+            Constant ratingTag = Pet.getConstantFromPercent(profileData.equippedPet.percentPetRating);
             String petItemId = profileData.equippedPet.petItem;
             Constant petItemConstant = petItemId != null ? Constant.valueOfId(petItemId) : null;
             Text petItemText = null;
@@ -61,39 +63,68 @@ public class PetEquipHudHandler {
                     Text.literal("ʟᴠʟ ").formatted(Formatting.GRAY),
                     Text.literal(String.valueOf(level)).formatted(levelColor),
                     Text.literal(")").formatted(Formatting.DARK_GRAY)));
+
             if (level == 100) {
-                textList.add(TextHelper.concat(
-                        Text.literal("xᴘ ").formatted(Formatting.GRAY),
-                        Text.literal("(").formatted(Formatting.DARK_GRAY),
-                        Text.literal(TextHelper.fmnt(currentXp)).formatted(Formatting.AQUA),
-                        Text.literal("/").formatted(Formatting.DARK_GRAY),
-                        Text.literal("MAX").formatted(Formatting.BLUE),
-                        Text.literal(") ").formatted(Formatting.DARK_GRAY),
-                        Text.literal("100").formatted(Formatting.GREEN),
-                        Text.literal("%").formatted(Formatting.GREEN)));
+                if (config.petEquipTracker.activePetHUDOptions.xpDisplayType == XpDisplayType.ALL) {
+                    textList.add(TextHelper.concat(
+                            Text.literal("xᴘ ").formatted(Formatting.GRAY),
+                            Text.literal("(").formatted(Formatting.DARK_GRAY),
+                            Text.literal(TextHelper.fmnt(currentXp)).formatted(Formatting.AQUA),
+                            Text.literal("/").formatted(Formatting.DARK_GRAY),
+                            Text.literal("MAX").formatted(Formatting.BLUE),
+                            Text.literal(") ").formatted(Formatting.DARK_GRAY),
+                            Text.literal("100").formatted(Formatting.GREEN),
+                            Text.literal("%").formatted(Formatting.GREEN)));
+                } else if (config.petEquipTracker.activePetHUDOptions.xpDisplayType == XpDisplayType.SHORT) {
+                    textList.add(TextHelper.concat(
+                            Text.literal("xᴘ ").formatted(Formatting.GRAY),
+                            Text.literal("(").formatted(Formatting.DARK_GRAY),
+                            Text.literal(TextHelper.fmnt(currentXp)).formatted(Formatting.AQUA),
+                            Text.literal(")").formatted(Formatting.DARK_GRAY)));
+                }
             } else {
                 Formatting percentColor = getProgressColor(percentXp);
-                textList.add(TextHelper.concat(
-                        Text.literal("xᴘ ").formatted(Formatting.GRAY),
-                        Text.literal("(").formatted(Formatting.DARK_GRAY),
-                        Text.literal(TextHelper.fmnt(currentXp)).formatted(Formatting.AQUA),
-                        Text.literal("/").formatted(Formatting.DARK_GRAY),
-                        Text.literal(TextHelper.fmnt(neededXp)).formatted(Formatting.BLUE),
-                        Text.literal(") ").formatted(Formatting.DARK_GRAY),
-                        Text.literal(TextHelper.fmt(percentXp, 1)).formatted(percentColor),
-                        Text.literal("%").formatted(percentColor)));
+                if (config.petEquipTracker.activePetHUDOptions.xpDisplayType == XpDisplayType.ALL) {
+                    textList.add(TextHelper.concat(
+                            Text.literal("xᴘ ").formatted(Formatting.GRAY),
+                            Text.literal("(").formatted(Formatting.DARK_GRAY),
+                            Text.literal(TextHelper.fmnt(currentXp)).formatted(Formatting.AQUA),
+                            Text.literal("/").formatted(Formatting.DARK_GRAY),
+                            Text.literal(TextHelper.fmnt(neededXp)).formatted(Formatting.BLUE),
+                            Text.literal(") ").formatted(Formatting.DARK_GRAY),
+                            Text.literal(TextHelper.fmt(percentXp, 1)).formatted(percentColor),
+                            Text.literal("%").formatted(percentColor)));
+                } else if (config.petEquipTracker.activePetHUDOptions.xpDisplayType == XpDisplayType.SHORT) {
+                    textList.add(TextHelper.concat(
+                            Text.literal("xᴘ ").formatted(Formatting.GRAY),
+                            Text.literal("(").formatted(Formatting.DARK_GRAY),
+                            Text.literal(TextHelper.fmnt(currentXp)).formatted(Formatting.AQUA),
+                            Text.literal(") ").formatted(Formatting.DARK_GRAY),
+                            Text.literal(TextHelper.fmt(percentXp, 1)).formatted(percentColor),
+                            Text.literal("%").formatted(Formatting.DARK_GRAY)));
+                }
             }
-            textList.add(TextHelper.concat(
-                    Text.literal("ʀᴀᴛɪɴɢ ").formatted(Formatting.GRAY),
-                    ratingTag.TAG,
-                    Text.literal(" "),
-                    Text.literal("(").formatted(Formatting.DARK_GRAY),
-                    Text.literal(TextHelper.fmt(petPercent, 1) + "%").withColor(ratingTag.COLOR),
-                    Text.literal(") ").formatted(Formatting.DARK_GRAY)));
-            if (petItemText != null) {
+            if (config.petEquipTracker.activePetHUDOptions.ratingDisplayType == RatingDisplayType.ALL) {
                 textList.add(TextHelper.concat(
-                        Text.literal("ɪᴛᴇᴍ ").formatted(Formatting.GRAY),
-                        petItemText));
+                        Text.literal("ʀᴀᴛɪɴɢ ").formatted(Formatting.GRAY),
+                        ratingTag.TAG,
+                        Text.literal(" "),
+                        Text.literal("(").formatted(Formatting.DARK_GRAY),
+                        Text.literal(TextHelper.fmt(petPercent, 1) + "%").withColor(ratingTag.COLOR),
+                        Text.literal(")").formatted(Formatting.DARK_GRAY)));
+            } else if (config.petEquipTracker.activePetHUDOptions.ratingDisplayType == RatingDisplayType.SHORT) {
+                textList.add(TextHelper.concat(
+                        Text.literal("ʀᴀᴛɪɴɢ ").formatted(Formatting.GRAY),
+                        Text.literal("(").formatted(Formatting.DARK_GRAY),
+                        Text.literal(TextHelper.fmt(petPercent, 1) + "%").withColor(ratingTag.COLOR),
+                        Text.literal(")").formatted(Formatting.DARK_GRAY)));
+            }
+            if (petItemText != null) {
+                if (config.petEquipTracker.activePetHUDOptions.itemDisplayType == ItemDisplayType.ALL) {
+                    textList.add(TextHelper.concat(
+                            Text.literal("ɪᴛᴇᴍ ").formatted(Formatting.GRAY),
+                            petItemText));
+                }
             }
         } else if (PetEquipHandler.instance().petStatus == PetEquipHandler.PetStatus.NO_PET) {
             textList.add(Text.literal("No pet equipped").formatted(Formatting.RED));
@@ -104,5 +135,21 @@ public class PetEquipHudHandler {
         }
 
         return textList;
+    }
+
+    public enum XpDisplayType {
+        ALL,
+        SHORT
+    }
+
+    public enum RatingDisplayType {
+        NONE,
+        ALL,
+        SHORT
+    }
+
+    public enum ItemDisplayType {
+        NONE,
+        ALL
     }
 }

@@ -73,6 +73,11 @@ public class EventHandler {
                         return;
                 }
 
+                if (!witchingHourOptions.showAlertHUD) {
+                        isWitchingHour = false;
+                        return;
+                }
+
                 if (isAtCypressLake || isWitchingHour || !requireCypressLake) {
                         String time = BossBarHandler.instance().time;
                         Integer parsedHour = extractHour(time) != null ? extractHour(time) : 0;
@@ -90,11 +95,6 @@ public class EventHandler {
                         if (!isWitchingHour && isInRange == true) {
                                 // witching hour
                                 isWitchingHour = true;
-                                if (!witchingHourOptions.showAlertHUD && !witchingHourOptions.useAlertWarningSound) {
-                                        FishOnMCExtras.LOGGER.debug(
-                                                        "Witching hour detected but alerts are disabled; skipping notification.");
-                                        return;
-                                }
 
                                 MutableText eventText = TextHelper.concat(
                                                 Text.literal("It is now ").formatted(Formatting.WHITE),
@@ -115,21 +115,22 @@ public class EventHandler {
                                         GenericEventConfig eventConfig = new GenericEventConfig(eventText, playSound,
                                                         soundType, witchingHourOptions.alertDismissSeconds);
                                         triggerGenericEvent(eventConfig);
-                                } else if (playSound) {
-                                        NotificationSoundHandler.instance()
-                                                        .playSoundWarning(soundType, MinecraftClient.getInstance());
                                 }
 
                                 FishOnMCExtras.LOGGER.info("Witching hour detected");
                         } else if (!isInRange && isWitchingHour) {
                                 isWitchingHour = false;
+                                boolean playSound = witchingHourOptions.useAlertWarningSound;
+                                NotificationSoundHandler.SoundType soundType = playSound
+                                                ? witchingHourOptions.alertSoundType
+                                                : null;
                                 FishOnMCExtras.LOGGER.info("Witching hour ended");
                                 // generic event
                                 GenericEventConfig eventConfig = new GenericEventConfig(
                                                 Text.literal("Witching hour ended").formatted(Formatting.DARK_PURPLE,
                                                                 Formatting.ITALIC),
-                                                true,
-                                                witchingHourOptions.alertSoundType, 2);
+                                                playSound,
+                                                soundType, 2);
                                 triggerGenericEvent(eventConfig);
                         } else if (!isInRange) {
                                 isWitchingHour = false;

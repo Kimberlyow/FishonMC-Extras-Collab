@@ -1,6 +1,8 @@
 package io.github.markassk.fishonmcextras.config;
 
 import io.github.markassk.fishonmcextras.handler.NotificationSoundHandler;
+import io.github.markassk.fishonmcextras.handler.screens.hud.PetEquipHudHandler;
+import io.github.markassk.fishonmcextras.screens.hud.PetEquipHud;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 public class TrackerPetEquipHUDConfig {
@@ -11,6 +13,14 @@ public class TrackerPetEquipHUDConfig {
         @ConfigEntry.Gui.CollapsibleObject
         public ActivePetHUDOptions activePetHUDOptions = new ActivePetHUDOptions();
         public static class ActivePetHUDOptions {
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+            public PetEquipHudHandler.XpDisplayType xpDisplayType = PetEquipHudHandler.XpDisplayType.ALL;
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+            public PetEquipHudHandler.RatingDisplayType ratingDisplayType = PetEquipHudHandler.RatingDisplayType.ALL;
+            public boolean colorPetBorderToRating = true;
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+            public PetEquipHudHandler.ItemDisplayType itemDisplayType = PetEquipHudHandler.ItemDisplayType.ALL;
+            public boolean showItemIcon = true;
             public boolean rightAlignment = true;
             @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
             public int fontSize = 8;
