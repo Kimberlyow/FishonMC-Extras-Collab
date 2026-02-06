@@ -18,6 +18,7 @@ public class TrackerQuestHUDConfig {
 
     public static class DailyQuestTracker {
         public boolean showDailyQuestHud = true;
+        public boolean showNotification = true;
         public boolean rightAlignment = true;
         @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
         public int backgroundOpacity = 40;

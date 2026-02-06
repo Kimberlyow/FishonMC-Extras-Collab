@@ -44,6 +44,10 @@ public class FishOnMCExtrasConfig implements ConfigData {
 
     @ConfigEntry.Category(value = TRACKERS)
     @ConfigEntry.Gui.CollapsibleObject
+    public TrackerFriendHUDConfig.FriendTracker friendTracker = new TrackerFriendHUDConfig.FriendTracker();
+
+    @ConfigEntry.Category(value = TRACKERS)
+    @ConfigEntry.Gui.CollapsibleObject
     public TrackerQuestHUDConfig.QuestTracker questTracker = new TrackerQuestHUDConfig.QuestTracker();
 
     @ConfigEntry.Category(value = TRACKERS)

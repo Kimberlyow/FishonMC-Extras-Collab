@@ -473,6 +473,17 @@ public enum Constant {
 			Text.literal("o").withColor(0x7785E2),
 			Text.literal("n").withColor(0x7B93E2)), 0x7B93E2),
 
+	// Armor Quality
+	BROKEN("broken", Text.literal("ʙʀᴏᴋᴇɴ").withColor(0xFF74403B), 0xFF74403B),
+	TORN("torn", Text.literal("ᴛᴏʀɴ").withColor(0xFFFF5555), 0xFFFF5555),
+	DAMAGED("damaged", Text.literal("ᴅᴀᴍᴀɢᴇᴅ").withColor(0xFFFCFC54), 0xFFFCFC54),
+	BLEMISHED("blemished", Text.literal("ʙʟᴇᴍɪsʜᴇᴅ").withColor(0xFFFCA800), 0xFFFCA800),
+	WELL_WORN("well_worn", Text.literal("ᴡᴇʟʟ ᴡᴏʀɴ").withColor(0xFF54FC54), 0xFF54FC54),
+	USED("used", Text.literal("ᴜsᴇᴅ").withColor(0xFF00A800), 0xFF00A800),
+	MINT("mint", Text.literal("ᴍɪɴᴛ").withColor(0xFF54FCFC), 0xFF54FCFC),
+	SUBLIME("sublime", Text.literal("sᴜʙʟɪᴍᴇ").withColor(0xFFFC54FC), 0xFFFC54FC),
+	SUPERIOR("superior", Text.literal("sᴜᴘᴇʀɪᴏʀ").withColor(0xFFA800A8), 0xFFA800A8),
+
 	DEFAULT("default", Text.empty(), Defaults.DEFAULT_COLOR);
 
 	public final String ID;

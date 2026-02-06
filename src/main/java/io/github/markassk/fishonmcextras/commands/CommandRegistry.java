@@ -5,7 +5,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.github.markassk.fishonmcextras.commands.argument.PlayerArgumentType;
 import io.github.markassk.fishonmcextras.commands.argument.DrystreakTypesArgumentType;
+import io.github.markassk.fishonmcextras.commands.argument.FriendsCommandArgumentType;
 import io.github.markassk.fishonmcextras.commands.handler.DrystreakTypesCommandHandler;
+import io.github.markassk.fishonmcextras.commands.handler.FriendsCommandHandler;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.handler.CrewHandler;
 import io.github.markassk.fishonmcextras.handler.OtherPlayerHandler;
@@ -44,6 +46,10 @@ public class CommandRegistry {
                 .then(command("armorvisibility").executes(Command::armorVisibility))
                 .then(command("fishcounter").executes(Command::fishCounter))
                 .then(command("drystreak").then(argument("type", DrystreakTypesArgumentType.getDrystreakTypesArgumentType()).executes(Command::dryStreak)))
+                .then(command("friends")
+                    .then(argument("type", FriendsCommandArgumentType.getFriendsCommandArgumentType())
+                        .executes(Command::friends)
+                        .then(argument("username", (PlayerArgumentType.getPlayerArgumentType())).executes(Command::friends))))
         );
     }
 
@@ -133,6 +139,19 @@ public class CommandRegistry {
             List<Text> breakdown = DrystreakTypesCommandHandler.getDryStreakBreakdown(type);
             return executeCommand(context, breakdown, () -> {});
         }
+
+        private static int friends(CommandContext<FabricClientCommandSource> context) {
+            String type = context.getArgument("type", String.class).toLowerCase();
+            String username = hasArgument(context, "username")
+                    ? context.getArgument("username", String.class)
+                    : null;
+            List<Text> response = FriendsCommandHandler.getFriendsCommandResponse(type, username);
+            return executeCommand(context, response, () -> {});
+        }
+    }
+
+    private static boolean hasArgument(CommandContext<FabricClientCommandSource> context, String name) {
+        return context.getNodes().stream().anyMatch(node -> node.getNode().getName().equals(name));
     }
 
     //region Command Builder

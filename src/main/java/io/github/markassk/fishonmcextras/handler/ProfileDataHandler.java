@@ -364,6 +364,9 @@ public class ProfileDataHandler {
         public List<UUID> crewMembers = new ArrayList<>();
         public boolean isInCrewChat = false;
 
+        // Friend Data
+        public List<UUID> friends = new ArrayList<>();
+
         // Quest Data
         public Map<Constant, List<QuestHandler.Quest>> activeQuests = new HashMap<>();
 
@@ -412,6 +415,7 @@ public class ProfileDataHandler {
             fishSizeDryStreak = new HashMap<>(prevData.fishSizeDryStreak);
             crewMembers = new ArrayList<>(prevData.crewMembers);
             isInCrewChat = prevData.isInCrewChat;
+            friends = new ArrayList<>(prevData.friends);
             activeQuests = new HashMap<>(prevData.activeQuests);
             lockedArmorRolls = new HashMap<>(prevData.lockedArmorRolls);
             isStatsInitialized = prevData.isStatsInitialized;
@@ -457,6 +461,7 @@ public class ProfileDataHandler {
                     && this.fishSizeDryStreak.equals(oldProfileData.fishSizeDryStreak)
                     && this.crewMembers.equals(oldProfileData.crewMembers)
                     && this.isInCrewChat == oldProfileData.isInCrewChat
+                    && this.friends.equals(oldProfileData.friends)
                     && this.activeQuests.equals(oldProfileData.activeQuests);
         }
     }

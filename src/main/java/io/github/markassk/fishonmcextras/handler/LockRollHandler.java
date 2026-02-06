@@ -207,23 +207,6 @@ public class LockRollHandler {
                 signature.append("|");
             }
 
-            if (customData.contains("fish_bonus", NbtElement.LIST_TYPE)) {
-                NbtList fishBonus = customData.getList("fish_bonus", NbtElement.COMPOUND_TYPE);
-                List<String> bonusIds = new ArrayList<>();
-                for (int i = 0; i < fishBonus.size(); i++) {
-                    NbtCompound bonus = fishBonus.getCompound(i);
-                    String id = bonus.getString("id");
-                    if (!id.isEmpty()) {
-                        bonusIds.add(id);
-                    }
-                }
-
-                Collections.sort(bonusIds);
-                for (String id : bonusIds) {
-                    signature.append(id).append("|");
-                }
-            }
-
             return signature.toString().hashCode();
         }
 

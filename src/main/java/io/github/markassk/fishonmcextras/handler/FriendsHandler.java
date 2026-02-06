@@ -1,0 +1,66 @@
+package io.github.markassk.fishonmcextras.handler;
+
+import net.minecraft.client.MinecraftClient;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class FriendsHandler {
+    private static FriendsHandler INSTANCE = new FriendsHandler();
+    private List<UUID> friends = new ArrayList<>();
+
+    public boolean isFriendsNearby = false;
+    public boolean isFriendsInRenderDistance = false;
+
+    private AtomicBoolean froundFriends = new AtomicBoolean(false);
+    private AtomicBoolean isNearby = new AtomicBoolean(false);
+
+    public static FriendsHandler instance() {
+        if (INSTANCE == null) {
+            INSTANCE = new FriendsHandler();
+        }
+        return INSTANCE;
+    }
+
+    public void beforeTickEntitiess() {
+        froundFriends.set(false);
+        isNearby.set(false);
+    }
+
+    public void tickEntities(Entity entity, MinecraftClient minecraftClient) {
+        if (minecraftClient.player != null
+                && entity instanceof PlayerEntity friend
+                && ProfileDataHandler.instance().profileData.friends.stream().anyMatch(uuid -> uuid.equals(friend.getUuid()))
+                && !friend.getUuid().equals(minecraftClient.player.getUuid())
+        ) {
+            if (friend.getPos().distanceTo(minecraftClient.player.getPos()) < 10) {
+                isNearby.set(true);
+            }
+            froundFriends.set(true);
+        }
+    }
+
+    public void addFriend(UUID uuid) {
+        if(this.friends.stream().noneMatch(id -> id.equals(uuid))) {
+            this.friends.add(uuid);
+            ProfileDataHandler.instance().profileData.friends = this.friends;
+        }
+    }
+
+    public void removeFriend(UUID uuid) {
+        this.friends.removeIf(id -> id.equals(uuid));
+        ProfileDataHandler.instance().profileData.friends = this.friends;
+    }
+
+    public void afterTickEntities() {
+        this.isFriendsNearby = isNearby.get();
+        this.isFriendsInRenderDistance = froundFriends.get();
+    }
+
+}

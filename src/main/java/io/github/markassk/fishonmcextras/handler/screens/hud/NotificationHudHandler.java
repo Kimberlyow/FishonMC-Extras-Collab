@@ -358,7 +358,7 @@ public class NotificationHudHandler {
         }
 
         if (!DailyQuestHandler.instance().isDailyQuestInitialized()) {
-            if (config.dailyQuestTracker.showDailyQuestHud) {
+            if (config.dailyQuestTracker.showDailyQuestHud && config.dailyQuestTracker.showNotification) {
                 textList.add(Text.empty());
                 textList.add(TextHelper.concat(
                         Text.literal("Please do ").formatted(Formatting.RED),
