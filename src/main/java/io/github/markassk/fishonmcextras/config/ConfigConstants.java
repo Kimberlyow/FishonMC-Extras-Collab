@@ -8,5 +8,5 @@ public class ConfigConstants {
     public static final String COSMETIC = "cosmetic";
     public static final String FUN = "fun";
 
-    public static final boolean DEV = true;
+    public static final boolean DEV = false;
 }
