@@ -172,8 +172,11 @@ public class EventHandler {
                 if (normalizedSuffix.equals("AM")) {
                         return normalized;
                 }
-                if (normalizedSuffix.equals("PM")) {
+                if (normalizedSuffix.equals("PM") && normalized != 12) {
                         return normalized + 12;
+                }
+                if (normalizedSuffix.equals("PM") && normalized == 12) {
+                        return normalized;
                 }
 
                 return null;

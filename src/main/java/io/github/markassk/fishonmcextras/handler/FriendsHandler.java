@@ -47,15 +47,26 @@ public class FriendsHandler {
     }
 
     public void addFriend(UUID uuid) {
-        if(this.friends.stream().noneMatch(id -> id.equals(uuid))) {
-            this.friends.add(uuid);
-            ProfileDataHandler.instance().profileData.friends = this.friends;
+        List<UUID> friends = getProfileFriendsCopy();
+        if(friends.stream().noneMatch(id -> id.equals(uuid))) {
+            friends.add(uuid);
         }
+        this.friends = friends;
+        ProfileDataHandler.instance().profileData.friends = friends;
     }
 
     public void removeFriend(UUID uuid) {
-        this.friends.removeIf(id -> id.equals(uuid));
-        ProfileDataHandler.instance().profileData.friends = this.friends;
+        List<UUID> friends = getProfileFriendsCopy();
+        friends.removeIf(id -> id.equals(uuid));
+        this.friends = friends;
+        ProfileDataHandler.instance().profileData.friends = friends;
+    }
+
+    private List<UUID> getProfileFriendsCopy() {
+        if (ProfileDataHandler.instance().profileData.friends == null) {
+            ProfileDataHandler.instance().profileData.friends = new ArrayList<>();
+        }
+        return new ArrayList<>(ProfileDataHandler.instance().profileData.friends);
     }
 
     public void afterTickEntities() {
