@@ -176,7 +176,7 @@ public class FishingRodHandler {
             }
 
             // Bait Display
-            if(config.bobberTracker.showBait && player != null && !baitDisplay.containsKey(entity.getId())) {
+            if(config.bobberTracker.showBait && !TackleboxHandler.instance().isLocked && player != null && !baitDisplay.containsKey(entity.getId())) {
                 ItemStack itemStack = player.getMainHandStack();
                 FishingRod rod = FishingRod.getFishingRod(itemStack);
                 if(rod != null && !rod.tacklebox.isEmpty()) {
