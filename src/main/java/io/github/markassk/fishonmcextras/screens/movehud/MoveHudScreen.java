@@ -6,6 +6,7 @@ import io.github.markassk.fishonmcextras.handler.screens.hud.FishTrackerHudHandl
 import io.github.markassk.fishonmcextras.handler.screens.hud.PetEquipHudHandler;
 import io.github.markassk.fishonmcextras.handler.screens.hud.QuestTrackerHudHandler;
 import io.github.markassk.fishonmcextras.screens.widget.movablebox.MovableBoxWidget;
+import io.github.markassk.fishonmcextras.handler.screens.hud.DailyQuestTrackerHudHandler;
 import io.github.markassk.fishonmcextras.util.TextHelper;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.MinecraftClient;
@@ -84,6 +85,19 @@ public class MoveHudScreen extends Screen {
         movableBoxWidgetList.add(new MovableBoxWidget(textRenderer, questTrackerX, questTrackerY, questTrackerRightAlignment, Text.literal("Quest Tracker"), questTrackerFontSize, questTrackerTextList.size(), questTrackerMaxLength, (xPercent, yPercent) -> {
             config.questTracker.hudX = xPercent;
             config.questTracker.hudY = yPercent;
+            AutoConfig.getConfigHolder(FishOnMCExtrasConfig.class).save();
+        }));
+
+        // Daily Quest Tracker HUD
+        List<Text> dailyQuestTrackerTextList = DailyQuestTrackerHudHandler.instance().assembleQuestText();
+        int dailyQuestTrackerX = config.dailyQuestTracker.hudX;
+        int dailyQuestTrackerY = config.dailyQuestTracker.hudY;
+        boolean dailyQuestTrackerRightAlignment = config.dailyQuestTracker.rightAlignment;
+        int dailyQuestTrackerFontSize = config.dailyQuestTracker.fontSize;
+        int dailyQuestTrackerMaxLength = dailyQuestTrackerTextList.stream().map(textRenderer::getWidth).max(Integer::compareTo).orElse(0);
+        movableBoxWidgetList.add(new MovableBoxWidget(textRenderer, dailyQuestTrackerX, dailyQuestTrackerY, dailyQuestTrackerRightAlignment, Text.literal("Daily Quest Tracker"), dailyQuestTrackerFontSize, dailyQuestTrackerTextList.size(), dailyQuestTrackerMaxLength, (xPercent, yPercent) -> {
+            config.dailyQuestTracker.hudX = xPercent;
+            config.dailyQuestTracker.hudY = yPercent;
             AutoConfig.getConfigHolder(FishOnMCExtrasConfig.class).save();
         }));
 

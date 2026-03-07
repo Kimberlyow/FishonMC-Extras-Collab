@@ -13,6 +13,13 @@
       "ascent":7,
       "height":7,
       "chars":["\uE00B"]
+    },
+    {
+      "type":"bitmap",
+      "file":"minecraft:font/friend.png",
+      "ascent":7,
+      "height":7,
+      "chars":["\uE00C"]
     }
   ]
 }

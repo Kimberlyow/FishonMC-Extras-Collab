@@ -3,10 +3,15 @@ package io.github.markassk.fishonmcextras.handler;
 import io.github.markassk.fishonmcextras.FOMC.LocationInfo;
 import io.github.markassk.fishonmcextras.FOMC.Types.Pet;
 import io.github.markassk.fishonmcextras.FishOnMCExtras;
+import io.github.markassk.fishonmcextras.util.ItemStackHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.text.Text;
 
 import java.util.regex.Matcher;
@@ -19,6 +24,7 @@ public class PetEquipHandler  {
     private boolean isUnequipHandled = true;
 
     public ItemStack currentPetItem;
+    public ItemStack currentPetItemItem;
     public long startScanTime = 0;
     public PetStatus petStatus = PetStatus.LOADING;
 
@@ -53,6 +59,7 @@ public class PetEquipHandler  {
                 if(pet != null && pet.id.equals(ProfileDataHandler.instance().profileData.equippedPet.id)) {
                     isInInventory = true;
                     currentPetItem = itemInSlot.copy();
+                    updateCurrentPetItemItem(currentPetItem);
                 }
             }
         } else if (LoadingHandler.instance().isLoadingDone && petStatus == PetStatus.LOADING) {
@@ -62,6 +69,7 @@ public class PetEquipHandler  {
 
         if(!this.isUnequipHandled) {
             this.currentPetItem = null;
+            this.currentPetItemItem = null;
             ProfileDataHandler.instance().resetPet();
 
             FishOnMCExtras.LOGGER.info("[FoE] Unequipped Pet");
@@ -77,6 +85,7 @@ public class PetEquipHandler  {
 
                 if(pet != null) {
                     this.currentPetItem = heldItem.copy();
+                    updateCurrentPetItemItem(this.currentPetItem);
                     ProfileDataHandler.instance().updatePet(pet, itemSlot);
                     petStatus = PetStatus.HAS_PET;
 
@@ -99,7 +108,7 @@ public class PetEquipHandler  {
         }
     }
 
-    public void onReceiveMessage(Text message) {
+    public boolean onReceiveMessage(Text message) {
         String rawMessage = message.getString();
 
         Matcher equipMatcher = PET_EQUIP_PATTERN.matcher(rawMessage);
@@ -110,6 +119,8 @@ public class PetEquipHandler  {
         } else if (unequipMatcher.find()) {
             handlePetUnequip();
         }
+        
+        return false; // Don't suppress any messages
     }
 
     private void handlePetEquip() {
@@ -128,7 +139,31 @@ public class PetEquipHandler  {
 
             if(pet != null && pet.id.equals(ProfileDataHandler.instance().profileData.equippedPet.id)) {
                 ProfileDataHandler.instance().updatePet(pet, ProfileDataHandler.instance().profileData.equippedPetSlot);
+                updateCurrentPetItemItem(itemInSlot);
             }
+        }
+    }
+
+    private void updateCurrentPetItemItem(ItemStack petStack) {
+        this.currentPetItemItem = null;
+        if (petStack == null || petStack.isEmpty()) {
+            return;
+        }
+        NbtCompound nbtCompound = ItemStackHelper.getNbt(petStack);
+        if (nbtCompound == null) {
+            return;
+        }
+        NbtList items = nbtCompound.getList("item", NbtElement.COMPOUND_TYPE);
+        if (items.isEmpty()) {
+            return;
+        }
+        NbtCompound itemNbt = items.getCompound(0);
+        ItemStack decodedItem = ItemStack.CODEC
+                .parse(NbtOps.INSTANCE, itemNbt)
+                .result()
+                .orElse(ItemStack.EMPTY);
+        if (!decodedItem.isEmpty()) {
+            this.currentPetItemItem = decodedItem;
         }
     }
 

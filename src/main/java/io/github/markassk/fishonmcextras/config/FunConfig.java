@@ -10,6 +10,7 @@ public class FunConfig {
         public boolean immersionMode = false;
         public boolean isFoeTagPrefix = true;
         public boolean hideArmor = false;
+        public boolean changeArmorQuality = false;
         @ConfigEntry.Gui.Tooltip
         public boolean biteBobber = false;
         public boolean lightOnBobber = false;

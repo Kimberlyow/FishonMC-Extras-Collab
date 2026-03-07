@@ -1,6 +1,8 @@
 package io.github.markassk.fishonmcextras.config;
 
+import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import io.github.markassk.fishonmcextras.handler.TextDisplayHandler;
 
 public class TrackerFishHUDConfig {
     public static class FishTracker {
@@ -14,9 +16,11 @@ public class TrackerFishHUDConfig {
 
         @ConfigEntry.Gui.CollapsibleObject
         public FishTrackerToggles fishTrackerToggles = new FishTrackerToggles();
+
         public static class FishTrackerToggles {
             @ConfigEntry.Gui.CollapsibleObject
             public GeneralToggles generalToggles = new GeneralToggles();
+
             public static class GeneralToggles {
                 public boolean showFishCaught = true;
                 @ConfigEntry.Gui.Tooltip
@@ -29,10 +33,12 @@ public class TrackerFishHUDConfig {
                 public boolean showShardCaught = true;
                 public boolean showShardPerHour = false;
                 public boolean showLightningBottleCaught = false;
+                public boolean showInfusionCapsuleCaught = false;
             }
 
             @ConfigEntry.Gui.CollapsibleObject
             public RarityToggles rarityToggles = new RarityToggles();
+
             public static class RarityToggles {
                 @ConfigEntry.Gui.Tooltip
                 public boolean showRarities = true;
@@ -41,11 +47,11 @@ public class TrackerFishHUDConfig {
                 public boolean showEpic = true;
                 public boolean showLegendary = true;
                 public boolean showMythical = true;
-                public boolean showSpecial = false;
             }
 
             @ConfigEntry.Gui.CollapsibleObject
             public FishSizeToggles fishSizeToggles = new FishSizeToggles();
+
             public static class FishSizeToggles {
                 @ConfigEntry.Gui.Tooltip
                 public boolean showFishSizes = false;
@@ -58,6 +64,7 @@ public class TrackerFishHUDConfig {
 
             @ConfigEntry.Gui.CollapsibleObject
             public VariantToggles variantToggles = new VariantToggles();
+
             public static class VariantToggles {
                 @ConfigEntry.Gui.Tooltip
                 public boolean showVariants = true;
@@ -65,11 +72,11 @@ public class TrackerFishHUDConfig {
                 public boolean showMelanistic = true;
                 public boolean showTrophy = true;
                 public boolean showFabled = true;
-                public boolean showAlternate = false;
             }
 
             @ConfigEntry.Gui.CollapsibleObject
             public DryStreakToggles dryStreakToggles = new DryStreakToggles();
+
             public static class DryStreakToggles {
                 @ConfigEntry.Gui.PrefixText
                 public boolean showCommon = false;
@@ -77,7 +84,6 @@ public class TrackerFishHUDConfig {
                 public boolean showEpic = false;
                 public boolean showLegendary = false;
                 public boolean showMythical = false;
-                public boolean showSpecial = true;
                 @ConfigEntry.Gui.PrefixText
                 public boolean showBaby = false;
                 public boolean showJuvenile = false;
@@ -89,15 +95,52 @@ public class TrackerFishHUDConfig {
                 public boolean showMelanistic = true;
                 public boolean showTrophy = true;
                 public boolean showFabled = true;
-                public boolean showAlternate = true;
+                // public boolean showSpooky = false;
                 @ConfigEntry.Gui.PrefixText
                 public boolean showPet = false;
                 public boolean showShard = false;
                 public boolean showLightningBottle = false;
+                public boolean showInfusionCapsule = false;
+            }
+
+            @ConfigEntry.Gui.CollapsibleObject
+            public FishEventToggles fishEventToggles = new FishEventToggles();
+
+            public static class FishEventToggles {
+                @ConfigEntry.Gui.CollapsibleObject
+                public RarityToggles rarityToggles = new RarityToggles();
+
+                public static class RarityToggles {
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showSpecial = false;
+                }
+
+                @ConfigEntry.Gui.CollapsibleObject
+                public VariantToggles variantToggles = new VariantToggles();
+
+                public static class VariantToggles {
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showAlternate = false;
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showSpooky = false;
+                    @ConfigEntry.Gui.Tooltip
+                    public boolean showFrozen = false;
+                }
+
+                @ConfigEntry.Gui.CollapsibleObject
+                public DryStreakToggles dryStreakToggles = new DryStreakToggles();
+
+                public static class DryStreakToggles {
+                    public boolean showSpecial = false;
+                    public boolean showAlternate = false;
+                    public boolean showSpooky = false;
+                    public boolean showFrozen = false;
+                }
             }
 
             @ConfigEntry.Gui.CollapsibleObject
             public OtherToggles otherToggles = new OtherToggles();
+
             public static class OtherToggles {
                 public boolean showPercentages = true;
                 @ConfigEntry.Gui.Tooltip
@@ -107,6 +150,58 @@ public class TrackerFishHUDConfig {
                 @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
                 public int showStatsOnCatchTime = 5;
                 public boolean abbreviateNumbers = false;
+            }
+        }
+
+        @ConfigEntry.Gui.CollapsibleObject
+        public DryStreakMessageToggles dryStreakMessageToggles = new DryStreakMessageToggles();
+        public static class DryStreakMessageToggles {
+            @ConfigEntry.Gui.Tooltip
+            public boolean showText = false;
+            @ConfigEntry.Gui.Tooltip
+            @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+            public TextDisplayHandler.TextDisplay textCapitalization = TextDisplayHandler.TextDisplay.TAG;
+
+            @ConfigEntry.Gui.CollapsibleObject
+            public RarityMessageToggles rarityMessageToggles = new RarityMessageToggles();
+
+            public static class RarityMessageToggles {
+                public boolean showCommon = false;
+                public boolean showRare = false;
+                public boolean showEpic = false;
+                public boolean showLegendary = false;
+                public boolean showMythical = false;
+            }
+
+            @ConfigEntry.Gui.CollapsibleObject
+            public SizeMessageToggles sizeMessageToggles = new SizeMessageToggles();
+
+            public static class SizeMessageToggles {
+                public boolean showBaby = false;
+                public boolean showJuvenile = false;
+                public boolean showAdult = false;
+                public boolean showLarge = false;
+                public boolean showGigantic = true;
+            }
+
+            @ConfigEntry.Gui.CollapsibleObject
+            public VariantMessageToggles variantMessageToggles = new VariantMessageToggles();
+
+            public static class VariantMessageToggles {
+                public boolean showAlbino = true;
+                public boolean showMelanistic = true;
+                public boolean showTrophy = true;
+                public boolean showFabled = true;
+            }
+
+            @ConfigEntry.Gui.CollapsibleObject
+            public OtherMessageToggles otherMessageToggles = new OtherMessageToggles();
+
+            public static class OtherMessageToggles {
+                public boolean showPet = true;
+                public boolean showShard = true;
+                public boolean showLightningBottle = true;
+                public boolean showInfusionCapsule = true;
             }
         }
 

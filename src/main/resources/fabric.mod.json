@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "fishonmcextras",
-	"version": "2.4.7",
+	"version": "${version}",
 	"name": "FishOnMC-Extras",
 	"description": "A QOL mod for play.fishonmc.net.",
 	"authors": [
@@ -12,7 +12,10 @@
 		"ItsMeDjeff",
 		"Madisonn",
 		"Demi21",
-		"keziumo"
+		"keziumo",
+		"MeepsKitten",
+		"Gladionus",
+		"Krokodaxl"
 	],
 	"contact": {
 		"discord": "dannypx",

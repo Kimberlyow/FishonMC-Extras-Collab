@@ -44,7 +44,15 @@ public class FishOnMCExtrasConfig implements ConfigData {
 
     @ConfigEntry.Category(value = TRACKERS)
     @ConfigEntry.Gui.CollapsibleObject
+    public TrackerFriendHUDConfig.FriendTracker friendTracker = new TrackerFriendHUDConfig.FriendTracker();
+
+    @ConfigEntry.Category(value = TRACKERS)
+    @ConfigEntry.Gui.CollapsibleObject
     public TrackerQuestHUDConfig.QuestTracker questTracker = new TrackerQuestHUDConfig.QuestTracker();
+
+    @ConfigEntry.Category(value = TRACKERS)
+    @ConfigEntry.Gui.CollapsibleObject
+    public TrackerQuestHUDConfig.DailyQuestTracker dailyQuestTracker = new TrackerQuestHUDConfig.DailyQuestTracker();
 
     @ConfigEntry.Category(value = TRACKERS)
     @ConfigEntry.Gui.CollapsibleObject
@@ -84,6 +92,10 @@ public class FishOnMCExtrasConfig implements ConfigData {
 
     @ConfigEntry.Category(value = OTHER)
     @ConfigEntry.Gui.CollapsibleObject
+    public ChatConfig.ChatSettings chatconfig = new ChatConfig.ChatSettings();
+
+    @ConfigEntry.Category(value = OTHER)
+    @ConfigEntry.Gui.CollapsibleObject
     public TitleHudConfig.TitlePopup titlePopup = new TitleHudConfig.TitlePopup();
 
     @ConfigEntry.Category(value = OTHER)
@@ -117,6 +129,14 @@ public class FishOnMCExtrasConfig implements ConfigData {
     @ConfigEntry.Category(value = OTHER)
     @ConfigEntry.Gui.CollapsibleObject
     public PlayerStatusConfig.PlayerStatus playerStatus = new PlayerStatusConfig.PlayerStatus();
+
+    @ConfigEntry.Category(value = OTHER)
+    @ConfigEntry.Gui.CollapsibleObject
+    public AutoTipConfig.AutoTip autoTip = new AutoTipConfig.AutoTip();
+
+    @ConfigEntry.Category(value = OTHER)
+    @ConfigEntry.Gui.CollapsibleObject
+    public BaitSortingHelperConfig.BaitSortingHelperVisibility baitSortingHelperVisibility = new BaitSortingHelperConfig.BaitSortingHelperVisibility();
     //endregion
 
     //region Cosmetic

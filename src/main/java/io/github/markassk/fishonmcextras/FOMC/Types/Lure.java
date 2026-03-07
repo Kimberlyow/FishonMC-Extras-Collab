@@ -22,6 +22,7 @@ public class Lure extends FOMCItem {
     public final String intricacy;
     public final List<LureStats> lureStats;
     public final String size;
+    public final String color;
 
     private Lure(NbtCompound nbtCompound, String type, CustomModelDataComponent customModelData) {
         super(type, Constant.valueOfId(nbtCompound.getString("rarity")));
@@ -30,6 +31,7 @@ public class Lure extends FOMCItem {
         this.counter = nbtCompound.getInt("counter");
         this.water = Constant.valueOfId(nbtCompound.getString("water"));
         this.intricacy = nbtCompound.getString("intricacy");
+        this.color = nbtCompound.getString("color");
         NbtList nbtList = nbtCompound.getList("base", NbtElement.LIST_TYPE);
         List<NbtCompound> nbtCompoundList = new ArrayList<>();
         for (int i = 0; i < nbtList.size(); i++) {
@@ -51,11 +53,12 @@ public class Lure extends FOMCItem {
     }
 
     public static Lure getLure(ItemStack itemStack, String type) {
-        return new Lure(Objects.requireNonNull(ItemStackHelper.getNbt(itemStack)), type, itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA));
+        return new Lure(Objects.requireNonNull(ItemStackHelper.getNbt(itemStack)), type,
+                itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA));
     }
 
     public static Lure getLure(ItemStack itemStack) {
-        if(itemStack.get(DataComponentTypes.LORE) != null
+        if (itemStack.get(DataComponentTypes.LORE) != null
                 && itemStack.get(DataComponentTypes.CUSTOM_DATA) != null
                 && !Objects.requireNonNull(ItemStackHelper.getNbt(itemStack)).getBoolean("shopitem")) {
             NbtCompound nbtCompound = ItemStackHelper.getNbt(itemStack);
@@ -65,5 +68,25 @@ public class Lure extends FOMCItem {
             }
         }
         return null;
+    }
+
+    public int calculateLures(List<FOMCItem> tacklebox) {
+        int lureQty = 0;
+        String name = this.name;
+        String rarity = this.rarity.ID;
+        String color = this.color;
+
+        for (FOMCItem entry : tacklebox) {
+            if (entry instanceof Lure lure
+                    && lure.name.equals(name)
+                    && lure.rarity.ID.equals(rarity)
+                    && lure.color.equals(color)) {
+                lureQty += lure.counter;
+                continue;
+            }
+            break;
+        }
+
+        return lureQty;
     }
 }

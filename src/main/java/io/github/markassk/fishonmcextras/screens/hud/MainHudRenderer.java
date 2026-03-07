@@ -24,6 +24,7 @@ public class MainHudRenderer implements HudRenderCallback {
     final EquipmentHud equipmentHud = new EquipmentHud();
     final CrewHud crewHud = new CrewHud();
     final QuestHud questHud = new QuestHud();
+    final DailyQuestHud dailyQuestHud = new DailyQuestHud();
 
     @Override
     public void onHudRender(DrawContext drawContext, RenderTickCounter renderTickCounter) {
@@ -72,6 +73,10 @@ public class MainHudRenderer implements HudRenderCallback {
 
                     if(config.questTracker.showQuestHud) {
                         this.questHud.render(drawContext, MinecraftClient.getInstance());
+                    }
+
+                    if(config.dailyQuestTracker.showDailyQuestHud) {
+                        this.dailyQuestHud.render(drawContext, MinecraftClient.getInstance());
                     }
                 }
             }

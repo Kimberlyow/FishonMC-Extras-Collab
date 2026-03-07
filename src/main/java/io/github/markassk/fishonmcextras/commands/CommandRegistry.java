@@ -4,6 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.github.markassk.fishonmcextras.commands.argument.PlayerArgumentType;
+import io.github.markassk.fishonmcextras.commands.argument.DrystreakTypesArgumentType;
+import io.github.markassk.fishonmcextras.commands.argument.FriendsCommandArgumentType;
+import io.github.markassk.fishonmcextras.commands.handler.DrystreakTypesCommandHandler;
+import io.github.markassk.fishonmcextras.commands.handler.FriendsCommandHandler;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.handler.CrewHandler;
 import io.github.markassk.fishonmcextras.handler.OtherPlayerHandler;
@@ -40,6 +44,12 @@ public class CommandRegistry {
                 .then(command("stophighlight").executes(Command::stopHighlight))
                 .then(command("immersionmode").executes(Command::immersionMode))
                 .then(command("armorvisibility").executes(Command::armorVisibility))
+                .then(command("fishcounter").executes(Command::fishCounter))
+                .then(command("drystreak").then(argument("type", DrystreakTypesArgumentType.getDrystreakTypesArgumentType()).executes(Command::dryStreak)))
+                .then(command("friends")
+                    .then(argument("type", FriendsCommandArgumentType.getFriendsCommandArgumentType())
+                        .executes(Command::friends)
+                        .then(argument("username", (PlayerArgumentType.getPlayerArgumentType())).executes(Command::friends))))
         );
     }
 
@@ -118,8 +128,31 @@ public class CommandRegistry {
                 AutoConfig.getConfigHolder(FishOnMCExtrasConfig.class).save();
             });
         }
+
+        private static int fishCounter(CommandContext<FabricClientCommandSource> context) {
+            int totalCaught = ProfileDataHandler.instance().profileData.allFishCaughtCount;
+            return executeCommand(context, "Total fish Caught: " + totalCaught, () -> {});
+        }
+
+        private static int dryStreak(CommandContext<FabricClientCommandSource> context) {
+            String type = context.getArgument("type", String.class).toLowerCase();
+            List<Text> breakdown = DrystreakTypesCommandHandler.getDryStreakBreakdown(type);
+            return executeCommand(context, breakdown, () -> {});
+        }
+
+        private static int friends(CommandContext<FabricClientCommandSource> context) {
+            String type = context.getArgument("type", String.class).toLowerCase();
+            String username = hasArgument(context, "username")
+                    ? context.getArgument("username", String.class)
+                    : null;
+            List<Text> response = FriendsCommandHandler.getFriendsCommandResponse(type, username);
+            return executeCommand(context, response, () -> {});
+        }
     }
 
+    private static boolean hasArgument(CommandContext<FabricClientCommandSource> context, String name) {
+        return context.getNodes().stream().anyMatch(node -> node.getNode().getName().equals(name));
+    }
 
     //region Command Builder
     private static LiteralArgumentBuilder<FabricClientCommandSource> command(String command) {

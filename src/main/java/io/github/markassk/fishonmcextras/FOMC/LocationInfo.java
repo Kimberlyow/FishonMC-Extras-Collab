@@ -11,11 +11,13 @@ public enum  LocationInfo {
     TOLEDO_BEND("toledobend", ClimateConstant.SUBTROPICAL, Constant.FRESHWATER),
     GREAT_LAKES("greatlakes", ClimateConstant.CONTINENTAL, Constant.FRESHWATER),
     DANUBE_RIVER("danube", ClimateConstant.CONTINENTAL, Constant.FRESHWATER),
+    OIL_RIG("oilrig", ClimateConstant.SAVANNA, Constant.SALTWATER),
     AMAZON_RIVER("amazon", ClimateConstant.RAINFOREST, Constant.FRESHWATER),
     MEDITERRANEAN_SEA("mediterranean", ClimateConstant.MEDITERRANEAN, Constant.SALTWATER),
     CAPE_COD("capecod", ClimateConstant.OCEANIC, Constant.SALTWATER),
     HAWAII("hawaii", ClimateConstant.SAVANNA, Constant.SALTWATER),
     CAIRNS("cairns", ClimateConstant.MONSOON, Constant.SALTWATER),
+    LOFOTEN_ISLANDS("lofotenislands", ClimateConstant.SUBARCTIC, Constant.SALTWATER),
     DEFAULT("", ClimateConstant.DEFAULT, Constant.DEFAULT)
     ;
 

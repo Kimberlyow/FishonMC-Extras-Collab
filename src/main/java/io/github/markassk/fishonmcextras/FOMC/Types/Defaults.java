@@ -22,10 +22,12 @@ public class Defaults {
         public static final String CRAFTINGCOMPONENT = "craftingComponent";
         public static final String BAITPACKAGE = "package";
         public static final String CHUMMER = "chummer";
+        public static final String PETITEM = "petItem";
     }
 
     public static final Map<String, FoEDevType> foeDevs = Map.of(
-            "b5a9bbb7-42b4-4a6a-9ebe-bdf6697c8ee0",  new FoEDevType(Constant.ADMIRAL.TAG.getString() + " DannyPX", "DannyPX")
+            "b5a9bbb7-42b4-4a6a-9ebe-bdf6697c8ee0",  new FoEDevType(Constant.ADMIRAL.TAG.getString() + " DannyPX", "DannyPX"),
+            "4c42b880-84df-4b0b-abd6-817997c16732",  new FoEDevType(Constant.CAPTAIN.TAG.getString() + " Krokodaxl", "Krokodaxl")
     );
 
     public static class FoEDevType {

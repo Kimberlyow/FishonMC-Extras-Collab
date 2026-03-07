@@ -1,6 +1,9 @@
 package io.github.markassk.fishonmcextras.screens.hud;
 
+import io.github.markassk.fishonmcextras.FOMC.Constant;
+import io.github.markassk.fishonmcextras.FOMC.Types.FOMCItem;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
+import io.github.markassk.fishonmcextras.handler.FishingRodHandler;
 import io.github.markassk.fishonmcextras.handler.screens.hud.EquipmentHudHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -55,27 +58,58 @@ public class EquipmentHud {
             int offsetBottomRodParts = config.equipmentTracker.rodPartsHUDOptions.offsetFromBottom;
 
             // Chestplate
-            renderBox(drawContext, textRenderer, scaledX - 64 + offsetMiddleArmor, scaledY - offsetBottomArmor - 20, alphaInt, chestplate, "ᴄ");
+            renderBox(drawContext, textRenderer, scaledX - 64 + offsetMiddleArmor, scaledY - offsetBottomArmor - 20, alphaInt, chestplate, "ᴄ", null);
             // Leggings
-            renderBox(drawContext, textRenderer, scaledX - 42 + offsetMiddleArmor, scaledY - offsetBottomArmor - 20, alphaInt, leggings, "ʟ");
+            renderBox(drawContext, textRenderer, scaledX - 42 + offsetMiddleArmor, scaledY - offsetBottomArmor - 20, alphaInt, leggings, "ʟ", null);
             // Boots
-            renderBox(drawContext, textRenderer, scaledX - 20 + offsetMiddleArmor, scaledY - offsetBottomArmor - 20, alphaInt, boots, "ʙ");
+            renderBox(drawContext, textRenderer, scaledX - 20 + offsetMiddleArmor, scaledY - offsetBottomArmor - 20, alphaInt, boots, "ʙ", null);
 
             // Reel
-            renderBox(drawContext, textRenderer, scaledX + offsetMiddleRodParts, scaledY - offsetBottomRodParts - 20, alphaInt, reel, "ʀ");
+            renderBox(drawContext, textRenderer, scaledX + offsetMiddleRodParts, scaledY - offsetBottomRodParts - 20, alphaInt, reel, "ʀ", "reel");
             // Pole
-            renderBox(drawContext, textRenderer, scaledX + 22 + offsetMiddleRodParts, scaledY - offsetBottomRodParts - 20, alphaInt, pole, "ᴘ");
+            renderBox(drawContext, textRenderer, scaledX + 22 + offsetMiddleRodParts, scaledY - offsetBottomRodParts - 20, alphaInt, pole, "ᴘ", "pole");
             // Line
-            renderBox(drawContext, textRenderer, scaledX + 44 + offsetMiddleRodParts, scaledY - offsetBottomRodParts - 20, alphaInt, line, "ʟ");
+            renderBox(drawContext, textRenderer, scaledX + 44 + offsetMiddleRodParts, scaledY - offsetBottomRodParts - 20, alphaInt, line, "ʟ", "line");
 
         } finally {
             drawContext.getMatrices().pop();
         }
     }
 
-    private void renderBox(DrawContext drawContext, TextRenderer textRenderer, int x, int y, int alpha, ItemStack itemStack, String character) {
+    private void renderBox(DrawContext drawContext, TextRenderer textRenderer, int x, int y, int alpha, ItemStack itemStack, String character, String equipmentType) {
         drawContext.fill(x, y, x + 20, y + 20, alpha);
-        drawContext.drawBorder(x, y + 20, 20, 1, alpha | 0xFFFFFF);
+
+        int borderColor = alpha | 0xFFFFFF;
+        Constant rarity = Constant.DEFAULT;
+
+        if (equipmentType != null) {
+            switch (equipmentType) {
+                case "reel" -> {
+                    if (FishingRodHandler.instance().fishingRod.reel != null) {
+                        rarity = FishingRodHandler.instance().fishingRod.reel.rarity;
+                    }
+                }
+                case "pole" -> {
+                    if (FishingRodHandler.instance().fishingRod.pole != null) {
+                        rarity = FishingRodHandler.instance().fishingRod.pole.rarity;
+                    }
+                }
+                case "line" -> {
+                    if (FishingRodHandler.instance().fishingRod.line != null) {
+                        rarity = FishingRodHandler.instance().fishingRod.line.rarity;
+                    }
+                }
+            }
+        } else {
+            rarity = FOMCItem.getRarity(itemStack);
+        }
+
+        if (rarity != Constant.DEFAULT) {
+            borderColor = (alpha & 0xFF000000) | (rarity.COLOR & 0x00FFFFFF);
+        }
+
+        drawContext.drawBorder(x, y + 20, 20, 1, borderColor);
+
         if(itemStack.getItem() != Items.AIR) {
             drawContext.drawItem(itemStack, x + 2, y + 2);
         } else {

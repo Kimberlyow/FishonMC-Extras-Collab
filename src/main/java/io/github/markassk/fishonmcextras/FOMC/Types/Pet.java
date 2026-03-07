@@ -8,6 +8,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.text.Text;
 
 import java.math.BigDecimal;
@@ -37,6 +38,8 @@ public class Pet extends FOMCItem {
 
     public final String date;
 
+    public final String petItem;
+
     private Pet(NbtCompound nbtCompound, String type) {
         super(type, Constant.valueOfId(nbtCompound.getString("rarity")));
         this.id = UUIDHelper.getUUID(nbtCompound.getIntArray("id"));
@@ -48,11 +51,14 @@ public class Pet extends FOMCItem {
         this.neededXp = nbtCompound.getFloat("xp_need");
         this.climateStat = new Stat(nbtCompound, Constant.CLIMATE_BASE);
         this.locationStat = new Stat(nbtCompound, Constant.LOCATION_BASE);
-        this.percentPetRating = getPercentPetRating(this.climateStat.percentLuck, this.climateStat.percentScale, this.locationStat.percentLuck, this.locationStat.percentScale);
+        this.percentPetRating = getPercentPetRating(this.climateStat.percentLuck, this.climateStat.percentScale,
+                this.locationStat.percentLuck, this.locationStat.percentScale);
         this.discovererName = nbtCompound.getString("username");
         this.discoverer = UUIDHelper.getUUID(nbtCompound.getIntArray("uuid"));
 
         this.date = nbtCompound.getString("date");
+
+        this.petItem = readPetItem(nbtCompound);
     }
 
     public Pet(
@@ -65,8 +71,7 @@ public class Pet extends FOMCItem {
             float lMaxLuck,
             float lMaxScale,
             float lPercentLuck,
-            float lPercentScale
-    ) {
+            float lPercentScale) {
         super("pet", rarity);
         this.id = UUID.randomUUID();
         this.pet = pet;
@@ -80,19 +85,20 @@ public class Pet extends FOMCItem {
                 cMaxLuck,
                 cMaxScale,
                 cPercentLuck,
-                cPercentScale
-        );
+                cPercentScale);
         this.locationStat = new Stat(
                 Constant.LOCATION_BASE.ID,
                 lMaxLuck,
                 lMaxScale,
                 lPercentLuck,
-                lPercentScale
-        );
-        this.percentPetRating = getPercentPetRating(climateStat.percentLuck, climateStat.percentScale, locationStat.percentLuck, locationStat.percentScale);
+                lPercentScale);
+        this.percentPetRating = getPercentPetRating(climateStat.percentLuck, climateStat.percentScale,
+                locationStat.percentLuck, locationStat.percentScale);
         this.discovererName = "";
         this.discoverer = null;
         this.date = LocalDate.now().toString();
+
+        this.petItem = null;
 
     }
 
@@ -109,21 +115,33 @@ public class Pet extends FOMCItem {
             switch (base) {
                 case Constant.CLIMATE_BASE -> {
                     this.id = nbtCompound.getString("climate");
-                    this.currentLuck = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(0).getInt("cur");
-                    this.currentScale = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(1).getInt("cur");
-                    this.maxLuck = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(0).getInt("cur_max");
-                    this.maxScale = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(1).getInt("cur_max");
-                    this.percentLuck = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(0).getFloat("percent_max");
-                    this.percentScale = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(1).getFloat("percent_max");
+                    this.currentLuck = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(0)
+                            .getInt("cur");
+                    this.currentScale = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(1)
+                            .getInt("cur");
+                    this.maxLuck = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(0)
+                            .getInt("cur_max");
+                    this.maxScale = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(1)
+                            .getInt("cur_max");
+                    this.percentLuck = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(0)
+                            .getFloat("percent_max");
+                    this.percentScale = nbtCompound.getList("cbase", NbtElement.COMPOUND_TYPE).getCompound(1)
+                            .getFloat("percent_max");
                 }
                 case Constant.LOCATION_BASE -> {
                     this.id = nbtCompound.getString("location");
-                    this.currentLuck = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(0).getInt("cur");
-                    this.currentScale = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(1).getInt("cur");
-                    this.maxLuck = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(0).getInt("cur_max");
-                    this.maxScale = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(1).getInt("cur_max");
-                    this.percentLuck = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(0).getFloat("percent_max");
-                    this.percentScale = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(1).getFloat("percent_max");
+                    this.currentLuck = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(0)
+                            .getInt("cur");
+                    this.currentScale = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(1)
+                            .getInt("cur");
+                    this.maxLuck = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(0)
+                            .getInt("cur_max");
+                    this.maxScale = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(1)
+                            .getInt("cur_max");
+                    this.percentLuck = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(0)
+                            .getFloat("percent_max");
+                    this.percentScale = nbtCompound.getList("lbase", NbtElement.COMPOUND_TYPE).getCompound(1)
+                            .getFloat("percent_max");
                 }
                 default -> {
                     this.id = Defaults.EMPTY_STRING;
@@ -142,8 +160,7 @@ public class Pet extends FOMCItem {
                 float maxLuck,
                 float maxScale,
                 float percentLuck,
-                float percentScale
-        ) {
+                float percentScale) {
             this.id = id;
             this.currentLuck = 0f;
             this.currentScale = 0f;
@@ -154,37 +171,55 @@ public class Pet extends FOMCItem {
         }
     }
 
-    private static float getPercentPetRating(float climateLuck, float climateScale, float locationLuck, float locationScale) {
+    private static float getPercentPetRating(float climateLuck, float climateScale, float locationLuck,
+            float locationScale) {
         return (climateLuck + climateScale + locationLuck + locationScale) / 4;
     }
 
     public static Constant getConstantFromPercent(float value) {
+        BigDecimal percent = new BigDecimal(Float.toString(value))
+                .multiply(BigDecimal.valueOf(100));
 
-        BigDecimal input = new BigDecimal(value * 100f);
-        float ceilValue = input.setScale(2, RoundingMode.HALF_EVEN).floatValue();
-
-        if (ceilValue <= 20f) return Constant.SICKLY;
-        else if (ceilValue < 30f) return Constant.BAD;
-        else if (ceilValue < 40f) return Constant.BELOW_AVERAGE;
-        else if (ceilValue < 50f) return Constant.AVERAGE;
-        else if (ceilValue < 60f) return Constant.GOOD;
-        else if (ceilValue < 80f) return Constant.GREAT;
-        else if (ceilValue < 90f) return Constant.EXCELLENT;
-        else if (ceilValue < 100f) return Constant.AMAZING;
-        else if (ceilValue <= 101f) return Constant.PERFECT;
+        if (percent.compareTo(BigDecimal.valueOf(20)) <= 0)
+            return Constant.SICKLY;
+        else if (percent.compareTo(BigDecimal.valueOf(30)) < 0)
+            return Constant.BAD;
+        else if (percent.compareTo(BigDecimal.valueOf(40)) < 0)
+            return Constant.BELOW_AVERAGE;
+        else if (percent.compareTo(BigDecimal.valueOf(50)) < 0)
+            return Constant.AVERAGE;
+        else if (percent.compareTo(BigDecimal.valueOf(60)) < 0)
+            return Constant.GOOD;
+        else if (percent.compareTo(BigDecimal.valueOf(80)) < 0)
+            return Constant.GREAT;
+        else if (percent.compareTo(BigDecimal.valueOf(90)) < 0)
+            return Constant.EXCELLENT;
+        else if (percent.compareTo(BigDecimal.valueOf(100)) < 0)
+            return Constant.AMAZING;
+        else if (percent.compareTo(BigDecimal.valueOf(101)) <= 0)
+            return Constant.PERFECT;
         return Constant.DEFAULT;
     }
 
     public static Constant getConstantFromLine(Text line) {
-        if(line.getString().contains(Constant.SICKLY.TAG.getString())) return Constant.SICKLY;
-        else if (line.getString().contains(Constant.BAD.TAG.getString())) return Constant.BAD;
-        else if (line.getString().contains(Constant.BELOW_AVERAGE.TAG.getString())) return Constant.BELOW_AVERAGE;
-        else if (line.getString().contains(Constant.AVERAGE.TAG.getString())) return Constant.AVERAGE;
-        else if (line.getString().contains(Constant.GOOD.TAG.getString())) return Constant.GOOD;
-        else if (line.getString().contains(Constant.GREAT.TAG.getString())) return Constant.GREAT;
-        else if (line.getString().contains(Constant.EXCELLENT.TAG.getString())) return Constant.EXCELLENT;
-        else if (line.getString().contains(Constant.AMAZING.TAG.getString())) return Constant.AMAZING;
-        else if (line.getString().contains(Constant.PERFECT.TAG.getString())) return Constant.PERFECT;
+        if (line.getString().contains(Constant.SICKLY.TAG.getString()))
+            return Constant.SICKLY;
+        else if (line.getString().contains(Constant.BAD.TAG.getString()))
+            return Constant.BAD;
+        else if (line.getString().contains(Constant.BELOW_AVERAGE.TAG.getString()))
+            return Constant.BELOW_AVERAGE;
+        else if (line.getString().contains(Constant.AVERAGE.TAG.getString()))
+            return Constant.AVERAGE;
+        else if (line.getString().contains(Constant.GOOD.TAG.getString()))
+            return Constant.GOOD;
+        else if (line.getString().contains(Constant.GREAT.TAG.getString()))
+            return Constant.GREAT;
+        else if (line.getString().contains(Constant.EXCELLENT.TAG.getString()))
+            return Constant.EXCELLENT;
+        else if (line.getString().contains(Constant.AMAZING.TAG.getString()))
+            return Constant.AMAZING;
+        else if (line.getString().contains(Constant.PERFECT.TAG.getString()))
+            return Constant.PERFECT;
         return Constant.DEFAULT;
     }
 
@@ -193,7 +228,7 @@ public class Pet extends FOMCItem {
     }
 
     public static Pet getPet(ItemStack itemStack) {
-        if(itemStack.get(DataComponentTypes.LORE) != null
+        if (itemStack.get(DataComponentTypes.LORE) != null
                 && itemStack.get(DataComponentTypes.CUSTOM_DATA) != null
                 && !Objects.requireNonNull(ItemStackHelper.getNbt(itemStack)).getBoolean("shopitem")) {
             NbtCompound nbtCompound = ItemStackHelper.getNbt(itemStack);
@@ -203,5 +238,30 @@ public class Pet extends FOMCItem {
             }
         }
         return null;
+    }
+
+    public static String getPetItem(ItemStack itemStack) {
+        if (itemStack.get(DataComponentTypes.LORE) != null
+                && itemStack.get(DataComponentTypes.CUSTOM_DATA) != null
+                && !Objects.requireNonNull(ItemStackHelper.getNbt(itemStack)).getBoolean("item")) {
+            NbtCompound nbtCompound = ItemStackHelper.getNbt(itemStack);
+            return readPetItem(nbtCompound);
+        }
+        return null;
+    }
+
+    private static String readPetItem(NbtCompound nbtCompound) {
+        if (nbtCompound == null) {
+            return null;
+        }
+        NbtList items = nbtCompound.getList("item", NbtElement.COMPOUND_TYPE);
+        if (items.isEmpty()) {
+            return null;
+        }
+        NbtCompound item = items.getCompound(0);
+        return item
+                .getCompound("components")
+                .getCompound("minecraft:custom_data")
+                .getString("petItem");
     }
 }

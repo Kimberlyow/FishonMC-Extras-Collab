@@ -4,6 +4,7 @@ import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.FOMC.Types.Fish;
 import io.github.markassk.fishonmcextras.FishOnMCExtras;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
+import io.github.markassk.fishonmcextras.handler.packet.PacketHandler;
 import io.github.markassk.fishonmcextras.util.TextHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -15,221 +16,431 @@ import net.minecraft.util.Formatting;
 
 import java.util.*;
 
-public class FishCatchHandler  {
-    private static FishCatchHandler INSTANCE = new FishCatchHandler();
-    private final FishOnMCExtrasConfig config = FishOnMCExtrasConfig.getConfig();
+public class FishCatchHandler {
+	private static FishCatchHandler INSTANCE = new FishCatchHandler();
+	private final FishOnMCExtrasConfig config = FishOnMCExtrasConfig.getConfig();
 
-    private Text title = Text.empty();
-    private Text subtitle = Text.empty();
-    private final List<UUID> trackFishList = new ArrayList<>();
-    private boolean fishFound = false;
-    private boolean preCheck = false;
-    private boolean isFull = false;
-    private long fishCaughtTime = 0L;
-    private boolean hasUsedRod = false;
+	private Text title = Text.empty();
+	private Text subtitle = Text.empty();
+	private final List<UUID> trackFishList = new ArrayList<>();
+	private boolean fishFound = false;
+	private boolean preCheck = false;
+	private boolean isFull = false;
+	private long fishCaughtTime = 0L;
+	private boolean hasUsedRod = false;
 
-    public long lastTimeUsedRod = 0L;
+	public long lastTimeUsedRod = 0L;
 
-    public static FishCatchHandler instance() {
-        if (INSTANCE == null) {
-            INSTANCE = new FishCatchHandler();
-        }
-        return INSTANCE;
-    }
+	public static FishCatchHandler instance() {
+		if (INSTANCE == null) {
+			INSTANCE = new FishCatchHandler();
+		}
+		return INSTANCE;
+	}
 
-    public void tick(MinecraftClient minecraftClient) {
-        if(minecraftClient.player == null || !LoadingHandler.instance().isLoadingDone || minecraftClient.world == null) {
-            return;
-        }
+	public void tick(MinecraftClient minecraftClient) {
+		if (minecraftClient.player == null || !LoadingHandler.instance().isLoadingDone
+				|| minecraftClient.world == null) {
+			return;
+		}
 
-        if(minecraftClient.player.fishHook != null && !hasUsedRod) {
-            hasUsedRod = true;
-        } else if (hasUsedRod && minecraftClient.player.fishHook == null) {
-            hasUsedRod = false;
-            this.lastTimeUsedRod = System.currentTimeMillis();
-        }
+		if (minecraftClient.player.fishHook != null && !hasUsedRod) {
+			hasUsedRod = true;
+		} else if (hasUsedRod && minecraftClient.player.fishHook == null) {
+			hasUsedRod = false;
+			this.lastTimeUsedRod = System.currentTimeMillis();
+		}
 
-        if(this.preCheck) {
-            this.updateTrackedFish(minecraftClient.player);
-            this.preCheck = false;
-            FishOnMCExtras.LOGGER.info("[FoE] Tracked Fish: {}", this.trackFishList.size());
-        }
+		if (this.preCheck) {
+			this.updateTrackedFish(minecraftClient.player);
+			this.preCheck = false;
+			FishOnMCExtras.LOGGER.info("[FoE] Tracked Fish: {}", this.trackFishList.size());
+		}
 
-        if(this.fishFound) {
-            if (System.currentTimeMillis() - this.fishCaughtTime < 2000L) {
-                if (!this.isFull) {
-                    for (int i = minecraftClient.player.getInventory().main.size() - 1; i >= 0; i--) {
-                        ItemStack stack = minecraftClient.player.getInventory().main.get(i);
-                        if(stack.isEmpty()) {
-                            continue;
-                        }
-                        this.processStack(stack, minecraftClient);
-                    }
-                }
+		if (this.fishFound) {
+			if (System.currentTimeMillis() - this.fishCaughtTime < 2000L) {
+				if (!this.isFull) {
+					int checkedStacks = 0;
+					for (int i = minecraftClient.player.getInventory().main.size() - 1; i >= 0; i--) {
+						ItemStack stack = minecraftClient.player.getInventory().main.get(i);
+						if (stack.isEmpty()) {
+							continue;
+						}
+						checkedStacks++;
+						this.processStack(stack, minecraftClient);
 
-                if(FullInventoryHandler.instance().slotsLeft == 0) {
-                    this.isFull = true;
-                }
+					}
+					if (checkedStacks > 0) {
+						FishOnMCExtras.LOGGER.debug("[FoE] Checked {} stacks for fish catch", checkedStacks);
+					}
+				}
 
-            } else {
-                this.fishFound = false;
-                this.isFull = false;
-                this.updateTrackedFish(minecraftClient.player);
-                FishOnMCExtras.LOGGER.error("[FoE] Fish not found");
-            }
-        }
+				if (FullInventoryHandler.instance().slotsLeft == 0) {
+					this.isFull = true;
+				}
 
-        ProfileDataHandler.instance().tickTimer();
-    }
+			} else {
+				FishOnMCExtras.LOGGER.warn("[FoE] Fish not found after 2s - title: '{}', subtitle: '{}', isFull: {}",
+						this.title.getString(), this.subtitle.getString(), this.isFull);
+				this.fishFound = false;
+				this.isFull = false;
+				this.updateTrackedFish(minecraftClient.player);
+			}
+		}
 
-    public void tickEntities(Entity entity, MinecraftClient minecraftClient) {
-        if(this.fishFound && this.isFull) {
-            if(entity instanceof ItemEntity itemEntity) {
-                ItemStack stack =  itemEntity.getStack();
-                if(stack.isEmpty()) {
-                    return;
-                }
-                this.processStack(stack, minecraftClient);
-            }
-        }
-    }
+		ProfileDataHandler.instance().tickTimer();
+	}
 
-    public void onJoinServer() {
-        this.preCheck = true;
-    }
+	public void tickEntities(Entity entity, MinecraftClient minecraftClient) {
+		if (this.fishFound && this.isFull) {
+			if (entity instanceof ItemEntity itemEntity) {
+				ItemStack stack = itemEntity.getStack();
+				if (stack.isEmpty()) {
+					return;
+				}
+				this.processStack(stack, minecraftClient);
+			}
+		}
+	}
 
-    public void onLeaveServer() {
-        this.fishFound = false;
-    }
+	public void onJoinServer() {
+		this.preCheck = true;
+	}
 
-    public void catchTitle(Text title) {
-        if(title.getString().length() != 1 || title.equals(Text.empty())) {
-            return;
-        }
+	public void onLeaveServer() {
+		this.fishFound = false;
+	}
 
-        if(isFish(title.getString().charAt(0))) {
-            this.title = title;
-            this.fishFound = true;
-            this.fishCaughtTime = System.currentTimeMillis();
-        }
-    }
+	public void catchTitle(Text title) {
+		if (title.getString().length() != 1 || title.equals(Text.empty())) {
+			return;
+		}
 
-    public void catchSubtitle(Text title) {
-        if(title.getString().contains(Constant.COMMON.TAG.getString())
-                || title.getString().contains(Constant.RARE.TAG.getString())
-                || title.getString().contains(Constant.EPIC.TAG.getString())
-                || title.getString().contains(Constant.LEGENDARY.TAG.getString())
-                || title.getString().contains(Constant.MYTHICAL.TAG.getString())
-                || title.getString().contains(Constant.SPECIAL.TAG.getString())
-        ) {
-            this.subtitle = title;
-        }
-    }
+		if (isFish(title.getString().charAt(0))) {
+			this.title = title;
+			this.fishFound = true;
+			this.fishCaughtTime = System.currentTimeMillis();
+		}
+	}
 
-    public void reset() {
-        LoadingHandler.instance().isLoadingDone = false;
-        if(MinecraftClient.getInstance().player != null) {
-            this.updateTrackedFish(MinecraftClient.getInstance().player);
-        }
-    }
+	public void catchSubtitle(Text title) {
+		if (title.getString().contains(Constant.COMMON.TAG.getString())
+				|| title.getString().contains(Constant.RARE.TAG.getString())
+				|| title.getString().contains(Constant.EPIC.TAG.getString())
+				|| title.getString().contains(Constant.LEGENDARY.TAG.getString())
+				|| title.getString().contains(Constant.MYTHICAL.TAG.getString())
+				|| title.getString().contains(Constant.SPECIAL.TAG.getString())) {
+			this.subtitle = title;
+		}
+	}
 
-    public void onReceiveMessage(Text text) {
-        if(text.getString().startsWith("PET DROP! You pulled")) {
-            ProfileDataHandler.instance().updatePetCaughtStatsOnCatch();
-            FishOnMCExtras.LOGGER.info("[FoE] Tracking Pet");
-        }
+	public void reset() {
+		LoadingHandler.instance().isLoadingDone = false;
+		if (MinecraftClient.getInstance().player != null) {
+			this.updateTrackedFish(MinecraftClient.getInstance().player);
+		}
+	}
 
-        if(text.getString().startsWith("RARE CATCH! You pulled") && text.getString().contains("Shard")) {
-            ProfileDataHandler.instance().updateShardCaughtStatsOnCatch(1);
-            FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
-        }
+	public boolean onReceiveMessage(Text text) {
+		if (text.getString().startsWith("PET DROP! You pulled")) {
+			int oldPetDryStreak = ProfileDataHandler.instance().profileData.petDryStreak;
 
-        if(text.getString().startsWith("RARE CATCH! You pulled") && text.getString().contains("Lightning in a Bottle")) {
-            ProfileDataHandler.instance().updateLightningBottleCaughtStatsOnCatch();
-            FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
-        }
-    }
+			ProfileDataHandler.instance().updatePetCaughtStatsOnCatch();
+			FishOnMCExtras.LOGGER.info("[FoE] Tracking Pet");
 
-    private boolean isFish(char character) {
-        return (int) character > 0xE000 && (int) character < 0xE999;
-    }
+			if (config.fishTracker.dryStreakMessageToggles.otherMessageToggles.showPet) {
+				sendItemDryStreakMessage("pet", oldPetDryStreak);
+			}
+		}
 
-    private void processStack(ItemStack stack, MinecraftClient minecraftClient) {
-        Fish fish = Fish.getFish(stack);
-        if (fish != null
-                && minecraftClient.player != null
-                && Objects.equals(fish.catcher, minecraftClient.player.getUuid())
-                && !trackFishList.contains(fish.id)
-                && this.subtitle.getString().contains(stack.getName().getString())) {
-            FishOnMCExtras.LOGGER.info("[FoE] Tracking {}", stack.getName().getString());
+		if (text.getString().startsWith("RARE CATCH! You pulled") && text.getString().contains("Shard")) {
+			int oldShardDryStreak = ProfileDataHandler.instance().profileData.shardDryStreak;
 
-            if(config.fishTracker.fishTrackerToggles.otherToggles.useNewTitle) {
-                this.sendToTitleHud(fish, this.title, this.subtitle);
-            }
+			ProfileDataHandler.instance().updateShardCaughtStatsOnCatch(1);
+			FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
+			DailyQuestHandler.instance().updateQuest("Shards Caught");
 
-            ProfileDataHandler.instance().updateStatsOnCatch(fish);
-            ProfileDataHandler.instance().updateStatsOnCatch();
-            QuestHandler.instance().updateQuest(fish);
-            PetEquipHandler.instance().updatePet(minecraftClient.player);
+			if (config.fishTracker.dryStreakMessageToggles.otherMessageToggles.showShard) {
+				sendItemDryStreakMessage("shard", oldShardDryStreak);
+			}
+		}
 
-            this.fishFound = false;
-            this.isFull = false;
-            this.updateTrackedFish(minecraftClient.player);
-            this.title = Text.empty();
-            this.subtitle = Text.empty();
-        }
-    }
+		if (text.getString().startsWith("RARE CATCH! You pulled")
+				&& text.getString().contains("Lightning in a Bottle")) {
+			int oldLightningBottleDryStreak = ProfileDataHandler.instance().profileData.lightningBottleDryStreak;
 
-    private void updateTrackedFish(PlayerEntity player) {
-        trackFishList.clear();
-        for (int i = player.getInventory().main.size() - 1; i >= 0; i--) {
-            ItemStack stack = player.getInventory().main.get(i);
+			ProfileDataHandler.instance().updateLightningBottleCaughtStatsOnCatch();
+			FishOnMCExtras.LOGGER.info("[FoE] Tracking Lightning Bottle");
 
-            if(stack.isEmpty()) {
-                continue;
-            }
+			if (config.fishTracker.dryStreakMessageToggles.otherMessageToggles.showLightningBottle) {
+				sendItemDryStreakMessage("lightning bottle", oldLightningBottleDryStreak);
+			}
+		}
 
-            Fish fish = Fish.getFish(stack);
-            if (fish != null
-                    && Objects.equals(fish.catcher, player.getUuid())
-                    && !trackFishList.contains(fish.id)) {
-                trackFishList.add(fish.id);
-            }
-        }
-    }
+		if (text.getString().startsWith("RARE CATCH! You pulled") && text.getString().contains("Infusion Capsule")) {
+			int oldInfusionCapsuleDryStreak = ProfileDataHandler.instance().profileData.infusionCapsuleDryStreak;
 
-    private void sendToTitleHud(Fish fish, Text icon, Text name) {
-        // Send to TitleHud
-        List<Text> title = new ArrayList<>();
-        title.add(icon.copy().formatted(Formatting.WHITE));
-        title.add(Text.empty());
-        title.add(name);
-        title.add(fish.size.TAG);
-        if(FullInventoryHandler.instance().slotsLeft == 0) {
-            title.add(Text.literal("Inventory Full!").formatted(Formatting.RED));
-        }
-        List<Text> subtitle = new ArrayList<>();
-        if(config.fishTracker.fishTrackerToggles.otherToggles.showStatsOnCatch) {
-            subtitle.add(Text.literal("ᴡᴇɪɢʜᴛ").formatted(Formatting.BOLD).withColor(0xFFFFFF));
-            subtitle.add(TextHelper.concat(
-                    Text.literal(TextHelper.fmt(fish.weight, 2)),
-                    Text.literal("ʟʙ").withColor(0xAAAAAA),
-                    Text.literal(" (").withColor(0x555555),
-                    Text.literal(TextHelper.fmt(fish.weight * 0.453592f, 2)),
-                    Text.literal("ᴋɢ").withColor(0xAAAAAA),
-                    Text.literal(")").withColor(0x555555)
-            ).withColor(0xFFFFFF));
-            subtitle.add(Text.literal("ʟᴇɴɢᴛʜ").formatted(Formatting.BOLD).withColor(0xFFFFFF));
-            subtitle.add(TextHelper.concat(
-                    Text.literal(TextHelper.fmt(fish.length, 2)),
-                    Text.literal("ɪɴ").withColor(0xAAAAAA),
-                    Text.literal(" (").withColor(0x555555),
-                    Text.literal(TextHelper.fmt(fish.length * 2.54f, 2)),
-                    Text.literal("ᴄᴍ").withColor(0xAAAAAA),
-                    Text.literal(")").withColor(0x555555)
-            ).withColor(0xFFFFFF));
-        }
+			ProfileDataHandler.instance().updateInfusionCapsuleCaughtStatsOnCatch();
+			FishOnMCExtras.LOGGER.info("[FoE] Tracking Infusion Capsule");
 
-        TitleHandler.instance().setTitleHud(title, config.fishTracker.fishTrackerToggles.otherToggles.showStatsOnCatchTime * 1000L, MinecraftClient.getInstance(), subtitle);
-    }
+			if (config.fishTracker.dryStreakMessageToggles.otherMessageToggles.showInfusionCapsule) {
+				sendItemDryStreakMessage("infusion capsule", oldInfusionCapsuleDryStreak);
+			}
+		}
+
+		return false; // Don't suppress any messages
+	}
+
+	private boolean isFish(char character) {
+		return (int) character > 0xE000 && (int) character < 0xE999;
+	}
+
+	private void processStack(ItemStack stack, MinecraftClient minecraftClient) {
+		Fish fish = Fish.getFish(stack);
+		if (fish != null && this.fishFound) {
+			String stackName = stack.getName().getString();
+			String subtitle = this.subtitle.getString();
+			boolean catcherMatches = minecraftClient.player != null
+					&& Objects.equals(fish.catcher, minecraftClient.player.getUuid());
+			boolean notTracked = !trackFishList.contains(fish.id);
+			boolean subtitleMatches = subtitle.contains(stackName);
+
+			FishOnMCExtras.LOGGER.info(
+					"[FoE] Found fish: {} (variant: {}) - catcher: {}, notTracked: {}, subtitleMatch: {} (subtitle: '{}' contains name: '{}')",
+					stackName, fish.variant.ID, catcherMatches, notTracked, subtitleMatches, subtitle, stackName);
+		}
+		if (fish != null
+				&& minecraftClient.player != null
+				&& Objects.equals(fish.catcher, minecraftClient.player.getUuid())
+				&& !trackFishList.contains(fish.id)
+				&& this.subtitle.getString().contains(stack.getName().getString())) {
+			FishOnMCExtras.LOGGER.info("[FoE] Tracking {}", stack.getName().getString());
+
+			if (config.fishTracker.fishTrackerToggles.otherToggles.useNewTitle) {
+				this.sendToTitleHud(fish, this.title, this.subtitle);
+			}
+
+			ProfileDataHandler.instance().updateStatsOnCatch(fish);
+			ProfileDataHandler.instance().updateStatsOnCatch();
+			QuestHandler.instance().updateQuest(fish);
+			DailyQuestHandler.instance().updateQuest("Total Caught");
+			if (fish.rarity == Constant.MYTHICAL) {
+				DailyQuestHandler.instance().updateQuest("Mythical Caught");
+			}
+			PetEquipHandler.instance().updatePet(minecraftClient.player);
+
+			if (config.contestTracker.shouldShowFullContest() && config.contestTracker.refreshOnContestPB) {
+				// Check if caught fish is for contest and refresh if it's heavier
+				var typecheck = ContestHandler.instance().type.replace("Heaviest", "").trim().toLowerCase();
+				ContestHandler contestHandler = ContestHandler.instance();
+
+				// Check if we are in the right location for the contest
+				boolean locationMatches = Objects.equals(
+						Objects.requireNonNull(Constant.valueOfTag(contestHandler.location)) == Constant.SPAWNHUB
+								? Constant.CYPRESS_LAKE.ID
+								: Objects.requireNonNull(Constant.valueOfTag(contestHandler.location).ID),
+						BossBarHandler.instance().currentLocation.ID);
+
+				if (contestHandler.isContest && typecheck.contains(fish.groupId.toLowerCase())
+						&& locationMatches && (fish.weight > contestHandler.biggestFish)) {
+					ContestHandler.instance().biggestFish = fish.weight;
+					ContestHandler.instance().setRefreshReason("personal_best");
+					minecraftClient.player.networkHandler.sendChatCommand("contest");
+
+					// Send packet to notify other players of contest PB
+					if (config.contestTracker.recieveLocalPBs) {
+						PacketHandler.CONTEST_PB_PACKET.sendContestPBPacket(fish.groupId,
+								minecraftClient.player.getName().getString(), fish.weight,
+								ScoreboardHandler.instance().level);
+					}
+
+					FishOnMCExtras.LOGGER.info("[FoE] Refreshed Contest Stats - New heaviest fish: {} lbs",
+							fish.weight);
+				}
+			}
+
+			this.fishFound = false;
+			this.isFull = false;
+			this.updateTrackedFish(minecraftClient.player);
+			this.title = Text.empty();
+			this.subtitle = Text.empty();
+
+		}
+
+	}
+
+	private void updateTrackedFish(PlayerEntity player) {
+		trackFishList.clear();
+		for (int i = player.getInventory().main.size() - 1; i >= 0; i--) {
+			ItemStack stack = player.getInventory().main.get(i);
+
+			if (stack.isEmpty()) {
+				continue;
+			}
+
+			Fish fish = Fish.getFish(stack);
+			if (fish != null
+					&& Objects.equals(fish.catcher, player.getUuid())
+					&& !trackFishList.contains(fish.id)) {
+				trackFishList.add(fish.id);
+			}
+		}
+	}
+
+	private void sendToTitleHud(Fish fish, Text icon, Text name) {
+		// Send to TitleHud
+		List<Text> title = new ArrayList<>();
+		title.add(icon.copy().formatted(Formatting.WHITE));
+		title.add(Text.empty());
+		title.add(name);
+		title.add(fish.size.TAG);
+		if (FullInventoryHandler.instance().slotsLeft == 0) {
+			title.add(Text.literal("Inventory Full!").formatted(Formatting.RED));
+		}
+		List<Text> subtitle = new ArrayList<>();
+		if (config.fishTracker.fishTrackerToggles.otherToggles.showStatsOnCatch) {
+			subtitle.add(Text.literal("ᴡᴇɪɢʜᴛ").formatted(Formatting.BOLD).withColor(0xFFFFFF));
+			subtitle.add(TextHelper.concat(
+					Text.literal(TextHelper.fmt(fish.weight, 2)),
+					Text.literal("ʟʙ").withColor(0xAAAAAA),
+					Text.literal(" (").withColor(0x555555),
+					Text.literal(TextHelper.fmt(fish.weight * 0.453592f, 2)),
+					Text.literal("ᴋɢ").withColor(0xAAAAAA),
+					Text.literal(")").withColor(0x555555)).withColor(0xFFFFFF));
+			subtitle.add(Text.literal("ʟᴇɴɢᴛʜ").formatted(Formatting.BOLD).withColor(0xFFFFFF));
+			subtitle.add(TextHelper.concat(
+					Text.literal(TextHelper.fmt(fish.length, 2)),
+					Text.literal("ɪɴ").withColor(0xAAAAAA),
+					Text.literal(" (").withColor(0x555555),
+					Text.literal(TextHelper.fmt(fish.length * 2.54f, 2)),
+					Text.literal("ᴄᴍ").withColor(0xAAAAAA),
+					Text.literal(")").withColor(0x555555)).withColor(0xFFFFFF));
+		}
+
+		TitleHandler.instance().setTitleHud(title,
+				config.fishTracker.fishTrackerToggles.otherToggles.showStatsOnCatchTime * 1000L,
+				MinecraftClient.getInstance(), subtitle);
+	}
+
+	public void onFishCaughtSendDryStreak(Fish fish) {
+		if (fish.rarity == Constant.COMMON
+				&& config.fishTracker.dryStreakMessageToggles.rarityMessageToggles.showCommon ||
+				fish.rarity == Constant.RARE
+						&& config.fishTracker.dryStreakMessageToggles.rarityMessageToggles.showRare
+				||
+				fish.rarity == Constant.EPIC
+						&& config.fishTracker.dryStreakMessageToggles.rarityMessageToggles.showEpic
+				||
+				fish.rarity == Constant.LEGENDARY
+						&& config.fishTracker.dryStreakMessageToggles.rarityMessageToggles.showLegendary
+				||
+				fish.rarity == Constant.MYTHICAL
+						&& config.fishTracker.dryStreakMessageToggles.rarityMessageToggles.showMythical) {
+
+			sendFishDryStreakMessage(fish.rarity,
+					ProfileDataHandler.instance().profileData.rarityDryStreak.getOrDefault(fish.rarity, 0));
+		}
+
+		if (fish.size == Constant.BABY
+				&& config.fishTracker.dryStreakMessageToggles.sizeMessageToggles.showBaby ||
+				fish.size == Constant.JUVENILE
+						&& config.fishTracker.dryStreakMessageToggles.sizeMessageToggles.showJuvenile
+				||
+				fish.size == Constant.ADULT
+						&& config.fishTracker.dryStreakMessageToggles.sizeMessageToggles.showAdult
+				||
+				fish.size == Constant.LARGE
+						&& config.fishTracker.dryStreakMessageToggles.sizeMessageToggles.showLarge
+				||
+				fish.size == Constant.GIGANTIC
+						&& config.fishTracker.dryStreakMessageToggles.sizeMessageToggles.showGigantic) {
+
+			sendFishDryStreakMessage(fish.size,
+					ProfileDataHandler.instance().profileData.fishSizeDryStreak.getOrDefault(fish.size, 0));
+		}
+
+		if (fish.variant == Constant.ALBINO
+				&& config.fishTracker.dryStreakMessageToggles.variantMessageToggles.showAlbino ||
+				fish.variant == Constant.MELANISTIC
+						&& config.fishTracker.dryStreakMessageToggles.variantMessageToggles.showMelanistic
+				||
+				fish.variant == Constant.TROPHY
+						&& config.fishTracker.dryStreakMessageToggles.variantMessageToggles.showTrophy
+				||
+				fish.variant == Constant.FABLED
+						&& config.fishTracker.dryStreakMessageToggles.variantMessageToggles.showFabled) {
+
+			sendFishDryStreakMessage(fish.variant,
+					ProfileDataHandler.instance().profileData.variantDryStreak.getOrDefault(fish.variant, 0));
+		}
+	}
+
+	private void sendFishDryStreakMessage(Constant fish, int lastCaught) {
+		boolean showText = config.fishTracker.dryStreakMessageToggles.showText;
+		TextDisplayHandler.TextDisplay formatting = config.fishTracker.dryStreakMessageToggles.textCapitalization;
+		Text fishText = fish.TAG;
+		String lower;
+		boolean useAn;
+
+		if (!(config.fishTracker.dryStreakMessageToggles.textCapitalization == TextDisplayHandler.TextDisplay.OFF)) {
+			fishText = showText ? switch (fish) {
+				// Rarities
+				case COMMON -> Text.literal(TextDisplayHandler.formatText("Common", formatting)).withColor(0xFFFFFF);
+				case RARE -> Text.literal(TextDisplayHandler.formatText("Rare", formatting)).withColor(0x2B85C4);
+				case EPIC -> Text.literal(TextDisplayHandler.formatText("Epic", formatting)).withColor(0x1CD832);
+				case LEGENDARY ->
+					Text.literal(TextDisplayHandler.formatText("Legendary", formatting)).withColor(0xD98103);
+				case MYTHICAL ->
+					Text.literal(TextDisplayHandler.formatText("Mythical", formatting)).withColor(0xC93832);
+
+				// Sizes
+				case BABY -> Text.literal(TextDisplayHandler.formatText("Baby", formatting)).withColor(0x468CE7);
+				case JUVENILE ->
+					Text.literal(TextDisplayHandler.formatText("Juvenile", formatting)).withColor(0x22EA08);
+				case ADULT -> Text.literal(TextDisplayHandler.formatText("Adult", formatting)).withColor(0x1C7DA0);
+				case LARGE -> Text.literal(TextDisplayHandler.formatText("Large", formatting)).withColor(0xFF9000);
+				case GIGANTIC ->
+					Text.literal(TextDisplayHandler.formatText("Gigantic", formatting)).withColor(0xAF3333);
+
+				// Variants
+				case ALBINO -> Text.literal(TextDisplayHandler.formatText("Albino", formatting)).withColor(0xC6C3A1);
+				case MELANISTIC ->
+					Text.literal(TextDisplayHandler.formatText("Melanistic", formatting)).withColor(0x1C1C1C);
+				case TROPHY -> Text.literal(TextDisplayHandler.formatText("Trophy", formatting)).withColor(0xD8C13C);
+				case FABLED -> Text.literal(TextDisplayHandler.formatText("Fabled", formatting)).withColor(0xCE2326);
+
+				default -> fish.TAG;
+			} : fish.TAG;
+
+			lower = fish.toString().toLowerCase(Locale.ROOT).trim();
+		} else {
+			lower = fish.ID.toLowerCase(Locale.ROOT).trim();
+		}
+		useAn = !lower.isEmpty() && "aeiou".indexOf(lower.charAt(0)) >= 0;
+		sendDryStreakMessage(fishText, useAn ? "an " : "a ", lastCaught);
+	}
+
+	private void sendItemDryStreakMessage(String item, int lastCaught) {
+		Constant constant = Constant.valueOfId(item);
+		Text itemText = (constant != Constant.DEFAULT) ? constant.TAG.copy() : Text.literal(item);
+
+		String lower = item.toLowerCase(Locale.ROOT).trim();
+		boolean useAn = !lower.isEmpty() && "aeiou".indexOf(lower.charAt(0)) >= 0;
+		sendDryStreakMessage(itemText, useAn ? "an " : "a ", lastCaught);
+	}
+
+	private void sendDryStreakMessage(Text typeText, String article, int lastCaught) {
+		int dryAmount = Math.max(0, ProfileDataHandler.instance().profileData.allFishCaughtCount - lastCaught - 1);
+		var client = MinecraftClient.getInstance();
+
+		if (client.player != null) {
+			client.inGameHud.getChatHud().addMessage(TextHelper.concat(
+					Text.literal("FOE ").formatted(Formatting.DARK_GREEN, Formatting.BOLD),
+					Text.literal("» ").formatted(Formatting.DARK_GRAY),
+					Text.literal("You went ").formatted(Formatting.GRAY),
+					Text.literal(TextHelper.fmnt(dryAmount)).formatted(Formatting.YELLOW),
+					Text.literal(" fish dry before catching " + article).formatted(Formatting.GRAY),
+					typeText));
+		}
+	}
 }

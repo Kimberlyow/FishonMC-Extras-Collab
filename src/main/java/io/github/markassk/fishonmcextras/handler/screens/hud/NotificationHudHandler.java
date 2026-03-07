@@ -104,7 +104,9 @@ public class NotificationHudHandler {
 
             // Wrong Bait Warning
             if(config.baitTracker.showBaitWarningHUD
+                    && !TackleboxHandler.instance().isLocked
                     && FishingRodHandler.instance().isWrongBait
+                    && FishingRodHandler.instance().fishingRod != null
                     && BossBarHandler.instance().currentLocation != Constant.CREW_ISLAND
                     && BossBarHandler.instance().currentLocation != Constant.SPAWNHUB
             ) {
@@ -122,7 +124,7 @@ public class NotificationHudHandler {
                     textList.add(Text.empty());
                     textList.add(TextHelper.concat(
                             Text.literal("Your ").formatted(Formatting.RED),
-                            Text.literal(lure.name).formatted(Formatting.WHITE),
+                            Text.literal(TextHelper.upperCaseAllFirstCharacter(lure.name)).formatted(Formatting.WHITE),
                             Text.literal(" has no use in ").formatted(Formatting.RED),
                             LocationInfo.valueOfId(BossBarHandler.instance().currentLocation.ID).WATER.TAG,
                             Text.literal(" here").formatted(Formatting.RED),
@@ -130,6 +132,41 @@ public class NotificationHudHandler {
                     ));
                 }
             }
+            
+			// Low Bait Warning
+			if (config.baitTracker.showLowBaitWarningHUD 
+					&& !TackleboxHandler.instance().isLocked
+					&& FishingRodHandler.instance().fishingRod != null
+					&& !FishingRodHandler.instance().fishingRod.tacklebox.isEmpty()
+					&& BossBarHandler.instance().currentLocation != Constant.CREW_ISLAND
+					&& BossBarHandler.instance().currentLocation != Constant.SPAWNHUB
+				)
+			{
+				if (FishingRodHandler.instance().fishingRod.tacklebox.getFirst() instanceof Bait bait
+					&& bait.counter <= config.baitTracker.lowBaitThreshold
+				) {
+					textList.add(Text.empty());
+					textList.add(TextHelper.concat(
+						Text.literal("Running low on " + TextHelper.upperCaseAllFirstCharacter(bait.name) + "! ").formatted(Formatting.RED),
+						Text.literal(String.valueOf(bait.counter)).formatted(Formatting.WHITE),
+						Text.literal(" left.").formatted(Formatting.RED)
+					));
+				} else if (FishingRodHandler.instance().fishingRod.tacklebox.getFirst() instanceof Lure lure) {
+					int remainingLures = lure.counter;
+					if (config.baitTracker.calculateLures) {
+						remainingLures = lure.calculateLures(FishingRodHandler.instance().fishingRod.tacklebox);
+					}
+
+					if (remainingLures <= config.baitTracker.lowBaitThreshold) {
+							textList.add(Text.empty());
+							textList.add(TextHelper.concat(
+								Text.literal("Running low on " + TextHelper.upperCaseAllFirstCharacter(lure.name) + "! ").formatted(Formatting.RED),
+								Text.literal(String.valueOf(remainingLures)).formatted(Formatting.WHITE),
+								Text.literal(" left.").formatted(Formatting.RED)
+							));
+					}
+				}
+			}
 
             // Wrong Rod Parts Warning
             if(config.equipmentTracker.showLineWarningHUD
@@ -204,6 +241,26 @@ public class NotificationHudHandler {
                         textList.add(Text.empty());
                         textList.add(weatherEvent.TAG);
                         textList.add(weatherEvent.DESC);
+                        textList.add(TextHelper.concat(
+                                Text.literal("ᴛʜɪѕ ᴀʟᴇʀᴛ ᴡɪʟʟ ʙᴇ ᴅɪѕᴍɪѕѕᴇᴅ ɪɴ ").formatted(Formatting.GRAY),
+                                Text.literal("" + seconds),
+                                Text.literal(" ѕᴇᴄᴏɴᴅѕ").formatted(Formatting.GRAY)
+                        ));
+                    }
+                });
+            }
+
+            List<EventHandler.GenericEventState> activeGenericEvents = EventHandler.instance().getActiveGenericEvents();
+            if(!activeGenericEvents.isEmpty()) {
+                long now = System.currentTimeMillis();
+                activeGenericEvents.forEach(genericEventState -> {
+                    int seconds = genericEventState.remainingSeconds(now);
+                    if(seconds >= 0) {
+                        textList.add(Text.empty());
+                        // Split the text by newlines and add each line separately
+                        Text eventText = genericEventState.config().getText();
+                        List<Text> lines = TextHelper.splitByNewlines(eventText);
+                        textList.addAll(lines);
                         textList.add(TextHelper.concat(
                                 Text.literal("ᴛʜɪѕ ᴀʟᴇʀᴛ ᴡɪʟʟ ʙᴇ ᴅɪѕᴍɪѕѕᴇᴅ ɪɴ ").formatted(Formatting.GRAY),
                                 Text.literal("" + seconds),
@@ -302,6 +359,17 @@ public class NotificationHudHandler {
             ));
         }
 
+        if (!DailyQuestHandler.instance().isDailyQuestInitialized()) {
+            if (config.dailyQuestTracker.showDailyQuestHud && config.dailyQuestTracker.showNotification) {
+                textList.add(Text.empty());
+                textList.add(TextHelper.concat(
+                        Text.literal("Please do ").formatted(Formatting.RED),
+                        Text.literal("/menu ").formatted(Formatting.AQUA),
+                        Text.literal("to initialize the Daily Quest Tracker").formatted(Formatting.RED)
+                ));
+            }
+        }
+
         if(!ProfileDataHandler.instance().profileData.isStatsInitialized) {
             textList.add(Text.empty());
             textList.add(TextHelper.concat(
@@ -342,5 +410,6 @@ public class NotificationHudHandler {
 
     public Text getTitle() {
         return Text.literal("ɴᴏᴛɪꜰɪᴄᴀᴛɪᴏɴѕ").formatted(Formatting.BOLD);
+
     }
 }

@@ -42,6 +42,6 @@ public class LoadingHandler {
     }
 
     public boolean checkAddress(MinecraftClient minecraftClient) {
-        return Objects.requireNonNull(minecraftClient.getCurrentServerEntry()).address.equalsIgnoreCase("play.fishonmc.net") || Objects.requireNonNull(minecraftClient.getCurrentServerEntry()).address.equalsIgnoreCase("fishonmc.net");
+        return Objects.requireNonNull(minecraftClient.getCurrentServerEntry()).address.toLowerCase().contains("fishonmc.net");
     }
 }
