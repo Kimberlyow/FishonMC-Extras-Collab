@@ -104,6 +104,7 @@ public class NotificationHudHandler {
 
             // Wrong Bait Warning
             if(config.baitTracker.showBaitWarningHUD
+                    && !TackleboxHandler.instance().isLocked
                     && FishingRodHandler.instance().isWrongBait
                     && FishingRodHandler.instance().fishingRod != null
                     && BossBarHandler.instance().currentLocation != Constant.CREW_ISLAND
@@ -134,6 +135,7 @@ public class NotificationHudHandler {
             
 			// Low Bait Warning
 			if (config.baitTracker.showLowBaitWarningHUD 
+					&& !TackleboxHandler.instance().isLocked
 					&& FishingRodHandler.instance().fishingRod != null
 					&& !FishingRodHandler.instance().fishingRod.tacklebox.isEmpty()
 					&& BossBarHandler.instance().currentLocation != Constant.CREW_ISLAND

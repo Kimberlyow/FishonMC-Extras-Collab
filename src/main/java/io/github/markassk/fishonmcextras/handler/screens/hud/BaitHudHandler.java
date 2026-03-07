@@ -5,6 +5,7 @@ import io.github.markassk.fishonmcextras.FOMC.Types.Bait;
 import io.github.markassk.fishonmcextras.FOMC.Types.FOMCItem;
 import io.github.markassk.fishonmcextras.FOMC.Types.Lure;
 import io.github.markassk.fishonmcextras.handler.FishingRodHandler;
+import io.github.markassk.fishonmcextras.handler.TackleboxHandler;
 import io.github.markassk.fishonmcextras.util.TextHelper;
 
 import net.minecraft.component.type.CustomModelDataComponent;
@@ -24,6 +25,10 @@ public class BaitHudHandler {
     }
 
     public Text assembleBaitText() {
+        if (TackleboxHandler.instance().isLocked) {
+            return Text.literal("");
+        }
+
         List<FOMCItem> tacklebox = FishingRodHandler.instance().fishingRod.tacklebox;
         if (tacklebox.isEmpty()) {
             return Text.literal("");
@@ -59,6 +64,10 @@ public class BaitHudHandler {
     }
 
     public CustomModelDataComponent getModelData() {
+        if (TackleboxHandler.instance().isLocked) {
+            return CustomModelDataComponent.DEFAULT;
+        }
+
         List<FOMCItem> tacklebox = FishingRodHandler.instance().fishingRod.tacklebox;
         return !tacklebox.isEmpty()
                 ? tacklebox.getFirst() instanceof Bait bait ? bait.customModelData
