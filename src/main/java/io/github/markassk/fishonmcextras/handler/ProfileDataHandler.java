@@ -63,6 +63,7 @@ public class ProfileDataHandler {
     }
 
     public void onJoinServer(PlayerEntity player) {
+        EventHandler.instance().isFabledActive = false;
         ProfileDataHandler.instance().playerUUID = player.getUuid();
         ProfileDataHandler.instance().loadStats();
     }
@@ -97,7 +98,11 @@ public class ProfileDataHandler {
         FishCatchHandler.instance().onFishCaughtSendDryStreak(fish);
 
         this.profileData.fishSizeDryStreak.put(fish.size, this.profileData.allFishCaughtCount);
-        this.profileData.variantDryStreak.put(fish.variant, this.profileData.allFishCaughtCount);
+        if (fish.variant == Constant.FABLED) {
+            this.profileData.variantDryStreak.put(Constant.FABLED, 0);
+        } else {
+            this.profileData.variantDryStreak.put(fish.variant, this.profileData.allFishCaughtCount);
+        }
         this.profileData.rarityDryStreak.put(fish.rarity, this.profileData.allFishCaughtCount);
 
         this.isSavedAfterTimer = false;
@@ -113,9 +118,12 @@ public class ProfileDataHandler {
             this.profileData.infusionCapsuleDryStreak++;
         }
 
-        if (!Objects.equals(BossBarHandler.instance().weather, Constant.FABLEDWEATHER.ID)) {
+        // Fabled dry streak
+        // only count while fabled event is active and player is at fabled location
+        if (EventHandler.instance().isFabledActive 
+                && BossBarHandler.instance().currentLocation.ID.equals(EventHandler.instance().fabledLocation)) {
             this.profileData.variantDryStreak.put(Constant.FABLED,
-                    this.profileData.variantDryStreak.getOrDefault(Constant.FABLED, 0) + 1);
+                this.profileData.variantDryStreak.getOrDefault(Constant.FABLED, 0) + 1);
         }
     }
 
@@ -253,10 +261,13 @@ public class ProfileDataHandler {
         this.profileData.variantCounts.clear();
         this.profileData.rarityCounts.clear();
         this.profileData.fishSizeCounts.clear();
+        this.profileData.questsCompleted = 0;
         this.profileData.petCaughtCount = 0;
         this.profileData.shardCaughtCount = 0;
         this.profileData.lightningBottleCount = 0;
         this.profileData.infusionCapsuleCount = 0;
+        this.profileData.petsFromQuests = 0;
+        this.profileData.shardsFromQuests = 0;
         if(config.fishTracker.isFishTrackerOnTimer) {
             this.profileData.timerFishCaughtCount = 0;
             this.profileData.activeTime = 0;
@@ -311,7 +322,7 @@ public class ProfileDataHandler {
         profileData.variantDryStreak.put(Constant.ALBINO, profileData.allFishCaughtCount);
         profileData.variantDryStreak.put(Constant.MELANISTIC, profileData.allFishCaughtCount);
         profileData.variantDryStreak.put(Constant.TROPHY, profileData.allFishCaughtCount);
-        profileData.variantDryStreak.put(Constant.FABLED, profileData.allFishCaughtCount);
+        profileData.variantDryStreak.put(Constant.FABLED, 0);
         profileData.variantDryStreak.put(Constant.ALTERNATE, profileData.allFishCaughtCount);
     }
 
@@ -323,10 +334,13 @@ public class ProfileDataHandler {
         public Map<Constant, Integer> variantCounts = new HashMap<>();
         public Map<Constant, Integer> rarityCounts = new HashMap<>();
         public Map<Constant, Integer> fishSizeCounts = new HashMap<>();
+        public int questsCompleted = 0;
         public int petCaughtCount = 0;
         public int shardCaughtCount = 0;
         public int lightningBottleCount = 0;
         public int infusionCapsuleCount = 0;
+        public int petsFromQuests = 0;
+        public int shardsFromQuests = 0;
 
         // Current active timer stats
         public long activeTime = 0;
@@ -340,10 +354,13 @@ public class ProfileDataHandler {
         public Map<Constant, Integer> allRarityCounts = new HashMap<>();
         public Map<Constant, Integer> allVariantCounts = new HashMap<>();
         public Map<Constant, Integer> allFishSizeCounts = new HashMap<>();
+        public int allQuestsCompleted = 0;
         public int allPetCaughtCount = 0;
         public int allShardCaughtCount = 0;
         public int allLightningBottleCount = 0;
         public int allInfusionCapsuleCount = 0;
+        public int allPetsFromQuests = 0;
+        public int allShardsFromQuests = 0;
 
         public int timerFishCaughtCount = 0;
 

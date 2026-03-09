@@ -2,6 +2,7 @@ package io.github.markassk.fishonmcextras.handler;
 
 import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.FOMC.Types.Fish;
+import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
@@ -11,11 +12,20 @@ import net.minecraft.text.Text;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class QuestHandler {
     private static QuestHandler INSTANCE = new QuestHandler();
     private boolean hasInitialized = false;
+
+    // REGEX Patterns for Quest Pets and Shards 
+    // (Rarities Common to Mythical are the Unicode Characters [\uF033-\uF037])
+    // PoC: https://regex101.com/r/eWzHoU/1
+    private static final Pattern SHARD_PATTERN = Pattern.compile("\\+\\s*(\\d+)x\\s+.+?Shard", Pattern.CASE_INSENSITIVE);
+    private static final Pattern PET_PATTERN = Pattern.compile("\\+\\s*([\\uF033-\\uF037])\\s+.+?Pet", Pattern.CASE_INSENSITIVE);
+    private int questRewardsPending = 0;
 
     public Map<Constant, List<Quest>> activeQuests = new HashMap<>();
     public boolean questMenuState = false;
@@ -25,6 +35,56 @@ public class QuestHandler {
             INSTANCE = new QuestHandler();
         }
         return INSTANCE;
+    }
+
+    public boolean onReceiveMessage(Text message) {
+        if (!LoadingHandler.instance().isOnServer) {
+            return false;
+        }
+
+        String plain = message.getString();
+
+        // Quest Parsing Logic for Shard and Pet Tracking
+        if (plain.startsWith("QUEST Complete [")) {
+            FishOnMCExtrasConfig config = FishOnMCExtrasConfig.getConfig();
+            if (config.fishTracker.fishTrackerToggles.generalToggles.showQuestsCompleted) {
+                ProfileDataHandler.instance().profileData.questsCompleted++;
+                ProfileDataHandler.instance().profileData.allQuestsCompleted++;
+            }
+
+            // Parses 5 Lines below "QUEST Complete [" for Quest Rewards
+            questRewardsPending = 5;
+        } else if (questRewardsPending > 0) {
+            questRewardsPending--;
+            processQuestReward(plain);
+        }
+
+        return false;
+    }
+
+    // Quest Reward Parsing
+    // Tracking happens here, after a Quest Complete has been detected
+    // Could be Expanded if further meaningful Quest Rewards get added ingame
+    private void processQuestReward(String message) {
+        FishOnMCExtrasConfig config = FishOnMCExtrasConfig.getConfig();
+        
+        if (!config.fishTracker.fishTrackerToggles.generalToggles.trackPetsAndShardsFromQuests) {
+            return;
+        }
+
+        Matcher shardMatcher = SHARD_PATTERN.matcher(message);
+        if (shardMatcher.find()) {
+            int shards = Integer.parseInt(shardMatcher.group(1));
+            ProfileDataHandler.instance().profileData.shardsFromQuests += shards;
+            ProfileDataHandler.instance().profileData.allShardsFromQuests += shards;
+            return;
+        }
+
+        Matcher petMatcher = PET_PATTERN.matcher(message);
+        if (petMatcher.find()) {
+            ProfileDataHandler.instance().profileData.petsFromQuests++;
+            ProfileDataHandler.instance().profileData.allPetsFromQuests++;
+        }
     }
 
     public void tick(MinecraftClient minecraftClient){

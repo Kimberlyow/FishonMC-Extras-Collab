@@ -53,6 +53,15 @@ public class FishTrackerHudHandler {
         int displayInfusionCapsuleCaughtCount = config.fishTracker.isFishTrackerOnTimer
                 ? profileData.infusionCapsuleCount
                 : profileData.allInfusionCapsuleCount;
+        int displayQuestsCompleted = config.fishTracker.isFishTrackerOnTimer
+                ? profileData.questsCompleted
+                : profileData.allQuestsCompleted;
+        int displayPetsFromQuests = config.fishTracker.isFishTrackerOnTimer
+                ? profileData.petsFromQuests
+                : profileData.allPetsFromQuests;
+        int displayShardsFromQuests = config.fishTracker.isFishTrackerOnTimer
+                ? profileData.shardsFromQuests
+                : profileData.allShardsFromQuests;
         Map<Constant, Integer> displayRarityCounts = config.fishTracker.isFishTrackerOnTimer
                 ? profileData.rarityCounts
                 : profileData.allRarityCounts;
@@ -166,20 +175,57 @@ public class FishTrackerHudHandler {
                 || config.fishTracker.fishTrackerToggles.generalToggles.showShardCaught
                 || config.fishTracker.fishTrackerToggles.generalToggles.showLightningBottleCaught
                 || config.fishTracker.fishTrackerToggles.generalToggles.showInfusionCapsuleCaught
+                || config.fishTracker.fishTrackerToggles.generalToggles.showQuestsCompleted
         ) {
             textList.add(Text.empty());
 
-            if (config.fishTracker.fishTrackerToggles.generalToggles.showPetCaught) {
+            // Shows Quests completed (Qᴜᴇѕᴛѕ) following the same pattern as existing parts
+            if (config.fishTracker.fishTrackerToggles.generalToggles.showQuestsCompleted) {
                 textList.add(TextHelper.concat(
-                        Text.literal("ᴘᴇᴛѕ: ").formatted(Formatting.GRAY),
-                        Text.literal(String.valueOf(displayPetCaughtCount)).formatted(Formatting.WHITE)
+                        Text.literal("Qᴜᴇѕᴛѕ: ").formatted(Formatting.GRAY),
+                        Text.literal(String.valueOf(displayQuestsCompleted)).formatted(Formatting.WHITE)
+                ));
+            }
+
+            // Shows Quest Pets/Shards separately if "showQuestPetsAndShardsSeparately" is on
+            if(config.fishTracker.fishTrackerToggles.generalToggles.trackPetsAndShardsFromQuests
+                    && config.fishTracker.fishTrackerToggles.generalToggles.showQuestPetsAndShardsSeparately) {
+                if(displayPetsFromQuests > 0) {
+                    textList.add(TextHelper.concat(
+                            Text.literal("Qᴜᴇѕᴛ ᴘᴇᴛѕ: ").formatted(Formatting.GRAY),
+                            Text.literal(String.valueOf(displayPetsFromQuests)).formatted(Formatting.WHITE)
+                    ));
+                }
+                if(displayShardsFromQuests > 0) {
+                    textList.add(TextHelper.concat(
+                            Text.literal("Qᴜᴇѕᴛ ѕʜᴀʀᴅѕ: ").formatted(Formatting.GRAY),
+                            Text.literal(String.valueOf(displayShardsFromQuests)).formatted(Formatting.WHITE)
+                    ));
+                }
+            }
+
+            // Shows pets, either only caught pets or caught + quest pets (based on "showQuestPetsAndShardsSeparately")
+            if (config.fishTracker.fishTrackerToggles.generalToggles.showPetCaught) {
+                int displayPets = displayPetCaughtCount;
+                boolean separateMode = config.fishTracker.fishTrackerToggles.generalToggles.trackPetsAndShardsFromQuests 
+                        && config.fishTracker.fishTrackerToggles.generalToggles.showQuestPetsAndShardsSeparately;
+                
+                // Combine when not separate
+                if (!separateMode && config.fishTracker.fishTrackerToggles.generalToggles.trackPetsAndShardsFromQuests) {
+                    displayPets += displayPetsFromQuests;
+                }
+                
+                String petLabel = separateMode ? "Cᴀᴜɢʜᴛ ᴘᴇᴛѕ: " : "ᴘᴇᴛѕ: ";
+                textList.add(TextHelper.concat(
+                        Text.literal(petLabel).formatted(Formatting.GRAY),
+                        Text.literal(String.valueOf(displayPets)).formatted(Formatting.WHITE)
                 ));
                 if(config.fishTracker.fishTrackerToggles.dryStreakToggles.showPet) {
                     textList.add(getDryStreak(profileData.petDryStreak));
                 }
 
                 if (config.fishTracker.fishTrackerToggles.generalToggles.showPetPerHour && config.fishTracker.isFishTrackerOnTimer) {
-                    double petPerHour = (displayPetCaughtCount / (timeSinceReset / 3600000.0));
+                    double petPerHour = (displayPets / (timeSinceReset / 3600000.0));
                     textList.add(TextHelper.concat(
                             Text.literal("ᴘᴇᴛѕ/ʜᴏᴜʀ: ").formatted(Formatting.GRAY),
                             Text.literal(String.format("%.1f", petPerHour))
@@ -187,17 +233,27 @@ public class FishTrackerHudHandler {
                 }
             }
 
+            // Shows caught/quest shards, also based on "showQuestPetsAndShardsSeparately" toggle
             if (config.fishTracker.fishTrackerToggles.generalToggles.showShardCaught) {
+                int displayShards = displayShardCaughtCount;
+                boolean separateMode = config.fishTracker.fishTrackerToggles.generalToggles.trackPetsAndShardsFromQuests 
+                        && config.fishTracker.fishTrackerToggles.generalToggles.showQuestPetsAndShardsSeparately;
+                
+                if (!separateMode && config.fishTracker.fishTrackerToggles.generalToggles.trackPetsAndShardsFromQuests) {
+                    displayShards += displayShardsFromQuests;
+                }
+                
+                String shardLabel = separateMode ? "Cᴀᴜɢʜᴛ ѕʜᴀʀᴅѕ: " : "ѕʜᴀʀᴅѕ: ";
                 textList.add(TextHelper.concat(
-                        Text.literal("ѕʜᴀʀᴅѕ: ").formatted(Formatting.GRAY),
-                        Text.literal(getNumber(displayShardCaughtCount)).formatted(Formatting.WHITE)
+                        Text.literal(shardLabel).formatted(Formatting.GRAY),
+                        Text.literal(getNumber(displayShards)).formatted(Formatting.WHITE)
                 ));
                 if(config.fishTracker.fishTrackerToggles.dryStreakToggles.showShard) {
                     textList.add(getDryStreak(profileData.shardDryStreak));
                 }
 
                 if (config.fishTracker.fishTrackerToggles.generalToggles.showShardPerHour && config.fishTracker.isFishTrackerOnTimer) {
-                    double shardPerHour = (displayShardCaughtCount / (timeSinceReset / 3600000.0));
+                    double shardPerHour = (displayShards / (timeSinceReset / 3600000.0));
                     textList.add(TextHelper.concat(
                             Text.literal("ѕʜᴀʀᴅѕ/ʜᴏᴜʀ: ").formatted(Formatting.GRAY),
                             Text.literal(String.format("%.1f", shardPerHour))
@@ -405,7 +461,7 @@ public class FishTrackerHudHandler {
                         getPercentage(displayFabledCount, displayFishCaughtCount)
                 ));
                 if(config.fishTracker.fishTrackerToggles.dryStreakToggles.showFabled) {
-                    textList.add(getDryStreak(displayDryStreakFabledCount));
+                    textList.add(getDryStreak(profileData.allFishCaughtCount - displayDryStreakFabledCount));
                 }
             }
 

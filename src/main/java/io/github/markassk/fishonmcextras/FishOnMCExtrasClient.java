@@ -151,7 +151,8 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 TimerHandler.instance().onReceiveMessage(text) ||
                 EventHandler.instance().onReceiveMessage(text) ||
                 AutoTippingHandler.instance().onReceiveMessage(text) ||
-                DailyQuestHandler.instance().onReceiveMessage(text)) {
+                DailyQuestHandler.instance().onReceiveMessage(text) ||
+                QuestHandler.instance().onReceiveMessage(text)) {
                 FishOnMCExtras.LOGGER.info("[FoE] Suppressing message: {}", text.getString());
                 return false; // Return false to completely suppress the message
             }

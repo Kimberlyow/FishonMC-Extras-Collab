@@ -28,8 +28,10 @@ public class EventHandler {
 
         private boolean isWitchingHour = false;
 
+        // Fabled tracking
         public String fabledLocation = "";
         public long fabledEventAlertTime = 0L;
+        public boolean isFabledActive = false;
 
         public static EventHandler instance() {
                 if (INSTANCE == null) {
@@ -47,16 +49,33 @@ public class EventHandler {
 
         private void processOtherEvents(Text text) {
                 String textString = text.getString();
-                // Fabled
-                if (textString.startsWith("Visit the ") && textString.contains(" to")) {
+                
+                // Fabled event ends
+                if (isFabledActive && textString.startsWith("Caught by ")) {
+                        isFabledActive = false;
+                        FishOnMCExtras.LOGGER.info("[FoE] Fabled event ended, caught by {}", textString.substring(10));
+                        return;
+                }
+                
+                // Fabled event starts or is active on join
+                if ((textString.startsWith("Visit the ") && textString.contains(" to")) || 
+                    textString.startsWith("FABLED » A Fabled Event is active at ")) {
+                        
+                        if (textString.startsWith("Visit the ")) {
+                                fabledLocation = textString.substring(textString.indexOf("Visit the ") + 10, textString.lastIndexOf(" "));
+                        } else {
+                                fabledLocation = textString.substring(textString.indexOf("at ") + 3).trim();
+                        }
+                        
+                        isFabledActive = true;
                         fabledEventAlertTime = System.currentTimeMillis();
-                        fabledLocation = textString.substring(textString.indexOf("Visit the ") + 10,
-                                        textString.lastIndexOf(" "));
                         if (config.eventTracker.otherEventOptions.fabledOptions.useAlertWarningSound) {
                                 NotificationSoundHandler.instance().playSoundWarning(
                                                 config.eventTracker.otherEventOptions.fabledOptions.alertSoundType,
                                                 MinecraftClient.getInstance());
                         }
+                        FishOnMCExtras.LOGGER.info("[FoE] Fabled event started at {}", fabledLocation);
+                        return;
                 }
         }
 

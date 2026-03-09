@@ -155,9 +155,23 @@ public class FishCatchHandler {
 
 		if (text.getString().startsWith("RARE CATCH! You pulled") && text.getString().contains("Shard")) {
 			int oldShardDryStreak = ProfileDataHandler.instance().profileData.shardDryStreak;
-
-			ProfileDataHandler.instance().updateShardCaughtStatsOnCatch(1);
-			FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard");
+			
+			// Parse shard multiplier
+			// For Prospect Amulet or future additions to the server
+			int shardCount = 1;
+			String msg = text.getString();
+			int aIndex = msg.indexOf("a ");
+			int xIndex = msg.indexOf("x ");
+			if (aIndex != -1 && xIndex != -1 && xIndex > aIndex) {
+				try {
+					shardCount = Integer.parseInt(msg.substring(aIndex + 2, xIndex).trim());
+				} catch (NumberFormatException e) {
+					shardCount = 1;
+				}
+			}
+			
+			ProfileDataHandler.instance().updateShardCaughtStatsOnCatch(shardCount);
+			FishOnMCExtras.LOGGER.info("[FoE] Tracking Shard x{}", shardCount);
 			DailyQuestHandler.instance().updateQuest("Shards Caught");
 
 			if (config.fishTracker.dryStreakMessageToggles.otherMessageToggles.showShard) {

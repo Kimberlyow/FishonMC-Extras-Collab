@@ -28,10 +28,13 @@ public class TrackerFishHUDConfig {
                 public boolean showFishPerHour = true;
                 public boolean showTotalXp = false;
                 public boolean showTotalValue = false;
+                public boolean showQuestsCompleted = true;
                 public boolean showPetCaught = true;
                 public boolean showPetPerHour = false;
                 public boolean showShardCaught = true;
                 public boolean showShardPerHour = false;
+                public boolean trackPetsAndShardsFromQuests = true;
+                public boolean showQuestPetsAndShardsSeparately = false;
                 public boolean showLightningBottleCaught = false;
                 public boolean showInfusionCapsuleCaught = false;
             }
