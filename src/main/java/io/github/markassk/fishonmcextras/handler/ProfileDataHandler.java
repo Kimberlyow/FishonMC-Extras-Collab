@@ -63,7 +63,6 @@ public class ProfileDataHandler {
     }
 
     public void onJoinServer(PlayerEntity player) {
-        EventHandler.instance().isFabledActive = false;
         ProfileDataHandler.instance().playerUUID = player.getUuid();
         ProfileDataHandler.instance().loadStats();
     }

@@ -10,6 +10,7 @@ import io.github.markassk.fishonmcextras.commands.handler.DrystreakTypesCommandH
 import io.github.markassk.fishonmcextras.commands.handler.FriendsCommandHandler;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.handler.CrewHandler;
+import io.github.markassk.fishonmcextras.handler.EventHandler;
 import io.github.markassk.fishonmcextras.handler.OtherPlayerHandler;
 import io.github.markassk.fishonmcextras.handler.ProfileDataHandler;
 import io.github.markassk.fishonmcextras.util.TextHelper;
@@ -38,6 +39,7 @@ public class CommandRegistry {
                 .then(command("resetdrystreak").executes(Command::resetDryStreak))
                 .then(command("reload").executes(Command::reload))
                 .then(command("nocrew").executes(Command::noCrew))
+                .then(command("fabledend").executes(Command::fabledEnd))
                 .then(command("resettimer").executes(Command::resetTimer))
                 .then(command("cancelimport").executes(Command::cancelImport))
                 .then(command("highlightuser").then(argument("username", PlayerArgumentType.getPlayerArgumentType()).executes(Command::highlightUser)))
@@ -77,6 +79,10 @@ public class CommandRegistry {
 
         private static int noCrew(CommandContext<FabricClientCommandSource> context) {
             return executeCommand(context, "Set to No Crew", () -> CrewHandler.instance().setNoCrew());
+        }
+
+        private static int fabledEnd(CommandContext<FabricClientCommandSource> context) {
+            return executeCommand(context, "Fabled event ended (debug)", () -> EventHandler.instance().isFabledActive = false);
         }
 
         private static int resetTimer(CommandContext<FabricClientCommandSource> context) {
