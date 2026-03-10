@@ -125,6 +125,8 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 minecraftClient.execute(() -> {
                     if (minecraftClient.player != null) {
                         ProfileDataHandler.instance().onJoinServer(minecraftClient.player);
+                        BaitSortingHelperHandler.instance().loadFromProfile();
+                        TackleboxHandler.instance().loadFromProfile();
                         FishCatchHandler.instance().onJoinServer();
                         CrewHandler.instance().onJoinServer();
                         DiscordHandler.instance().connect();

@@ -15,6 +15,19 @@ public class TackleboxHandler {
 
     public static TackleboxHandler instance() { return INSTANCE; }
 
+    public void loadFromProfile() {
+        if (ProfileDataHandler.instance().isDataLoaded) {
+            this.isLocked = ProfileDataHandler.instance().profileData.tackleboxLocked;
+        }
+    }
+
+    public void setLocked(boolean value) {
+        this.isLocked = value;
+        if (ProfileDataHandler.instance().isDataLoaded) {
+            ProfileDataHandler.instance().profileData.tackleboxLocked = value;
+        }
+    }
+
     private boolean isLockItem(ItemStack stack) {
         CustomModelDataComponent cmd = stack.get(DataComponentTypes.CUSTOM_MODEL_DATA);
         if (cmd == null || cmd.floats().isEmpty()) return false;
@@ -27,16 +40,17 @@ public class TackleboxHandler {
         String title = client.currentScreen.getTitle().getString();
         if (!title.contains("Tacklebox") && !title.contains("Tackle Box")) return;
 
-        isLocked = false;
+        boolean detectedLocked = false;
         for (int i = 0; i < client.player.currentScreenHandler.slots.size(); i++) {
             ItemStack stack = client.player.currentScreenHandler.getSlot(i).getStack();
             if (!isLockItem(stack)) continue;
 
             NbtComponent customData = stack.get(DataComponentTypes.CUSTOM_DATA);
             if (customData != null) {
-                isLocked = customData.copyNbt().getInt("disableBait") == 1;
+                detectedLocked = customData.copyNbt().getInt("disableBait") == 1;
             }
             break;
         }
+        setLocked(detectedLocked);
     }
 }

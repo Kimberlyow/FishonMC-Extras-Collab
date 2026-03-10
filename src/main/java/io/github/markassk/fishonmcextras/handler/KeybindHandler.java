@@ -54,7 +54,7 @@ public class KeybindHandler {
 
 			if (!showOnlyWhilePressingKeybind) {
 				boolean val = !BaitSortingHelperHandler.instance().toggle;
-				BaitSortingHelperHandler.instance().toggle = val;
+				BaitSortingHelperHandler.instance().setToggle(val);
 				if (minecraftClient.inGameHud != null) {
 					minecraftClient.inGameHud.getChatHud().addMessage(TextHelper.concat(
 							Text.literal("FoE ").formatted(Formatting.DARK_GREEN, Formatting.BOLD),

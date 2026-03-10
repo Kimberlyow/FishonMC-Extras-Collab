@@ -26,6 +26,19 @@ public class BaitSortingHelperHandler {
         return INSTANCE;
     }
 
+    public void loadFromProfile() {
+        if (ProfileDataHandler.instance().isDataLoaded) {
+            this.toggle = ProfileDataHandler.instance().profileData.baitSortingHelperToggle;
+        }
+    }
+
+    public void setToggle(boolean value) {
+        this.toggle = value;
+        if (ProfileDataHandler.instance().isDataLoaded) {
+            ProfileDataHandler.instance().profileData.baitSortingHelperToggle = value;
+        }
+    }
+
     public void renderItemMarker(DrawContext drawContext, ItemStack itemStack, int x, int y) {
         boolean showOnlyWhilePressingKeybind = FishOnMCExtrasConfig
                 .getConfig().baitSortingHelperVisibility.showOnlyWhilePressingKeybind;
