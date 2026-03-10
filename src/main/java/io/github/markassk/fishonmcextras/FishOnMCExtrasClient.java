@@ -96,7 +96,6 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                     DiscordHandler.instance().tick();
                     KeybindHandler.instance().tick(minecraftClient);
                     InventoryScreenHandler.instance().tick(minecraftClient);
-                    LockRollHandler.instance().tick(minecraftClient);
                     PersonalVaultScreenHandler.instance().tick(minecraftClient);
                     SearchBarContainerHandler.instance().tick(minecraftClient);
                     ThemingHandler.instance().tick();
@@ -280,7 +279,6 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 DailyQuestHandler.instance().questMenuState = true;
             } else if (Objects.equals(screen.getTitle().getString(), "Armor Menu\uEEE7\uEEE2핈")) {
                 // Armor Menu : Armor Menu핈
-                LockRollHandler.instance().armorRollsMenuState = true;
             }
 
             if((screen.getTitle().getString().isBlank() || screen.getTitle().getString().contains("Personal Vault ")) && screen instanceof GenericContainerScreen) {
@@ -329,7 +327,6 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 DailyQuestHandler.instance().questMenuState = false;
             } else if (Objects.equals(screen.getTitle().getString(), "Armor Menu\uEEE7\uEEE2핈")) {
                 // Armor Menu : Armor Menu핈
-                LockRollHandler.instance().armorRollsMenuState = false;
             }
 
             if ((screen.getTitle().getString().isBlank() || screen.getTitle().getString().contains("Personal Vault ")) && screen instanceof GenericContainerScreen) {

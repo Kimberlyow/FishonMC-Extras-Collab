@@ -2,8 +2,6 @@ package io.github.markassk.fishonmcextras.mixin;
 
 import io.github.markassk.fishonmcextras.handler.LoadingHandler;
 import io.github.markassk.fishonmcextras.handler.ItemMarkerHandler;
-import io.github.markassk.fishonmcextras.handler.LockRollHandler;
-import io.github.markassk.fishonmcextras.handler.PersonalVaultScreenHandler;
 import io.github.markassk.fishonmcextras.handler.SearchBarContainerHandler;
 import io.github.markassk.fishonmcextras.mixin.HandledScreenAccessor;
 import net.minecraft.client.MinecraftClient;
@@ -25,26 +23,6 @@ public abstract class HandledScreenMixin {
     private void injectDrawSlot(DrawContext context, Slot slot, CallbackInfo ci) {
         if(LoadingHandler.instance().isOnServer) {
             ItemMarkerHandler.instance().renderItemMarker(context, slot);
-        }
-    }
-
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void injectMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
-        Slot focusedSlot = ((HandledScreenAccessor) this).getFocusedSlot();
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (LockRollHandler.instance().isLockedArmorRollSlot(client, focusedSlot)) {
-            cir.setReturnValue(true);
-        }
-    }
-
-    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
-    private void injectKeyPressedLockRollDrop(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.options.dropKey.matchesKey(keyCode, scanCode)) {
-            Slot focusedSlot = ((HandledScreenAccessor) this).getFocusedSlot();
-            if (LockRollHandler.instance().isLockedArmorRollSlot(client, focusedSlot)) {
-                cir.setReturnValue(true);
-            }
         }
     }
 

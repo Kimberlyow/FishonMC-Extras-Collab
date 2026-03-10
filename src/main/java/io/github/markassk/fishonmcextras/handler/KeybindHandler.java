@@ -26,12 +26,9 @@ public class KeybindHandler {
 			GLFW.GLFW_KEY_Z, "category.fishonmcextras.general");
 	public final AdvancedKeyBinding baitSortingHelper = new AdvancedKeyBinding("key.fishonmcextras.baitsortinghelper",
 			GLFW.GLFW_KEY_B, "category.fishonmcextras.general");
-	public final AdvancedKeyBinding lockRollKeybind = new AdvancedKeyBinding("key.fishonmcextras.lockroll",
-			GLFW.GLFW_KEY_L, "category.fishonmcextras.general");
 
 	public boolean showExtraInfo = false;
 	public boolean visualizeBaitSorting = false;
-	private boolean lockRollPressed = false;
 
 	public static KeybindHandler instance() {
 		if (INSTANCE == null) {
@@ -44,8 +41,7 @@ public class KeybindHandler {
 		KeybindHandler.register(
 				this.openConfigKeybind,
 				this.openExtraInfoKeybind,
-				this.baitSortingHelper,
-				this.lockRollKeybind);
+				this.baitSortingHelper);
 	}
 
 	public void tick(MinecraftClient minecraftClient) {
@@ -75,26 +71,9 @@ public class KeybindHandler {
 			}
 		});
 
-		this.lockRollKeybind.onPressed(() -> {
-			LockRollHandler handler = LockRollHandler.instance();
-			if (handler.armorRollsMenuState) {
-				handler.toggleArmorRollLock(minecraftClient);
-			}
-		});
-
 		if (minecraftClient.currentScreen != null) {
 			this.showExtraInfo = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(),
 					((KeyBindingAccessor) openExtraInfoKeybind).getBoundKey().getCode());
-
-			boolean isLockRollPressed = InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(),
-					((KeyBindingAccessor) lockRollKeybind).getBoundKey().getCode());
-			if (isLockRollPressed && !lockRollPressed) {
-				LockRollHandler handler = LockRollHandler.instance();
-				if (handler.armorRollsMenuState) {
-					handler.toggleArmorRollLock(minecraftClient);
-				}
-			}
-			lockRollPressed = isLockRollPressed;
 
 			boolean showOnlyWhilePressingKeybind = FishOnMCExtrasConfig
 					.getConfig().baitSortingHelperVisibility.showOnlyWhilePressingKeybind;
@@ -104,9 +83,6 @@ public class KeybindHandler {
 			this.visualizeBaitSorting = showOnlyWhilePressingKeybind
 					? isPressed
 					: BaitSortingHelperHandler.instance().toggle;
-		}
-		else {
-			lockRollPressed = false;
 		}
 	}
 

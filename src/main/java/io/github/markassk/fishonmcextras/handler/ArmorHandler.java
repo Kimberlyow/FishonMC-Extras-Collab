@@ -3,25 +3,18 @@ package io.github.markassk.fishonmcextras.handler;
 import io.github.markassk.fishonmcextras.FOMC.Constant;
 import io.github.markassk.fishonmcextras.FOMC.LocationInfo;
 import io.github.markassk.fishonmcextras.FOMC.Types.Armor;
-import io.github.markassk.fishonmcextras.FOMC.Types.FOMCItem;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.util.ItemStackHelper;
 import io.github.markassk.fishonmcextras.util.TextHelper;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -109,29 +102,6 @@ public class ArmorHandler {
                     && !Objects.equals(currentLeggings.climate.ID, currentLocationClimate);
             this.isWrongBootsClimate = currentBoots != null
                     && !Objects.equals(currentBoots.climate.ID, currentLocationClimate);
-        }
-
-        if (config.fun.changeArmorQuality) {
-            for (ItemStack itemStack : minecraftClient.player.getInventory().main) {
-                if (FOMCItem.isArmor(itemStack)) {
-                    updateLore(itemStack);
-                }
-            }
-            
-            for (ItemStack itemStack : minecraftClient.player.getInventory().armor) {
-                if (FOMCItem.isArmor(itemStack)) {
-                    updateLore(itemStack);
-                }
-            }
-
-            if (minecraftClient.currentScreen != null && minecraftClient.player.currentScreenHandler != null) {
-                for (int i = 0; i < minecraftClient.player.currentScreenHandler.slots.size(); i++) {
-                    ItemStack itemStack = minecraftClient.player.currentScreenHandler.getSlot(i).getStack();
-                    if (FOMCItem.isArmor(itemStack)) {
-                        updateLore(itemStack);
-                    }
-                }
-            }
         }
     }
 
@@ -315,113 +285,5 @@ public class ArmorHandler {
             case SPECIAL -> Constant.TEXTSPECIAL;
             default -> Constant.TEXTDEFAULT;
         };
-    }
-
-    private Constant getConstantFromQuality(int quality) {
-        if (quality == 1)
-            return Constant.BROKEN;
-        else if (quality < 40)
-            return Constant.TORN;
-        else if (quality < 50)
-            return Constant.DAMAGED;
-        else if (quality < 60)
-            return Constant.BLEMISHED;
-        else if (quality < 70)
-            return Constant.WELL_WORN;
-        else if (quality < 80)
-            return Constant.USED;
-        else if (quality < 90)
-            return Constant.MINT;
-        else if (quality < 100)
-            return Constant.SUBLIME;
-        else if (quality >= 100)
-            return Constant.SUPERIOR;
-        return Constant.DEFAULT;
-    }
-
-    private void updateLore(ItemStack stack) {
-        LoreComponent loreComponent = stack.get(DataComponentTypes.LORE);
-        NbtCompound nbtCompound = ItemStackHelper.getNbt(stack);
-        if (loreComponent == null)
-            return;
-
-        if (nbtCompound == null || !nbtCompound.contains("quality", NbtElement.NUMBER_TYPE))
-            return;
-
-        int quality = nbtCompound.getInt("quality");
-        Constant qualityConstant = getConstantFromQuality(quality);
-
-        List<Text> lines = new ArrayList<>(loreComponent.lines());
-        boolean changed = false;
-
-        for (int i = 0; i < lines.size(); i++) {
-            Text line = lines.get(i);
-            String lineText = line.getString();
-            String lowered = lineText.toLowerCase();
-            if (!lowered.contains("ᴇꞯᴜɪᴘᴍᴇɴᴛ ꞯᴜᴀʟɪᴛʏ")) {
-                continue;
-            }
-
-            if (lineText.contains(qualityConstant.TAG.getString())) {
-                continue;
-            }
-
-            MutableText newLine = Text.empty().setStyle(line.getStyle());
-
-            Armor armor = Armor.getArmor(stack);
-            Constant rarityPrefix = getTextRarity(armor.rarity);
-
-            Text rarityPrefixText = rarityPrefix.TAG.copy()
-                    .setStyle(net.minecraft.text.Style.EMPTY
-                            .withColor(Formatting.WHITE)
-                            .withItalic(false)
-                            .withBold(false)
-                            .withStrikethrough(false)
-                            .withObfuscated(false)).append(" ");
-            
-            Text prefix = Text.literal(" ᴇꞯᴜɪᴘᴍᴇɴᴛ ꞯᴜᴀʟɪᴛʏ: ")
-                    .setStyle(net.minecraft.text.Style.EMPTY
-                            .withColor(Formatting.DARK_GRAY)
-                            .withItalic(false));
-
-            MutableText qualityText = qualityConstant.TAG.copy().setStyle(
-                    qualityConstant.TAG.getStyle()
-                            .withItalic(false)
-                            .withBold(false)
-                            .withStrikethrough(false)
-                            .withObfuscated(false));
-
-            Text bracketStart = Text.literal(" [")
-                .setStyle(net.minecraft.text.Style.EMPTY
-                        .withColor(Formatting.DARK_GRAY)
-                        .withItalic(false));
-
-            Text qualityValueText = Text.literal(String.valueOf(quality) + "%")
-                    .setStyle(net.minecraft.text.Style.EMPTY
-                            .withColor(qualityText.getStyle().getColor() != null ? qualityText.getStyle().getColor() : TextColor.fromRgb(0xFFFFFF))
-                            .withItalic(false));
-
-            Text bracketEnd = Text.literal("]")
-                .setStyle(net.minecraft.text.Style.EMPTY
-                        .withColor(Formatting.DARK_GRAY)
-                        .withItalic(false));
-
-
-            
-
-            newLine.append(rarityPrefixText);
-            newLine.append(prefix);     
-            newLine.append(qualityText);
-            newLine.append(bracketStart);
-            newLine.append(qualityValueText);
-            newLine.append(bracketEnd);
-            
-            lines.set(i, newLine);
-            changed = true;
-        }
-
-        if (changed) {
-            stack.set(DataComponentTypes.LORE, new LoreComponent(lines));
-        }
     }
 }
