@@ -121,7 +121,7 @@ public class ProfileDataHandler {
         // Fabled dry streak
         // only count while fabled event is active and player is at fabled location
         if (EventHandler.instance().isFabledActive 
-                && BossBarHandler.instance().currentLocation.ID.equals(EventHandler.instance().fabledLocation)) {
+                && BossBarHandler.instance().currentLocation.ID.equalsIgnoreCase(EventHandler.instance().fabledLocation)) {
             this.profileData.variantDryStreak.put(Constant.FABLED,
                 this.profileData.variantDryStreak.getOrDefault(Constant.FABLED, 0) + 1);
         }
