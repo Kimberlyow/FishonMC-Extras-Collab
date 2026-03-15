@@ -277,11 +277,16 @@ public class NotificationHudHandler {
                 int seconds = config.eventTracker.otherEventOptions.fabledOptions.alertDismissSeconds - ((int) (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - EventHandler.instance().fabledEventAlertTime)));
 
                 textList.add(Text.empty());
-                textList.add(TextHelper.concat(
-                        Text.literal("Fabled Fish Event").formatted(Formatting.YELLOW).withColor(0xcc302a),
-                        Text.literal(" at ").formatted(Formatting.WHITE),
-                        Constant.valueOfTag(EventHandler.instance().fabledLocation).TAG
-                ));
+                String fabledLoc = EventHandler.instance().fabledLocation;
+                if (fabledLoc.isEmpty()) {
+                    textList.add(Text.literal("Fabled Fish Event").formatted(Formatting.YELLOW).withColor(0xcc302a));
+                } else {
+                    textList.add(TextHelper.concat(
+                            Text.literal("Fabled Fish Event").formatted(Formatting.YELLOW).withColor(0xcc302a),
+                            Text.literal(" at ").formatted(Formatting.WHITE),
+                            Constant.valueOfId(fabledLoc).TAG
+                    ));
+                }
                 textList.add(TextHelper.concat(
                         Text.literal("ᴛʜɪѕ ɴᴏᴛɪꜰɪᴄᴀᴛɪᴏɴ ᴡɪʟʟ ʙᴇ ᴅɪѕᴍɪѕѕᴇᴅ ɪɴ ").formatted(Formatting.GRAY),
                         Text.literal("" + seconds),

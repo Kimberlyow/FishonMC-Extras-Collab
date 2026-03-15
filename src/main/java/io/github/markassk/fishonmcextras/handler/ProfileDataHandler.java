@@ -118,9 +118,10 @@ public class ProfileDataHandler {
         }
 
         // Fabled dry streak
-        // only count while fabled event is active and player is at fabled location
-        if (EventHandler.instance().isFabledActive 
-                && BossBarHandler.instance().currentLocation.ID.equalsIgnoreCase(EventHandler.instance().fabledLocation)) {
+        // only count while fabled event is active and player is at fabled location (or any location if unknown)
+        String fabledLoc = EventHandler.instance().fabledLocation;
+        boolean atFabledLocation = fabledLoc.isEmpty() || BossBarHandler.instance().currentLocation.ID.equalsIgnoreCase(fabledLoc);
+        if (EventHandler.instance().isFabledActive && atFabledLocation) {
             this.profileData.variantDryStreak.put(Constant.FABLED,
                 this.profileData.variantDryStreak.getOrDefault(Constant.FABLED, 0) + 1);
         }
