@@ -57,6 +57,11 @@ public class ProfileDataHandler {
             profileData.variantCounts.put(Constant.ALTERNATE, 0);
         }
 
+        // Fabled Drystreak is 0 if not present, since its different to the other variants
+        if(!profileData.variantDryStreak.containsKey(Constant.FABLED)) {
+            profileData.variantDryStreak.put(Constant.FABLED, 0);
+        }
+
         if(!profileData.variantDryStreak.containsKey(Constant.ALTERNATE) || (profileData.variantDryStreak.containsKey(Constant.ALTERNATE) && profileData.variantDryStreak.get(Constant.ALTERNATE) == 0) ) {
             profileData.variantDryStreak.put(Constant.ALTERNATE, profileData.allFishCaughtCount);
         }

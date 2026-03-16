@@ -13,6 +13,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -105,7 +106,7 @@ public class StatsImportHandler {
             dummyProfileData.variantDryStreak.put(Constant.ALBINO, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.ALBINO, oldProfileData.allFishCaughtCount)), fishCaught.get()));
             dummyProfileData.variantDryStreak.put(Constant.MELANISTIC, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.MELANISTIC, oldProfileData.allFishCaughtCount)), fishCaught.get()));
             dummyProfileData.variantDryStreak.put(Constant.TROPHY, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.TROPHY, oldProfileData.allFishCaughtCount)), fishCaught.get()));
-            dummyProfileData.variantDryStreak.put(Constant.FABLED, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.FABLED, oldProfileData.allFishCaughtCount)), fishCaught.get()));
+            // Fabled Drystreak is not imported, doesnt make sense since it only counts during the Event
             dummyProfileData.variantDryStreak.put(Constant.SPOOKY, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.SPOOKY, oldProfileData.allFishCaughtCount)), fishCaught.get()));
             dummyProfileData.variantDryStreak.put(Constant.FROZEN, Math.min(fishCaught.get() - (oldProfileData.allFishCaughtCount - oldProfileData.variantDryStreak.getOrDefault(Constant.FROZEN, oldProfileData.allFishCaughtCount)), fishCaught.get()));
 
@@ -145,7 +146,15 @@ public class StatsImportHandler {
         ProfileDataHandler.instance().profileData.shardDryStreak = dummyProfileData.shardDryStreak;
         ProfileDataHandler.instance().profileData.rarityDryStreak = dummyProfileData.rarityDryStreak;
         ProfileDataHandler.instance().profileData.fishSizeDryStreak = dummyProfileData.fishSizeDryStreak;
-        ProfileDataHandler.instance().profileData.variantDryStreak = dummyProfileData.variantDryStreak;
+        
+        // Import variant drystreak but skip fabled, since its only counted up during the event
+        // At least this works
+        for (Map.Entry<Constant, Integer> entry : dummyProfileData.variantDryStreak.entrySet()) {
+            if (entry.getKey() != Constant.FABLED) {
+                ProfileDataHandler.instance().profileData.variantDryStreak.put(entry.getKey(), entry.getValue());
+            }
+        }
+        
         ProfileDataHandler.instance().profileData.isStatsInitialized = true;
     }
 
