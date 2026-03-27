@@ -8,6 +8,7 @@ import io.github.markassk.fishonmcextras.common.Theming;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.handler.*;
 import io.github.markassk.fishonmcextras.util.TextHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -104,8 +105,8 @@ public class NotificationHudHandler {
 
             // Wrong Bait Warning
             if(config.baitTracker.showBaitWarningHUD
-                    && !TackleboxHandler.instance().isLocked
-                    && FishingRodHandler.instance().isWrongBait
+                    && !FishingRodHandler.instance().isTackleboxDisabled(MinecraftClient.getInstance())
+                    && (FishingRodHandler.instance().isWrongBait || FishingRodHandler.instance().isWrongLure)
                     && FishingRodHandler.instance().fishingRod != null
                     && BossBarHandler.instance().currentLocation != Constant.CREW_ISLAND
                     && BossBarHandler.instance().currentLocation != Constant.SPAWNHUB
@@ -135,7 +136,7 @@ public class NotificationHudHandler {
             
 			// Low Bait Warning
 			if (config.baitTracker.showLowBaitWarningHUD 
-					&& !TackleboxHandler.instance().isLocked
+					&& !FishingRodHandler.instance().isTackleboxDisabled(MinecraftClient.getInstance())
 					&& FishingRodHandler.instance().fishingRod != null
 					&& !FishingRodHandler.instance().fishingRod.tacklebox.isEmpty()
 					&& BossBarHandler.instance().currentLocation != Constant.CREW_ISLAND

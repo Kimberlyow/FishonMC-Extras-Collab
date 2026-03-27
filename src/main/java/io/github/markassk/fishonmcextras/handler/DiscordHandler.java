@@ -12,8 +12,6 @@ import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.util.ExtendedRichPresence;
 import net.minecraft.client.MinecraftClient;
 
-import java.util.Objects;
-
 public class DiscordHandler {
     private static DiscordHandler INSTANCE = new DiscordHandler();
     private final FishOnMCExtrasConfig config = FishOnMCExtrasConfig.getConfig();
@@ -21,6 +19,12 @@ public class DiscordHandler {
     private RichPresence currentRichPresence;
     private long offsetTime;
     private boolean shouldConnect = true;
+    
+    // Cached values to detect changes
+    private String cachedState = "";
+    private String cachedDetails = "";
+    private int cachedLevel = -1;
+    private String cachedLocation = "";
 
     public static DiscordHandler instance() {
         if (INSTANCE == null) {
@@ -30,14 +34,43 @@ public class DiscordHandler {
     }
 
     public void tick() {
-        if(shouldConnect) {
-            RichPresence richPresence = buildPresence();
+        if(!shouldConnect) return;
+        
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client == null || client.player == null) return;
 
-            if(currentRichPresence != richPresence) {
-                currentRichPresence = richPresence;
-
-                this.processState();
-            }
+        String location = BossBarHandler.instance().currentLocation.TAG.getString();
+        String instance = TabHandler.instance().instance;
+        boolean isInstance = TabHandler.instance().isInstance;
+        boolean isVanished = StaffHandler.instance().isVanished;
+        
+        String newState;
+        if (isInstance) {
+            newState = "Fishing at: " 
+                + (isVanished ? Constant.CYPRESS_LAKE.TAG.getString() : location)
+                + " (i" + (isVanished ? "1" : instance) + ")";
+        } else {
+            newState = "At: " + location;
+        }
+        
+        int newLevel = client.player.experienceLevel;
+        String newDetails = client.player.getName().getString() + " [" + newLevel + "]";
+        
+        if (!newState.equals(cachedState) || !newDetails.equals(cachedDetails)) {
+            cachedState = newState;
+            cachedDetails = newDetails;
+            cachedLevel = newLevel;
+            cachedLocation = location;
+            
+            currentRichPresence = new ExtendedRichPresence.ExtendedBuilder()
+                    .setActivity(ActivityType.Playing)
+                    .setState(newState)
+                    .setStartTimestamp(offsetTime)
+                    .setLargeImage("small_logo")
+                    .setDetails(newDetails)
+                    .build();
+            
+            this.processState();
         }
     }
 
@@ -125,22 +158,4 @@ public class DiscordHandler {
         this.ipcClient.sendRichPresence(currentRichPresence, new Callback((success) -> {}, (error) -> FishOnMCExtras.LOGGER.error("Failed to send state to discord: {}", error)));
     }
 
-    private RichPresence buildPresence() {
-        String state = TabHandler.instance().isInstance
-                ? "Fishing at: "
-                    + (StaffHandler.instance().isVanished ? Constant.CYPRESS_LAKE.TAG.getString() : BossBarHandler.instance().currentLocation.TAG.getString())
-                    + " (i"
-                    + (StaffHandler.instance().isVanished ? "1" : TabHandler.instance().instance)
-                    + ")"
-                : "At: " + BossBarHandler.instance().currentLocation.TAG.getString();
-        ExtendedRichPresence.ExtendedBuilder presence = new ExtendedRichPresence.ExtendedBuilder()
-                .setActivity(ActivityType.Playing)
-                .setState(state)
-                .setStartTimestamp(offsetTime)
-                .setLargeImage("small_logo")
-                .setDetails(
-                        Objects.requireNonNull(MinecraftClient.getInstance().player).getName().getString()
-                                + " [" + ScoreboardHandler.instance().level + "]");
-        return presence.build();
-    }
 }

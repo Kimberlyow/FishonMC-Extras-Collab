@@ -364,6 +364,7 @@ public enum Constant {
 	OWNER("owner", Text.literal("\uF021").formatted(Formatting.WHITE), DEFAULT_COLOR),
 	COMMUNITYMANAGER("communitymanager", Text.literal("\uF088").formatted(Formatting.WHITE), DEFAULT_COLOR),
 	FOE("foe", Text.literal("\uE00B").formatted(Formatting.WHITE), 0x325330),
+	FOE_PURPLE("foe_purple", Text.literal("\uE00D").formatted(Formatting.WHITE), 0x8325A0),
 
 	// Weather Types
 	RAIN("☂", Text.literal("☂"), 0x5555FF),

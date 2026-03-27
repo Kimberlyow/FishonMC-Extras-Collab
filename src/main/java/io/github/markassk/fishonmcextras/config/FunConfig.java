@@ -8,7 +8,6 @@ public class FunConfig {
         public boolean minigameOnBobber = false;
         @ConfigEntry.Gui.Tooltip
         public boolean immersionMode = false;
-        public boolean isFoeTagPrefix = false;
         public boolean hideArmor = false;
 
         @ConfigEntry.Gui.Tooltip

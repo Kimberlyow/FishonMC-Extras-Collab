@@ -241,36 +241,11 @@ public class ArmorHandler {
             amount += 19600;
         if (rolls > 14)
             amount += 22500;
-        if (rolls > 15 && tier < 4) {
+
+        // all tiers now cost the same as t1-3 used to so this can just be simplified
+        if (rolls > 15) {
             int extraRolls = rolls - 15;
             amount = amount + extraRolls * 25000;
-            return amount;
-        }
-        if (rolls > 15)
-            amount += 25600;
-        if (rolls > 16)
-            amount += 28900;
-        if (rolls > 17)
-            amount += 32400;
-        if (rolls > 18 && tier == 4) {
-            int extraRolls = rolls - 18;
-            amount = amount + extraRolls * 32500;
-            return amount;
-        }
-        if (rolls > 18)
-            amount += 36100;
-        if (rolls > 19)
-            amount += 40000;
-        if (rolls > 20)
-            amount += 44100;
-        if (rolls > 21)
-            amount += 48400;
-        if (rolls > 22)
-            amount += 50000;
-
-        if (rolls > 23 && tier == 5) {
-            int extraRolls = rolls - 23;
-            amount = amount + extraRolls * 50000;
         }
         return amount;
     }

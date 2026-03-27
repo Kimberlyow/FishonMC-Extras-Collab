@@ -29,6 +29,10 @@ public class ItemMarkerHandler {
     private final Identifier petItemMarker = Identifier.of(FishOnMCExtras.MOD_ID, "icons/pet_item");
     private final Identifier fishSizeMarker = Identifier.of(FishOnMCExtras.MOD_ID, "icons/fish_size");
     private final Identifier selectedSlotMarker = Identifier.of(FishOnMCExtras.MOD_ID, "icons/selected_slot");
+    // for showing icons on pets with max luck/scale/perfect stats
+    private final Identifier maxLuckMarker = Identifier.of(FishOnMCExtras.MOD_ID, "icons/max_luck");
+    private final Identifier maxScaleMarker = Identifier.of(FishOnMCExtras.MOD_ID, "icons/max_scale");
+    private final Identifier maxPerfectMarker = Identifier.of(FishOnMCExtras.MOD_ID, "icons/max_perfect");
 
     public static ItemMarkerHandler instance() {
         if (INSTANCE == null) {
@@ -129,9 +133,39 @@ public class ItemMarkerHandler {
             }
         }
 
-        // Show Selected Pet
-        if (MinecraftClient.getInstance().player != null
+        // show icons on pets when they have max luck/scale/perfect stats
+        if (config.itemMarker.itemSlotMarker.showMaxPetStatsMarker) {
+            Pet pet = Pet.getPet(itemStack);
+            if (pet != null) {
+                drawContext.getMatrices().push();
+                try {
+                    drawContext.getMatrices().translate(0, 0, 290);
+                    
+                    int iconSize = 7;
+                    int iconY = y + 16 - iconSize; // bottom left corner
+                    int iconX = x;
+                    
+                    // perfect shows when both luck AND scale are maxed
+                    if (pet.isMaxLuck() && pet.isMaxScale()) {
+                        drawContext.drawGuiTexture(RenderLayer::getGuiTextured, maxPerfectMarker, iconX, iconY, iconSize, iconSize);
+                    }
+                    else if (pet.isMaxLuck()) {
+                        drawContext.drawGuiTexture(RenderLayer::getGuiTextured, maxLuckMarker, iconX, iconY, iconSize, iconSize);
+                    }
+                    else if (pet.isMaxScale()) {
+                        drawContext.drawGuiTexture(RenderLayer::getGuiTextured, maxScaleMarker, iconX, iconY, iconSize, iconSize);
+                    }
+                } finally {
+                    drawContext.getMatrices().pop();
+                }
+            }
+        }
+
+        // this config option was defined but never actually used
+        if (config.itemMarker.showSelectedPetHighlight
+                && MinecraftClient.getInstance().player != null
                 && ProfileDataHandler.instance().profileData.equippedPet != null
+                && ProfileDataHandler.instance().profileData.equippedPetSlot >= 0
                 && itemStack.equals(MinecraftClient.getInstance().player.getInventory()
                         .getStack(ProfileDataHandler.instance().profileData.equippedPetSlot))) {
             int alpha = ((int) 175f << 24);
@@ -139,7 +173,7 @@ public class ItemMarkerHandler {
             try {
                 drawContext.getMatrices().translate(0, 0, 100);
                 drawContext.drawGuiTexture(RenderLayer::getGuiTextured, selectedSlotMarker, x, y, 16, 16,
-                        alpha | 0xFFAA00);
+                        alpha | config.itemMarker.selectedPetHighlightColor);
             } finally {
                 drawContext.getMatrices().pop();
             }
@@ -199,6 +233,7 @@ public class ItemMarkerHandler {
                 && MinecraftClient.getInstance().player != null
                 && !itemStack.isEmpty()
                 && ProfileDataHandler.instance().profileData.equippedPet != null
+                && ProfileDataHandler.instance().profileData.equippedPetSlot >= 0
                 && itemStack.equals(MinecraftClient.getInstance().player.getInventory()
                         .getStack(ProfileDataHandler.instance().profileData.equippedPetSlot))) {
             int alpha = ((int) (0.6f * 255f) << 24);

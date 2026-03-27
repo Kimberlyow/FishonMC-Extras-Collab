@@ -26,18 +26,20 @@ public class Defaults {
     }
 
     public static final Map<String, FoEDevType> foeDevs = Map.of(
-            "b5a9bbb7-42b4-4a6a-9ebe-bdf6697c8ee0",  new FoEDevType(Constant.ADMIRAL.TAG.getString() + " DannyPX", "DannyPX"),
-            "4c42b880-84df-4b0b-abd6-817997c16732",  new FoEDevType(Constant.CAPTAIN.TAG.getString() + " Krokodaxl", "Krokodaxl"),
-            "afbe233b-a6b3-4a3d-88bc-2dbf157a6cf3",  new FoEDevType(Constant.ADMIRAL.TAG.getString() + " Kimberlyqt", "Kimberlyqt")
+            "b5a9bbb7-42b4-4a6a-9ebe-bdf6697c8ee0",  new FoEDevType(Constant.ADMIRAL.TAG.getString() + " DannyPX", "DannyPX", false),
+            "4c42b880-84df-4b0b-abd6-817997c16732",  new FoEDevType(Constant.CAPTAIN.TAG.getString() + " Krokodaxl", "Krokodaxl", false),
+            "afbe233b-a6b3-4a3d-88bc-2dbf157a6cf3",  new FoEDevType(Constant.ADMIRAL.TAG.getString() + " Kimberlyqt", "Kimberlyqt", true)
     );
 
     public static class FoEDevType {
         public String text;
         public String name;
+        public boolean usePurpleTag;
 
-        public FoEDevType(String text, String name) {
+        public FoEDevType(String text, String name, boolean usePurpleTag) {
             this.text = text;
             this.name = name;
+            this.usePurpleTag = usePurpleTag;
         }
     }
 }

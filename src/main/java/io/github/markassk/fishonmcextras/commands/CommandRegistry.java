@@ -48,6 +48,8 @@ public class CommandRegistry {
                 .then(command("armorvisibility").executes(Command::armorVisibility))
                 .then(command("fishcounter").executes(Command::fishCounter))
                 .then(command("drystreak").then(argument("type", DrystreakTypesArgumentType.getDrystreakTypesArgumentType()).executes(Command::dryStreak)))
+                // manual backup command
+                .then(command("backup").executes(Command::backup))
                 .then(command("friends")
                     .then(argument("type", FriendsCommandArgumentType.getFriendsCommandArgumentType())
                         .executes(Command::friends)
@@ -144,6 +146,11 @@ public class CommandRegistry {
             String type = context.getArgument("type", String.class).toLowerCase();
             List<Text> breakdown = DrystreakTypesCommandHandler.getDryStreakBreakdown(type);
             return executeCommand(context, breakdown, () -> {});
+        }
+
+        // /foe backup - creates a timestamped backup of the stats file
+        private static int backup(CommandContext<FabricClientCommandSource> context) {
+            return executeCommand(context, "Stats backup created", () -> ProfileDataHandler.instance().createBackup());
         }
 
         private static int friends(CommandContext<FabricClientCommandSource> context) {

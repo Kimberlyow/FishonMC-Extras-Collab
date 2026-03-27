@@ -5,6 +5,7 @@ import io.github.markassk.fishonmcextras.FOMC.Types.Defaults;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.handler.LoadingHandler;
 import io.github.markassk.fishonmcextras.handler.ProfileDataHandler;
+import io.github.markassk.fishonmcextras.util.TextHelper;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.MutableText;
@@ -25,14 +26,20 @@ public class PlayerListHudMixin {
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;getPlayerName(Lnet/minecraft/client/network/PlayerListEntry;)Lnet/minecraft/text/Text;"))
     private Text injectRender(PlayerListHud instance, PlayerListEntry entry) {
-        MutableText text = instance.getPlayerName(entry).copy();
+        String playerUuid = entry.getProfile().getId().toString();
+        Defaults.FoEDevType devType = Defaults.foeDevs.get(playerUuid);
 
-        if(LoadingHandler.instance().isOnServer && Defaults.foeDevs.containsKey(entry.getProfile().getId().toString())) {
-            if(config.fun.isFoeTagPrefix) {
-                text = Constant.FOE.TAG.copy().append(Text.literal(" ")).append(Text.literal(entry.getProfile().getName()).withColor(0x00AF0E));
-            } else {
-                text = text.append(Text.literal(" ").append(Constant.FOE.TAG));
+        MutableText text;
+        if(LoadingHandler.instance().isOnServer && devType != null) {
+            Text originalName = instance.getPlayerName(entry);
+            String jsonText = TextHelper.textToJson(originalName);
+            jsonText = TextHelper.replaceToFoE(jsonText, devType.usePurpleTag);
+            if (!devType.usePurpleTag) {
+                jsonText = jsonText.replace("B05BF9", "00AF0E");
             }
+            text = (MutableText) TextHelper.jsonToText(jsonText);
+        } else {
+            text = instance.getPlayerName(entry).copy();
         }
 
         if (config.friendTracker.showFriendTag && LoadingHandler.instance().isOnServer && ProfileDataHandler.instance().profileData.friends.contains(entry.getProfile().getId())) {

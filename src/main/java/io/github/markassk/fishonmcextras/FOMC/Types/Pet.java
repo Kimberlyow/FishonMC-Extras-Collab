@@ -176,6 +176,15 @@ public class Pet extends FOMCItem {
         return (climateLuck + climateScale + locationLuck + locationScale) / 4;
     }
 
+    // For showing icons on pets in inventory when they have max stats
+    public boolean isMaxLuck() {
+        return climateStat.percentLuck >= 1.0f && locationStat.percentLuck >= 1.0f;
+    }
+
+    public boolean isMaxScale() {
+        return climateStat.percentScale >= 1.0f && locationStat.percentScale >= 1.0f;
+    }
+
     public static Constant getConstantFromPercent(float value) {
         BigDecimal percent = new BigDecimal(Float.toString(value))
                 .multiply(BigDecimal.valueOf(100));

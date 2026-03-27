@@ -18,7 +18,6 @@ import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainScreen extends Screen {
     private final MinecraftClient minecraftClient;
@@ -39,17 +38,18 @@ public class MainScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        List<Text> textList = new ArrayList<>();
-        AtomicInteger count = new AtomicInteger(0);
 
-        context.drawVerticalLine(width / 2, height / 2 - 4 - 24, height / 2 + 4 + 24, 0xFFFFFFFF);
-        textList.add(Text.literal("Welcome to FishOnMC-Extras").formatted(Formatting.WHITE));
-        textList.add(TabHandler.instance().player);
-        textList.add(Text.empty());
-        textList.add(Text.literal("2.4.7").formatted(Formatting.GRAY));
-        textList.add(Text.literal("Quality of Fishing Part 2 Update").formatted(Formatting.GRAY, Formatting.ITALIC));
+        int centerX = width / 2;
+        int centerY = height / 2;
+        int lineHeight = textRenderer.fontHeight + 1;
+        int totalLines = 4;
+        int startY = centerY - (totalLines * lineHeight) / 2;
 
-        textList.forEach(text -> context.drawText(textRenderer, text, width / 2 - 4 - textRenderer.getWidth(text), height / 2 - (textList.size() * (textRenderer.fontHeight + 1)) / 2 + count.getAndIncrement() * (textRenderer.fontHeight + 1), 0xFFFFFF, true));
+        context.drawVerticalLine(centerX, centerY - 28, centerY + 28, 0xFFFFFFFF);
+
+        context.drawText(textRenderer, Text.literal("Welcome to FishOnMC-Extras"), centerX - 4 - textRenderer.getWidth("Welcome to FishOnMC-Extras"), startY, 0xFFFFFF, true);
+        context.drawText(textRenderer, TabHandler.instance().player, centerX - 4 - textRenderer.getWidth(TabHandler.instance().player), startY + lineHeight, 0xFFFFFF, true);
+        context.drawText(textRenderer, Text.literal(ConfigConstants.MOD_VERSION), centerX - 4 - textRenderer.getWidth(ConfigConstants.MOD_VERSION), startY + lineHeight * 3, 0xAAAAAA, true);
     }
 
     private void renderWidgets() {

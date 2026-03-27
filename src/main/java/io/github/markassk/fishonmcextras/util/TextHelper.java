@@ -122,16 +122,21 @@ public class TextHelper {
     }
 
     public static String replaceToFoE(String text) {
+        return replaceToFoE(text, false);
+    }
+
+    public static String replaceToFoE(String text, boolean usePurple) {
+        Constant foeTag = usePurple ? Constant.FOE_PURPLE : Constant.FOE;
         if (text.contains(Constant.ANGLER.TAG.getString()))
-            text = text.replace(Constant.ANGLER.TAG.getString(), Constant.FOE.TAG.getString());
+            text = text.replace(Constant.ANGLER.TAG.getString(), foeTag.TAG.getString());
         if (text.contains(Constant.SAILOR.TAG.getString()))
-            text = text.replace(Constant.SAILOR.TAG.getString(), Constant.FOE.TAG.getString());
+            text = text.replace(Constant.SAILOR.TAG.getString(), foeTag.TAG.getString());
         if (text.contains(Constant.MARINER.TAG.getString()))
-            text = text.replace(Constant.MARINER.TAG.getString(), Constant.FOE.TAG.getString());
+            text = text.replace(Constant.MARINER.TAG.getString(), foeTag.TAG.getString());
         if (text.contains(Constant.CAPTAIN.TAG.getString()))
-            text = text.replace(Constant.CAPTAIN.TAG.getString(), Constant.FOE.TAG.getString());
+            text = text.replace(Constant.CAPTAIN.TAG.getString(), foeTag.TAG.getString());
         if (text.contains(Constant.ADMIRAL.TAG.getString()))
-            text = text.replace(Constant.ADMIRAL.TAG.getString(), Constant.FOE.TAG.getString());
+            text = text.replace(Constant.ADMIRAL.TAG.getString(), foeTag.TAG.getString());
         return text;
     }
 

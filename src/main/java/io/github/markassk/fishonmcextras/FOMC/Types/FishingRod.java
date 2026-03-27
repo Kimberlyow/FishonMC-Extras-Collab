@@ -75,6 +75,32 @@ public class FishingRod extends FOMCItem {
         } else this.reel = null;
     }
 
+    public static Constant getFirstBaitWaterType(NbtCompound rodNbt) {
+        if (!(rodNbt.get("tacklebox") instanceof NbtList nbtList) || nbtList.isEmpty()) {
+            return null;
+        }
+        if (!(nbtList.getFirst() instanceof NbtCompound firstItem)) {
+            return null;
+        }
+        NbtCompound components = firstItem.getCompound("components");
+        if (components == null) {
+            return null;
+        }
+        NbtCompound customData = components.getCompound("minecraft:custom_data");
+        if (customData == null) {
+            return null;
+        }
+        String type = customData.getString("type");
+        if (!"bait".equals(type) && !"lure".equals(type)) {
+            return null;
+        }
+        String waterStr = customData.getString("water");
+        if (waterStr == null || waterStr.isEmpty()) {
+            return Constant.ANY_WATER;
+        }
+        return Constant.valueOfId(waterStr);
+    }
+
     public static FishingRod getFishingRod(ItemStack itemStack, String type, String name) {
         return new FishingRod(Objects.requireNonNull(ItemStackHelper.getNbt(itemStack)), type, itemStack.get(DataComponentTypes.CUSTOM_MODEL_DATA), name);
     }
@@ -88,5 +114,12 @@ public class FishingRod extends FOMCItem {
             }
         }
         return null;
+    }
+
+    public static boolean isTackleboxDisabled(ItemStack itemStack) {
+        if (itemStack == null || itemStack.isEmpty()) return false;
+        NbtCompound nbt = ItemStackHelper.getNbt(itemStack);
+        if (nbt == null) return false;
+        return nbt.getInt("disableBait") == 1;
     }
 }

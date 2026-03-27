@@ -202,6 +202,34 @@ public class ProfileDataHandler {
         }
     }
 
+    // Backups so people like Aidan dont lose all their stats when something goes wrong
+    public boolean createBackup() {
+        try {
+            if (playerUUID != null && MinecraftClient.getInstance().player != null && Objects.equals(playerUUID, MinecraftClient.getInstance().player.getUuid())) {
+                Path configDir = FabricLoader.getInstance().getConfigDir();
+                Path subDir = configDir.resolve("foe");
+                Path statsDir = subDir.resolve("stats");
+                Path backupDir = statsDir.resolve("backups");
+                Files.createDirectories(backupDir);
+                
+                Path sourceFile = statsDir.resolve(playerUUID.toString() + ".json");
+                if (!Files.exists(sourceFile)) {
+                    return false;
+                }
+                
+                String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+                Path backupFile = backupDir.resolve(playerUUID.toString() + "_" + timestamp + ".json");
+                
+                Files.copy(sourceFile, backupFile);
+                FishOnMCExtras.LOGGER.info("[FoE] Created stats backup: {}", backupFile.getFileName());
+                return true;
+            }
+        } catch (IOException e) {
+            FishOnMCExtras.LOGGER.error("Failed to create stats backup: {}", e.getMessage());
+        }
+        return false;
+    }
+
     /**
      * Load Stats from disk
      */
@@ -398,9 +426,6 @@ public class ProfileDataHandler {
         // Bait Sorting Helper Toggle
         public boolean baitSortingHelperToggle = false;
 
-        // Tacklebox Locked State
-        public boolean tackleboxLocked = false;
-
         // Stats Data
         public boolean isStatsInitialized = false;
 
@@ -447,7 +472,6 @@ public class ProfileDataHandler {
             activeQuests = new HashMap<>(prevData.activeQuests);
             lockedArmorRolls = new HashMap<>(prevData.lockedArmorRolls);
             baitSortingHelperToggle = prevData.baitSortingHelperToggle;
-            tackleboxLocked = prevData.tackleboxLocked;
             isStatsInitialized = prevData.isStatsInitialized;
         }
 
@@ -493,8 +517,7 @@ public class ProfileDataHandler {
                     && this.isInCrewChat == oldProfileData.isInCrewChat
                     && this.friends.equals(oldProfileData.friends)
                     && this.activeQuests.equals(oldProfileData.activeQuests)
-                    && this.baitSortingHelperToggle == oldProfileData.baitSortingHelperToggle
-                    && this.tackleboxLocked == oldProfileData.tackleboxLocked;
+                    && this.baitSortingHelperToggle == oldProfileData.baitSortingHelperToggle;
         }
     }
 }

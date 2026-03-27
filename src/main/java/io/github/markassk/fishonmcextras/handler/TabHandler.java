@@ -69,11 +69,13 @@ public class TabHandler {
                         Text displayName = player.getDisplayName();
                         if (displayName != null
                                 && Defaults.foeDevs.containsKey(player.getProfile().getId().toString())) {
-                            if (config.fun.isFoeTagPrefix) {
+                            Defaults.FoEDevType devType = Defaults.foeDevs.get(player.getProfile().getId().toString());
+                            if (devType.usePurpleTag) {
+                                displayName = Constant.FOE_PURPLE.TAG.copy()
+                                        .append(Text.literal(" " + player.getProfile().getName()));
+                            } else {
                                 displayName = Constant.FOE.TAG.copy()
                                         .append(Text.literal(" " + player.getProfile().getName()).withColor(0x00AF0E));
-                            } else {
-                                displayName = displayName.copy().append(Text.literal(" ").append(Constant.FOE.TAG));
                             }
                         }
                         if (ProfileDataHandler.instance().profileData.crewMembers
@@ -98,11 +100,13 @@ public class TabHandler {
                         Text displayName = player.getDisplayName();
                         if (displayName != null
                                 && Defaults.foeDevs.containsKey(player.getProfile().getId().toString())) {
-                            if (config.fun.isFoeTagPrefix) {
+                            Defaults.FoEDevType devType = Defaults.foeDevs.get(player.getProfile().getId().toString());
+                            if (devType.usePurpleTag) {
+                                displayName = Constant.FOE_PURPLE.TAG.copy()
+                                        .append(Text.literal(" " + player.getProfile().getName()));
+                            } else {
                                 displayName = Constant.FOE.TAG.copy()
                                         .append(Text.literal(" " + player.getProfile().getName()).withColor(0x00AF0E));
-                            } else {
-                                displayName = displayName.copy().append(Text.literal(" ").append(Constant.FOE.TAG));
                             }
                         }
                         if (ProfileDataHandler.instance().profileData.crewMembers
@@ -131,11 +135,13 @@ public class TabHandler {
                         Text displayName = player.getDisplayName();
                         if (displayName != null
                                 && Defaults.foeDevs.containsKey(player.getProfile().getId().toString())) {
-                            if (config.fun.isFoeTagPrefix) {
+                            Defaults.FoEDevType devType = Defaults.foeDevs.get(player.getProfile().getId().toString());
+                            if (devType.usePurpleTag) {
+                                displayName = Constant.FOE_PURPLE.TAG.copy()
+                                        .append(Text.literal(" " + player.getProfile().getName()));
+                            } else {
                                 displayName = Constant.FOE.TAG.copy()
                                         .append(Text.literal(" " + player.getProfile().getName()).withColor(0x00AF0E));
-                            } else {
-                                displayName = displayName.copy().append(Text.literal(" ").append(Constant.FOE.TAG));
                             }
                         }
                         if (ProfileDataHandler.instance().profileData.friends
@@ -160,11 +166,13 @@ public class TabHandler {
                         Text displayName = player.getDisplayName();
                         if (displayName != null
                                 && Defaults.foeDevs.containsKey(player.getProfile().getId().toString())) {
-                            if (config.fun.isFoeTagPrefix) {
+                            Defaults.FoEDevType devType = Defaults.foeDevs.get(player.getProfile().getId().toString());
+                            if (devType.usePurpleTag) {
+                                displayName = Constant.FOE_PURPLE.TAG.copy()
+                                        .append(Text.literal(" " + player.getProfile().getName()));
+                            } else {
                                 displayName = Constant.FOE.TAG.copy()
                                         .append(Text.literal(" " + player.getProfile().getName()).withColor(0x00AF0E));
-                            } else {
-                                displayName = displayName.copy().append(Text.literal(" ").append(Constant.FOE.TAG));
                             }
                         }
                         if (ProfileDataHandler.instance().profileData.friends
