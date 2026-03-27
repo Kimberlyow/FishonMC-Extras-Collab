@@ -20,6 +20,13 @@
       "ascent":7,
       "height":7,
       "chars":["\uE00C"]
+    },
+    {
+      "type":"bitmap",
+      "file":"minecraft:font/foe_purple.png",
+      "ascent":7,
+      "height":7,
+      "chars":["\uE00D"]
     }
   ]
 }

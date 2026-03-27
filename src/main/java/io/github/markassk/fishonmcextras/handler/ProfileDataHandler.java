@@ -57,13 +57,17 @@ public class ProfileDataHandler {
             profileData.variantCounts.put(Constant.ALTERNATE, 0);
         }
 
+        // Fabled Drystreak is 0 if not present, since its different to the other variants
+        if(!profileData.variantDryStreak.containsKey(Constant.FABLED)) {
+            profileData.variantDryStreak.put(Constant.FABLED, 0);
+        }
+
         if(!profileData.variantDryStreak.containsKey(Constant.ALTERNATE) || (profileData.variantDryStreak.containsKey(Constant.ALTERNATE) && profileData.variantDryStreak.get(Constant.ALTERNATE) == 0) ) {
             profileData.variantDryStreak.put(Constant.ALTERNATE, profileData.allFishCaughtCount);
         }
     }
 
     public void onJoinServer(PlayerEntity player) {
-        EventHandler.instance().isFabledActive = false;
         ProfileDataHandler.instance().playerUUID = player.getUuid();
         ProfileDataHandler.instance().loadStats();
     }
@@ -119,9 +123,10 @@ public class ProfileDataHandler {
         }
 
         // Fabled dry streak
-        // only count while fabled event is active and player is at fabled location
-        if (EventHandler.instance().isFabledActive 
-                && BossBarHandler.instance().currentLocation.ID.equals(EventHandler.instance().fabledLocation)) {
+        // only count while fabled event is active and player is at fabled location (or any location if unknown)
+        String fabledLoc = EventHandler.instance().fabledLocation;
+        boolean atFabledLocation = fabledLoc.isEmpty() || BossBarHandler.instance().currentLocation.ID.equalsIgnoreCase(fabledLoc);
+        if (EventHandler.instance().isFabledActive && atFabledLocation) {
             this.profileData.variantDryStreak.put(Constant.FABLED,
                 this.profileData.variantDryStreak.getOrDefault(Constant.FABLED, 0) + 1);
         }
@@ -195,6 +200,34 @@ public class ProfileDataHandler {
         } catch (IOException e) {
             FishOnMCExtras.LOGGER.error(e.getMessage());
         }
+    }
+
+    // Backups so people like Aidan dont lose all their stats when something goes wrong
+    public boolean createBackup() {
+        try {
+            if (playerUUID != null && MinecraftClient.getInstance().player != null && Objects.equals(playerUUID, MinecraftClient.getInstance().player.getUuid())) {
+                Path configDir = FabricLoader.getInstance().getConfigDir();
+                Path subDir = configDir.resolve("foe");
+                Path statsDir = subDir.resolve("stats");
+                Path backupDir = statsDir.resolve("backups");
+                Files.createDirectories(backupDir);
+                
+                Path sourceFile = statsDir.resolve(playerUUID.toString() + ".json");
+                if (!Files.exists(sourceFile)) {
+                    return false;
+                }
+                
+                String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+                Path backupFile = backupDir.resolve(playerUUID.toString() + "_" + timestamp + ".json");
+                
+                Files.copy(sourceFile, backupFile);
+                FishOnMCExtras.LOGGER.info("[FoE] Created stats backup: {}", backupFile.getFileName());
+                return true;
+            }
+        } catch (IOException e) {
+            FishOnMCExtras.LOGGER.error("Failed to create stats backup: {}", e.getMessage());
+        }
+        return false;
     }
 
     /**
@@ -393,9 +426,6 @@ public class ProfileDataHandler {
         // Bait Sorting Helper Toggle
         public boolean baitSortingHelperToggle = false;
 
-        // Tacklebox Locked State
-        public boolean tackleboxLocked = false;
-
         // Stats Data
         public boolean isStatsInitialized = false;
 
@@ -442,7 +472,6 @@ public class ProfileDataHandler {
             activeQuests = new HashMap<>(prevData.activeQuests);
             lockedArmorRolls = new HashMap<>(prevData.lockedArmorRolls);
             baitSortingHelperToggle = prevData.baitSortingHelperToggle;
-            tackleboxLocked = prevData.tackleboxLocked;
             isStatsInitialized = prevData.isStatsInitialized;
         }
 
@@ -488,8 +517,7 @@ public class ProfileDataHandler {
                     && this.isInCrewChat == oldProfileData.isInCrewChat
                     && this.friends.equals(oldProfileData.friends)
                     && this.activeQuests.equals(oldProfileData.activeQuests)
-                    && this.baitSortingHelperToggle == oldProfileData.baitSortingHelperToggle
-                    && this.tackleboxLocked == oldProfileData.tackleboxLocked;
+                    && this.baitSortingHelperToggle == oldProfileData.baitSortingHelperToggle;
         }
     }
 }

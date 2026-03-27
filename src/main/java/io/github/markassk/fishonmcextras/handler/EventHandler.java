@@ -61,11 +61,16 @@ public class EventHandler {
                 if ((textString.startsWith("Visit the ") && textString.contains(" to")) || 
                     textString.startsWith("FABLED » A Fabled Event is active at ")) {
                         
+                        String locationName;
                         if (textString.startsWith("Visit the ")) {
-                                fabledLocation = textString.substring(textString.indexOf("Visit the ") + 10, textString.lastIndexOf(" "));
+                                locationName = textString.substring(textString.indexOf("Visit the ") + 10, textString.lastIndexOf(" "));
                         } else {
-                                fabledLocation = textString.substring(textString.indexOf("at ") + 3).trim();
+                                locationName = textString.substring(textString.indexOf("at ") + 3).trim();
                         }
+                        
+                        // convert chat name to bossbar value, otherwise leave empty (matches any location as failsafe)
+                        Constant location = Constant.valueOfTag(locationName);
+                        fabledLocation = (location != Constant.DEFAULT) ? location.ID : "";
                         
                         isFabledActive = true;
                         fabledEventAlertTime = System.currentTimeMillis();
@@ -74,7 +79,7 @@ public class EventHandler {
                                                 config.eventTracker.otherEventOptions.fabledOptions.alertSoundType,
                                                 MinecraftClient.getInstance());
                         }
-                        FishOnMCExtras.LOGGER.info("[FoE] Fabled event started at {}", fabledLocation);
+                        FishOnMCExtras.LOGGER.info("[FoE] Fabled event started at {}", fabledLocation.isEmpty() ? "any location" : fabledLocation);
                         return;
                 }
         }

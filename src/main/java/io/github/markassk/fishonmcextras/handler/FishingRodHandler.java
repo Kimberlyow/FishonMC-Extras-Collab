@@ -7,6 +7,7 @@ import io.github.markassk.fishonmcextras.FOMC.Types.FishingRod;
 import io.github.markassk.fishonmcextras.FOMC.Types.Lure;
 import io.github.markassk.fishonmcextras.config.FishOnMCExtrasConfig;
 import io.github.markassk.fishonmcextras.mixin.InGameHudAccessor;
+import io.github.markassk.fishonmcextras.util.ItemStackHelper;
 import io.github.markassk.fishonmcextras.util.TextHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -22,6 +23,7 @@ import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.ModelTransformationMode;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
@@ -71,8 +73,17 @@ public class FishingRodHandler {
         }
 
         if(this.fishingRod != null) {
-            if(!this.fishingRod.tacklebox.isEmpty()) {
-                // Bait
+            NbtCompound rodNbt = ItemStackHelper.getNbt(this.fishingRodStack);
+            Constant baitWaterType = rodNbt != null ? FishingRod.getFirstBaitWaterType(rodNbt) : null;
+            
+            if(baitWaterType != null && baitWaterType != Constant.ANY_WATER) {
+                Constant locationWater = LocationInfo.valueOfId(BossBarHandler.instance().currentLocation.ID).WATER;
+                this.isWrongBait = baitWaterType != locationWater;
+                this.isWrongLure = false;
+            } else if(this.fishingRod.tacklebox.isEmpty()) {
+                this.isWrongBait = false;
+                this.isWrongLure = false;
+            } else {
                 if(this.fishingRod.tacklebox.getFirst() instanceof Bait bait && bait.water != Constant.ANY_WATER) {
                     this.isWrongBait = bait.water != LocationInfo.valueOfId(BossBarHandler.instance().currentLocation.ID).WATER;
                 } else if (this.fishingRod.tacklebox.getFirst() instanceof Lure lure && lure.water != Constant.ANY_WATER) {
@@ -81,9 +92,6 @@ public class FishingRodHandler {
                     this.isWrongBait = false;
                     this.isWrongLure = false;
                 }
-            } else {
-                this.isWrongBait = false;
-                this.isWrongLure = false;
             }
 
             if(this.fishingRod.reel != null && this.fishingRod.reel.water != Constant.GLOBAL_WATER) {
@@ -123,6 +131,19 @@ public class FishingRodHandler {
             }
             baitDisplay.remove(id);
         });
+    }
+
+    public boolean isTackleboxDisabled(MinecraftClient client) {
+        if (client.player == null) return false;
+        ItemStack rodStack = fishingRodStack;
+        if (rodStack == null || rodStack.isEmpty()) {
+            rodStack = client.player.getInventory().main.stream()
+                    .filter(stack -> !stack.isEmpty() && stack.getItem() == Items.FISHING_ROD && FishingRod.getFishingRod(stack) != null)
+                    .findFirst()
+                    .orElse(null);
+        }
+        if (rodStack == null) return false;
+        return FishingRod.isTackleboxDisabled(rodStack);
     }
 
     public void tickEntities(Entity entity, MinecraftClient minecraftClient) {
@@ -176,26 +197,37 @@ public class FishingRodHandler {
             }
 
             // Bait Display
-            if(config.bobberTracker.showBait && !TackleboxHandler.instance().isLocked && player != null && !baitDisplay.containsKey(entity.getId())) {
-                ItemStack itemStack = player.getMainHandStack();
-                FishingRod rod = FishingRod.getFishingRod(itemStack);
-                if(rod != null && !rod.tacklebox.isEmpty()) {
-                    if (minecraftClient.world == null || minecraftClient.player == null) return;
-                    DisplayEntity.ItemDisplayEntity itemDisplayEntity = Objects.requireNonNull(EntityType.ITEM_DISPLAY.create(minecraftClient.world, SpawnReason.TRIGGERED));
-                    minecraftClient.world.addEntity(itemDisplayEntity);
+            if (player == null) return;
+            ItemStack rodStack = player.getMainHandStack();
+            boolean isOwnBobber = minecraftClient.player != null && Objects.equals(minecraftClient.player.getUuid(), player.getUuid());
 
-                    baitDisplay.put(entity.getId(), itemDisplayEntity.getId());
+            if (!isOwnBobber && FishingRod.isTackleboxDisabled(rodStack)) {
+                return;
+            }
 
-                    ItemStack baitStack = Items.COOKED_COD.getDefaultStack().copy();
-                    baitStack.set(DataComponentTypes.CUSTOM_MODEL_DATA, rod.tacklebox.getFirst() instanceof Bait bait ?
-                            bait.customModelData : rod.tacklebox.getFirst() instanceof Lure lure ? lure.customModelData : CustomModelDataComponent.DEFAULT);
+            FishingRod rod = FishingRod.getFishingRod(rodStack);
+            if (rod == null && isOwnBobber) {
+                rodStack = fishingRodStack;
+                rod = this.fishingRod;
+            }
+            if (rod == null) return;
+            
+            if(config.bobberTracker.showBait && !rod.tacklebox.isEmpty() && !this.isTackleboxDisabled(minecraftClient) && !baitDisplay.containsKey(entity.getId())) {
+                if (minecraftClient.world == null || minecraftClient.player == null) return;
+                DisplayEntity.ItemDisplayEntity itemDisplayEntity = Objects.requireNonNull(EntityType.ITEM_DISPLAY.create(minecraftClient.world, SpawnReason.TRIGGERED));
+                minecraftClient.world.addEntity(itemDisplayEntity);
 
-                    itemDisplayEntity.setItemStack(baitStack);
-                    itemDisplayEntity.setPosition(entity.getPos().add(0, -0.32, 0));
-                    itemDisplayEntity.setBillboardMode(DisplayEntity.BillboardMode.VERTICAL);
-                    itemDisplayEntity.setTransformationMode(ModelTransformationMode.GROUND);
-                    itemDisplayEntity.setTransformation(new AffineTransformation(null, null, new Vector3f(0.75f, 0.75f, 0.75f), null));
-                }
+                baitDisplay.put(entity.getId(), itemDisplayEntity.getId());
+
+                ItemStack baitStack = Items.COOKED_COD.getDefaultStack().copy();
+                baitStack.set(DataComponentTypes.CUSTOM_MODEL_DATA, rod.tacklebox.getFirst() instanceof Bait bait ?
+                        bait.customModelData : rod.tacklebox.getFirst() instanceof Lure lure ? lure.customModelData : CustomModelDataComponent.DEFAULT);
+
+                itemDisplayEntity.setItemStack(baitStack);
+                itemDisplayEntity.setPosition(entity.getPos().add(0, -0.32, 0));
+                itemDisplayEntity.setBillboardMode(DisplayEntity.BillboardMode.VERTICAL);
+                itemDisplayEntity.setTransformationMode(ModelTransformationMode.GROUND);
+                itemDisplayEntity.setTransformation(new AffineTransformation(null, null, new Vector3f(0.75f, 0.75f, 0.75f), null));
             }
         }
     }

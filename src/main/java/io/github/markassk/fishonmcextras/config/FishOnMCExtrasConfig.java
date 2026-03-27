@@ -137,6 +137,11 @@ public class FishOnMCExtrasConfig implements ConfigData {
     @ConfigEntry.Category(value = OTHER)
     @ConfigEntry.Gui.CollapsibleObject
     public BaitSortingHelperConfig.BaitSortingHelperVisibility baitSortingHelperVisibility = new BaitSortingHelperConfig.BaitSortingHelperVisibility();
+
+    // backup stuff
+    @ConfigEntry.Category(value = OTHER)
+    @ConfigEntry.Gui.CollapsibleObject
+    public StatsBackupConfig.StatsBackup statsBackup = new StatsBackupConfig.StatsBackup();
     //endregion
 
     //region Cosmetic

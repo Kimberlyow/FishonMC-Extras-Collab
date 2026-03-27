@@ -248,13 +248,20 @@ public class OtherPlayerHandler {
         // Nameplate FoE
         if(entity instanceof DisplayEntity.TextDisplayEntity textDisplayEntity
                 && textDisplayEntity.getText().getString().contains("\uF064")
-                && Defaults.foeDevs.values().stream().anyMatch(foEDevType -> textDisplayEntity.getText().getString().contains(foEDevType.name))
         ) {
-            String jsonText = TextHelper.textToJson(textDisplayEntity.getText());
-            if(config.fun.isFoeTagPrefix) {
-                jsonText = TextHelper.replaceToFoE(jsonText);
+            Defaults.FoEDevType senderDev = Defaults.foeDevs.values().stream()
+                    .filter(foEDevType -> textDisplayEntity.getText().getString().contains(foEDevType.name))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (senderDev != null) {
+                String jsonText = TextHelper.textToJson(textDisplayEntity.getText());
+                jsonText = TextHelper.replaceToFoE(jsonText, senderDev.usePurpleTag);
+                if (!senderDev.usePurpleTag) {
+                    jsonText = jsonText.replace("B05BF9", "00AF0E");
+                }
+                textDisplayEntity.setText(TextHelper.jsonToText(jsonText));
             }
-            textDisplayEntity.setText(TextHelper.jsonToText(jsonText));
         }
     }
 }

@@ -372,6 +372,7 @@
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showOtherRarityMarker": "Show Rarity Marker on other items",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showPetPercentMarker": "Show Pet Percent Marker on pets",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showPetItemEquippedMarker": "Show Equipped Pet Item Marker",
+  "text.autoconfig.fishonmcextras.option.itemMarker.itemSlotMarker.showMaxPetStatsMarker": "Show Max Luck/Scale/Perfect Marker",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSearchMarker": "§f§lHighlight Markers",
   "text.autoconfig.fishonmcextras.option.itemMarker.itemSearchMarker.searchHighlightColor": "Background color when items are highlighted in search",
   "text.autoconfig.fishonmcextras.option.itemMarker.showSelectedPetHighlight": "Show highlight on equipped pet",
@@ -398,6 +399,10 @@
 
   "text.autoconfig.fishonmcextras.option.baitSortingHelperVisibility": "§f§lBait Sorting Helper Options",
   "text.autoconfig.fishonmcextras.option.baitSortingHelperVisibility.showOnlyWhilePressingKeybind": "Only show while holding the keybind",
+
+  "text.autoconfig.fishonmcextras.option.statsBackup": "§f§lStats Backup Options",
+  "text.autoconfig.fishonmcextras.option.statsBackup.backupOnServerJoin": "Auto backup on server join",
+  "text.autoconfig.fishonmcextras.option.statsBackup.backupOnServerJoin.@Tooltip": "Automatically create a backup of your stats file when joining the server.",
 
   "text.autoconfig.fishonmcextras.option.theme": "§f§lTheme Options",
   "text.autoconfig.fishonmcextras.option.theme.themeType": "Change Theme",
@@ -438,8 +443,6 @@
   "text.autoconfig.fishonmcextras.option.fun.minigameOnBobber.@Tooltip": "§cThis will §cdisable§7 minigame on your hud",
   "text.autoconfig.fishonmcextras.option.fun.immersionMode": "Immersion mode",
   "text.autoconfig.fishonmcextras.option.fun.immersionMode.@Tooltip": "§7When this is on, every hud element is off except Notifications and chat",
-  "text.autoconfig.fishonmcextras.option.fun.isFoeTagPrefix": "Show FoE tag as a prefix",
-  "text.autoconfig.fishonmcextras.option.fun.isFoeTagPrefix.@Tooltip": "§7If §cdisabled§7, it will show as a suffix in tab",
   "text.autoconfig.fishonmcextras.option.fun.hideArmor": "Toggle armor visibility",
   "text.autoconfig.fishonmcextras.option.fun.biteBobber": "Show bite notification on bobber instead",
   "text.autoconfig.fishonmcextras.option.fun.biteBobber.@Tooltip": "§7This will §cdisable§7 the bite notification from the HUD",

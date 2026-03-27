@@ -105,7 +105,6 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                     PlayerStatusHandler.instance().tick(minecraftClient);
                     TimerHandler.instance().tick();
                     EventHandler.instance().onEventTick();
-                    TackleboxHandler.instance().onScreenOpen(minecraftClient);
                 }
             }
         }
@@ -125,8 +124,11 @@ public class FishOnMCExtrasClient implements ClientModInitializer {
                 minecraftClient.execute(() -> {
                     if (minecraftClient.player != null) {
                         ProfileDataHandler.instance().onJoinServer(minecraftClient.player);
+                        // Auto backup when player joins
+                        if (CONFIG.statsBackup.backupOnServerJoin) {
+                            ProfileDataHandler.instance().createBackup();
+                        }
                         BaitSortingHelperHandler.instance().loadFromProfile();
-                        TackleboxHandler.instance().loadFromProfile();
                         FishCatchHandler.instance().onJoinServer();
                         CrewHandler.instance().onJoinServer();
                         DiscordHandler.instance().connect();
